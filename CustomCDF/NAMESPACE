@@ -1,0 +1,6 @@
+useDynLib("CustomCDF")
+import(Biobase)
+import(affy)
+exportPattern("^[^\\.]")
+exportMethods(createcdfenv, removeprobe, read.affybatch.hybrid)
+

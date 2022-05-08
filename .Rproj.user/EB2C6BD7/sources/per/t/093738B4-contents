@@ -1,0 +1,92 @@
+#
+# 
+# Author: Ian Dirk Fichtner
+# Email: ifichtner@protonmail.com
+# Date: 12.08.2021
+# R Course Tumoour Envirnoment @ Dr. Dinkelacker
+# Exercise 2
+#
+#
+
+# Import libraries
+
+library("tidyverse")
+library("ggpubr")
+
+# Read table
+
+table= read.csv(file="../../Raw-Data/ensembl_human_104.csv")
+
+# Create column filtered table
+
+new_table=data.frame(
+  cbind(
+  geneID = table$Gene.stable.ID,
+  transID = table$Transcript.stable.ID,
+  trans_name = table$Transcript.name,
+  symbol = table$HGNC.symbol,
+  chrom = table$Chromosome.scaffold.name,
+  descr = table$Gene.description
+  )
+  )
+
+# Extract IL gene rows: filter rows by chromosome name
+
+table_IL <- new_table %>% filter(grepl("^IL\\d+",symbol))
+table_IL <- table_IL %>% filter(substr(chrom,1,2) != "HG")
+
+# Factor chrom column to enable sorting
+
+table_IL$chrom <- factor(
+  table_IL$chrom,
+  levels=c(1:22, "X", "Y"),
+  ordered = T
+  )
+
+# Sort chrom column
+
+table_IL <- table_IL[order(table_IL$chrom), ]
+
+# Generate plots 
+
+# Figure 1: geom_bar
+
+fig1 <- ggplot(table_IL) +
+  geom_bar(aes(chrom), fill=rainbow(22)) +
+  scale_x_discrete("Chromosome", expand = expansion(add = c(1, 1))) +
+  scale_y_continuous("Number of IL-genes") +
+  labs(title = "IL-genes per chromosome")
+
+# Figure 2: geom_count
+
+fig2 <- ggplot(table_IL) +
+  geom_count(aes(symbol, chrom), colour=rainbow(96)) +
+  scale_x_discrete("Gene HGNC symbol", breaks = function(x){x[c(TRUE, FALSE)]}) +
+  scale_y_discrete("Chromosome") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(
+    title = "IL-genes chromosome position",
+    caption = "Some HGNC symbols were omitted due to crowding"
+    )
+  
+
+# Create arranged figure
+
+fig <- ggarrange(fig1, fig2,
+                 labels = c("A", "B"),
+                 ncol = 1, nrow = 2)
+
+# Save figure
+
+pdf("../../Plots/exercise_2_Ensembl_Il_genes.pdf", height=8, width = 10)
+print(fig)
+dev.off()
+
+
+
+
+##### Save data #####
+
+write.csv(table_IL, file="../../Tables/exercise_2_table_ILgenes.csv")
+
+save.image("../RDA-Files/exercise_2.rda")

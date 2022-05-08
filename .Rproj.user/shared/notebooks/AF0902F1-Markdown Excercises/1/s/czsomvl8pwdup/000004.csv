@@ -1,0 +1,3 @@
+"0","table_IL= new_table %>% filter(grepl(""^IL\\d+"",symbol))"
+"0","table_IL=table_IL %>% filter(substr(chrom,1,2) != ""HG"")"
+"0","#substr() function extrahiert "

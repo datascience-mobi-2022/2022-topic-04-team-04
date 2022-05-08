@@ -1,0 +1,5 @@
+"0","table_IL$chrom <- factor("
+"0","  table_IL$chrom,"
+"0","  levels=c(1:22, ""X"", ""Y""),"
+"0","  ordered = T"
+"0","  )"

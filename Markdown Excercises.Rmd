@@ -1,0 +1,87 @@
+---
+title: "Excercise Dinkelacker"
+author: "Mariam"
+date: "5/8/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Download package tidyverse und ggpubr
+```{r}
+library("tidyverse")
+library("ggpubr")
+````
+Go to ensamble and select a human data to export. You can choose the characterics to download 
+we downloaded ians,it includes: Gene Stable ID, Transcript stable id, Transcript name, HGNC Symbol, Chromosome scaffold name, Gene description 
+You use function read.csv to transform data set into a table where (bzw. Data frame)
+```{r}
+table= read.csv(file = "/Users/mariamhassan/Library/CloudStorage/OneDrive-bwedu/4.Fachsemester/2022-topic-04-team-04/project/rawdata/mart_export.txt")
+````
+cbind function:cbind() function in R Language is used to combine specified Vector, Matrix or Data Frame by columns
+```{r}
+new_table= data.frame(
+  cbind(
+    geneID = table$Gene.stable.ID,
+  transID = table$Transcript.stable.ID,
+  trans_name = table$Transcript.name,
+  symbol = table$HGNC.symbol,
+  chrom = table$Chromosome.scaffold.name,
+  descr = table$Gene.description
+  )
+)
+#muss aber sagen diese funktion macht nichts in unseren fall also kann man sparen
+````
+
+Extract IL from table into a new data frame
+we use a new function `%>%´dieses extrahiert bestimmte rows 
+--> same as nesting 
+```{r}
+table_IL= new_table %>% filter(grepl("^IL\\d+",symbol))
+table_IL=table_IL %>% filter(substr(chrom,1,2) != "HG")
+#Substring() function in R is widely used to either extract the characters present in the data or to manipulate the data. You can easily extract the required characters from a string and also replace the values in a string
+#link:https://www.journaldev.com/43068/substring-function-in-r
+````
+Factor
+Factor in R is a variable used to categorize and store the data, having a limited number of different values. It stores the data as a vector of integer values. Factor in R is also known as a categorical variable that stores both string and integer data values as levels
+```{r}
+table_IL$chrom <- factor(
+  table_IL$chrom,
+  levels=c(1:22, "X", "Y"),
+  ordered = T
+  )
+#hier wurde ein neue "data frame" gebildet die in der chrom. Spalte nur 1:22, x und Y enthält, deshalb sieht man ein NA bei CH...
+````
+Sort the chrom 
+```{r}
+table_IL <- table_IL[order(table_IL$chrom), ]
+#hier wurde die chrom spalte der reihe nach also 1,2,3 usw. geordnet 
+````
+Geom_bar
+```{r}
+fig1 <- ggplot(table_IL) +
+  geom_bar(aes(chrom), fill=rainbow(22)) +
+  scale_x_discrete("Chromosome", expand = expansion(add = c(1, 1))) +
+  scale_y_continuous("Number of IL-genes") +
+  labs(title = "IL-genes per chromosome")
+fig2 <- ggplot(table_IL) +
+  geom_count(aes(symbol, chrom), colour=rainbow(96)) +
+  scale_x_discrete("Gene HGNC symbol", breaks = function(x){x[c(TRUE, FALSE)]}) +
+  scale_y_discrete("Chromosome") +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(
+    title = "IL-genes chromosome position",
+    caption = "Some HGNC symbols were omitted due to crowding"
+    )
+
+fig <- ggarrange(fig1, fig2,
+                 labels = c("A", "B"),
+                 ncol = 1, nrow = 23)
+#error keine ahnung was check aesthetic ist 
+````
+
+
+
+

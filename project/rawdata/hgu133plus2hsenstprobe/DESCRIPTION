@@ -1,0 +1,14 @@
+Package: hgu133plus2hsenstprobe
+Title: Probe sequence data for microarrays of type hgu133plus2hsenst
+Version: 25.0.0
+Created: Tue Dec 15 22:26:57 2020
+Author: The Bioconductor Project www.bioconductor.org 
+Description: This package was automatically created by package AnnotationForge version 1.32.0. The probe sequence data was obtained from http://www.affymetrix.com. 
+Maintainer: Manhong Dai <daimh@umich.edu>
+Depends: R (>= 3.5.0), AnnotationDbi (>= 1.32.0)
+License: LGPL
+biocViews: AnnotationData, AffymetrixChip, probe, hgu133plus2hsenst,
+        Homo_sapiens
+NeedsCompilation: no
+Packaged: 2020-12-16 03:27:11 UTC; daimh
+Built: R 4.0.3; ; 2020-12-16 03:27:15 UTC; unix
