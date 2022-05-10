@@ -1,4 +1,0 @@
-createcdfenv            create cdf environment from ascii cdf file
-read.affybatch.hybrid   read celfiles from different chips into one
-                        AffyBatch object
-removeprobe             remove probe from cdf environment
