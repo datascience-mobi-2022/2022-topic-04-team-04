@@ -1,0 +1,6 @@
+"0","# read in 2 tables
+TRAs1_mouse <-read_csv(""tra.2014.mouse.4301.5x.table.tsv"")
+"
+"2","Error in read_csv(""tra.2014.mouse.4301.5x.table.tsv"") : 
+  could not find function ""read_csv""
+"

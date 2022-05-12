@@ -1,0 +1,14 @@
+"0","#----------------------------------------------------------"
+"0","# Single chip control"
+"0","# ----------------------------------------------------------"
+"0",""
+"0","#setwd(paste(projectPath, ""plots"", sep = ""/""))"
+"0",""
+"0","for (i in 1:10){"
+"0","  image(data_mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])"
+"0","  file.name = paste(as.character(mouse_microarrays[, ""number""])[i],"".pdf"", sep = """")"
+"0","  #dev.copy2pdf(file = file.name)"
+"0","}"
+"2","Error in eval(quote(list(...)), env) : 
+  object 'mouse_microarrays' not found
+"

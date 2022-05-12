@@ -1,0 +1,57 @@
+---
+title: "Bioinfoproject"
+author: "Mariam"
+date: "5/9/2022"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Basic Info: 
+microarray chip: [HG-U133_Plus_2] Affymetrix Human Genome U133 Plus 2.0 Array
+Database:GEO dataset:GSE18290
+
+1. Install coressponding brainarray chip packages
+````{r}
+BiocManager::install("hgu133plus2")
+install.packages("hgu133plus2hsenstcdf_24.0.0.zip.gz", repos = NULL, type = "source")
+install.packages("hgu133plus2hsenstprobe_24.0.0.zip.gz", repos = NULL, type = "source")
+`````
+
+````{r}
+#import all libraries
+library("Rcpp")
+library("tidyverse")
+library("affy")
+library("vsn")
+library("ggplot2")
+library("readr")
+library("AnnotationDbi")
+library("hgu133plus2hsenstcdf")
+library("hgu133plus2hsenstprobe")
+library("hexbin")
+
+#set the top level folder with here
+here::here(project)
+
+```{r Read CEL Files, eval=FALSE, include=FALSE}
+#creating a list of the CEL file names, for all three datasets
+setwd(here("Rawdata/GSE65216 breast cancer TNBC Her2 LumA LumB"))
+cels.breast <- list.files(pattern = 'CEL')
+````
+
+Next Step: Reading in the microarray Data
+````{r}
+#setwd(here("/Users/mariamhassan/Library/CloudStorage/OneDrive-bwedu/4.Fachsemester/2022-topic-04-team-04/project/rawdata/GSE18290_RAW (1)")
+data.mouse=ReadAffy('rawdata/GSE18290_RAW (1)/')
+data.mouse@cdfName="HGU133Plus2_Hs_ENST"
+#setwd("/Users/mariamhassan/Library/CloudStorage/OneDrive-bwedu/4.Fachsemester/2022-topic-04-team-04/project/RFiles")
+save.image('plots/')
+
+`````
+1.Quality Control: Microarray chips images 
+````{r}
+image(data.mouse, col=rainbow (100, start=0,end = 0.75)[100:1])
+`````
+

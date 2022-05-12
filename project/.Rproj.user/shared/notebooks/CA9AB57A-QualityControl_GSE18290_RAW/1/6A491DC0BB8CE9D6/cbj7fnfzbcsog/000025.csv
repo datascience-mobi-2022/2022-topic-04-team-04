@@ -1,0 +1,24 @@
+"0","cols(
+  ensembl.transcript = col_character(),
+  ensembl.gene = col_character(),
+  gene.symbol = col_character(),
+  entrezID = col_character(),
+  refseqID = col_character(),
+  unigeneID = col_character(),
+  chrom = col_character(),
+  startsite = col_integer(),
+  tiss.number = col_double(),
+)
+"
+"1","cols(
+  ensembl.transcript = [31mcol_character()[39m,
+  ensembl.gene = [31mcol_character()[39m,
+  gene.symbol = [31mcol_character()[39m,
+  entrezID = [31mcol_character()[39m,
+  refseqID = [31mcol_character()[39m,
+  unigeneID = [31mcol_character()[39m,
+  chrom = [31mcol_character()[39m,
+  startsite = [32mcol_integer()[39m,
+  tiss.number = [32mcol_double()[39m
+)
+"

@@ -20,7 +20,7 @@ Database:GEO dataset:GSE18290
 library(affy)
 library(vsn)
 library(AnnotationDbi)
-library(hgu133plus2hsenstcdf)
+library(moe430ammenstcdf)
 library(hgu133plus2hsenstprobe)
 library(hexbin)
 library(pheatmap)
@@ -41,7 +41,7 @@ projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
 setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
 
 # read in 2 tables
-TRAs1_mouse <-read_csv("tra.2014.mouse.4301.5x.table.tsv")
+TRAs1_mouse <-read_tsv("./rawdata/TRA_data/tra.2014.mouse.4301.5x.table.tsv")
 TRAs2_mouse <-read_tsv("tra.2014.mouse.5x.table.tsv")
 cols(
   ensembl.transcript = col_character(),
@@ -120,10 +120,14 @@ setwd(paste(projectPath, "rawdata", "GSE18290_RAW_mouse", sep = "/"))
 data_mouse <- ReadAffy()
 
 # change cdf
-data_mouse@cdfName <- "HGU133Plus2HsENSTcdf"
+data_mouse@cdfName <- "moe430ammenstcdf"
 
 # create expression matrix
+data_mouse <- rma(data_mouse)
 mouse_matrix <- exprs(data_mouse)
+mouse_matrix_names <- data.frame(strsplit(rownames(mouse_matrix), "[.]"))[1,]
+rownames(mouse_matrix) <- mouse_matrix_names
+# match und dann c bind und die funktion da hin`????
 
 # store colnames (microarray)
 mouse_microarray_information <- colnames(mouse_matrix)
