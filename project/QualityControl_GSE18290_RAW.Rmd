@@ -27,11 +27,7 @@ library(pheatmap)
 library(rstudioapi)
 library(tidyverse)
 ```
-```{r}
-BiocManager::install("hgu133plus2")
-install.packages("hgu133plus2hsenstcdf_24.0.0.zip.gz", repos = NULL, type = "source")
-install.packages("hgu133plus2hsenstprobe_24.0.0.zip.gz", repos = NULL, type = "source")
-```
+
 
 ## TRAs
 
@@ -47,7 +43,7 @@ setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
 # read in 2 tables
 TRAs1_mouse <-read_csv("tra.2014.mouse.4301.5x.table.tsv")
 TRAs2_mouse <-read_tsv("tra.2014.mouse.5x.table.tsv")
-col(
+cols(
   ensembl.transcript = col_character(),
   ensembl.gene = col_character(),
   gene.symbol = col_character(),
