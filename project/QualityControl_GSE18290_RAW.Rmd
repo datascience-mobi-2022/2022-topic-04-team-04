@@ -47,11 +47,35 @@ setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
 # read in 2 tables
 TRAs1_mouse <-read_csv("tra.2014.mouse.4301.5x.table.tsv")
 TRAs2_mouse <-read_tsv("tra.2014.mouse.5x.table.tsv")
-cols(ensembl.chrom=col_character())
+col(
+  ensembl.transcript = col_character(),
+  ensembl.gene = col_character(),
+  gene.symbol = col_character(),
+  entrezID = col_character(),
+  refseqID = col_character(),
+  unigeneID = col_character(),
+  chrom = col_character(),
+  startsite = col_integer(),
+  tiss.number = col_double(),
+  max.tissue = col_double()
+)
+cols(
+  ensembl.transcript = col_character(),
+  ensembl.gene = col_character(),
+  gene.symbol = col_character(),
+  entrezID = col_character(),
+  refseqID = col_character(),
+  unigeneID = col_character(),
+  chrom = col_character(),
+  startsite = col_integer(),
+  tiss.number = col_double(),
+)
 ## 
+
+
 ## -- Column specification CHECK LATER --------------------------------------------------------
-## cols(
-##   Ensembl_human_genes = col_character(),
+##cols(
+##   Ensembl_mouse_genes = col_character(),
 ##   Chromosome = col_character(),
 ##   Startsite = col_double(),
 ##   Strand = col_double(),
@@ -84,7 +108,7 @@ cols(ensembl.chrom=col_character())
 # CHECK MouseTRAs2_human <- TRAs2_mouse[grep(x=TRAs2_mouse$max.tissue,"Panc"),]
 
 # all TRAs
-TRA_genes_mouse <-unique(c(TRAs1_mouse$Symbol,TRAs2_mouse$gene.symbol))
+TRA_genes_mouse <-unique(c(TRAs1_mouse$gene.symbol,TRAs2_mouse$gene.symbol))
 ```
 
 #Creating expression matrix
@@ -122,7 +146,7 @@ mouse_vsnrma <- vsnrma(data_mouse)
 #setwd(paste(projectPath, "plots", sep = "/"))
 
 for (i in 1:10){
-  image(data_mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])
+  image("rawdata/GSE18290_RAW_mouse/"[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])
   file.name = paste(as.character(mouse_microarrays[, "number"])[i],".pdf", sep = "")
   #dev.copy2pdf(file = file.name)
 }
