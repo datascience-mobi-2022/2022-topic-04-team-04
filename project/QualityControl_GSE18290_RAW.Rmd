@@ -41,7 +41,7 @@ projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
 setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
 
 # read in 2 tables
-TRAs1_mouse <-read_csv("tra.2014.mouse.4301.5x.table.tsv")
+TRAs1_mouse <-read_tsv("tra.2014.mouse.4301.5x.table.tsv")
 TRAs2_mouse <-read_tsv("tra.2014.mouse.5x.table.tsv")
 cols(
   ensembl.transcript = col_character(),
@@ -108,7 +108,7 @@ TRA_genes_mouse <-unique(c(TRAs1_mouse$gene.symbol,TRAs2_mouse$gene.symbol))
 ```
 
 #Creating expression matrix
-#```{r}
+```{r}
 # ----------------------------------------------------------
 # Create vsnrma normalized expression matrix
 # ----------------------------------------------------------
@@ -130,7 +130,7 @@ mouse_microarray_information <- colnames(mouse_matrix)
 
 # vsnrma normalization
 mouse_vsnrma <- vsnrma(data_mouse)
-#```
+```
 
 ## Quality control
 
@@ -142,7 +142,7 @@ mouse_vsnrma <- vsnrma(data_mouse)
 #setwd(paste(projectPath, "plots", sep = "/"))
 
 for (i in 1:10){
-  image("rawdata/GSE18290_RAW_mouse/"[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])
+  image(data_mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])
   file.name = paste(as.character(mouse_microarrays[, "number"])[i],".pdf", sep = "")
   #dev.copy2pdf(file = file.name)
 }
