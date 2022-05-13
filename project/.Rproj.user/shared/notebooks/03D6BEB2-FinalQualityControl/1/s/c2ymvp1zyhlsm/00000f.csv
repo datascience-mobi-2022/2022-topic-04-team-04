@@ -1,0 +1,6 @@
+"0","## Before normalization"
+"0","par ( las =2)"
+"0","# Rand zum Beschriften unten , li , oben , re"
+"0","#mmi = c (1.7 ,0.7 ,1.0477939 ,0.5366749)"
+"0","#par ( mai = mmi )"
+"0","boxplot (data.mouse ,col = rainbow (150),cex.axis =0.5,main =""Gene expression mouse embryonic development before normalization"")"
