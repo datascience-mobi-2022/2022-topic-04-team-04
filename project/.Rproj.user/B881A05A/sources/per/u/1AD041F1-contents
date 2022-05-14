@@ -1,9 +1,0 @@
-library(affy)
-library(vsn)
-celFiles <- list.celfiles("GSM456661.CEL.gz","GSM456662.CEL.gz","GSM456663.CEL.gz","GSM456664.CEL.gz","GSM456665.CEL.gz","GSM456666.CEL.gz","GSM456667.CEL.gz","GSM456668.CEL.gz","GSM456669.CEL.gz","GSM456670.CEL.gz","GSM456671.CEL.gz","GSM456672.CEL.gz","GSM456673.CEL.gz","GSM456674.CEL.gz","GSM456675.CEL.gz","GSM456676.CEL.gz","GSM456677.CEL.gz","GSM456678.CEL.gz")
-affyraw=ReadAffy(filenames = celFiles)
-fit = vsn2(affyraw)
-
-nkid = predict(fit, newdata=affyraw)
-vsnrma(nkid)
-
