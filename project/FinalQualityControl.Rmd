@@ -38,14 +38,6 @@ setwd(paste(projectPath,"rawdata","zippedmouse",sep = "/"))
 data.mouse=ReadAffy()
 data.mouse@cdfName <- "MOE430A_Mm_ENST"
 ```
-
-```{r}
-#discarding chip 6, 14, 15
-setwd(paste(projectPath,"rawdata","qualityzipped",sep = "/"))
-
-qdata.mouse = ReadAffy()
-qdata.mouse@cdfName <- "MOE430A_Mm_ENST"
-```
 Microchip Images
 ```{r}
 for (i in 1:18){
@@ -55,29 +47,30 @@ for (i in 1:18){
 #file.name = paste(as.character(mouse_microarrays[, "number"])[i],".pdf", sep = "")
 #dev.copy2pdf(file = file.name)}
 
-#discarding chip 6, 14, 15
-qdata.mouse = 
 ```
 
 ```{r}
-set.seed(234)
-vsnmouse <- vsnrma(data.mouse)
-meanSdPlot(vsnmouse, plot = FALSE)$gg + theme(aspect.ratio = 1)
-vsn.mouse = exprs(vsnmouse)
-
-
-
+#discarding chip 6, 14, 15
+setwd(paste(projectPath,"rawdata","qualityzipped",sep = "/"))
+qdata.mouse = ReadAffy()
+qdata.mouse@cdfName <- "MOE430A_Mm_ENST"
 ```
+
+```{r}
+#after discarding 3 chips
+mouse_RNAdeg <- AffyRNAdeg(qdata.mouse)
+plotAffyRNAdeg(mouse_RNAdeg, col = rainbow(15))
+```
+
+
+Normalization and standard deviation plot
+
 ```{r}
 #after discarding 3 chips
 set.seed(234)
 vsnqmouse <- vsnrma(qdata.mouse)
 meanSdPlot(vsnqmouse, plot = FALSE)$gg + theme(aspect.ratio = 1)
 vsn.qmouse = exprs(vsnqmouse)
-
-
-
-
 ```
 
 
@@ -89,102 +82,43 @@ par ( las =2)
 # Rand zum Beschriften unten , li , oben , re
 #mmi = c (1.7 ,0.7 ,1.0477939 ,0.5366749)
 #par ( mai = mmi )
-boxplot (data.mouse ,col = rainbow (150),cex.axis =0.5,main ="Gene expression mouse embryonic development before normalization")
+boxplot (qdata.mouse ,col = rainbow (150),cex.axis = 0.4,main ="Gene expression mouse embryonic development before normalization")
 ## After normalization
 par ( las =2)
-boxplot (vsn.mouse,col = rainbow (150),cex.axis =0.5,main ="Gene expression mouse embryo after normalization")
+boxplot (vsn.qmouse,col = rainbow (150),cex.axis =0.5,main ="Gene expression mouse embryonic development after normalization")
 ```
 
-Boxplots
-```{r}
-## Before normalization
-par ( las =2)
-# Rand zum Beschriften unten , li , oben , re
-#mmi = c (1.7 ,0.7 ,1.0477939 ,0.5366749)
-#par ( mai = mmi )
-boxplot (qdata.mouse ,col = rainbow (150),cex.axis =0.5,main ="Gene expression mouse embryonic development before normalization")
-## After normalization
-par ( las =2)
-boxplot (vsn.qmouse,col = rainbow (150),cex.axis =0.5,main ="Gene expression mouse embryo after normalization")
-```
+
 
 Histograms
 ```{r}
 ## Before normalization
 par(mai = c(0.9,0.9,0.9,0.5))
-hist(data.mouse, col = rainbow(10), main = "Density function of log intensity mouse embryonic development before normalization")
+hist(qdata.mouse, col = rainbow(10), main = "Density function of log intensity mouse ED before normalization")
 
 ## After normalization
 par(mai = c(0.9,0.9,0.9,0.5))
-plot(density(vsn.mouse), type = "n", xlab = "log Intensity", ylim = c(0, 0.6),main = "Density function of log intensity mouse embryonic development after normalization")
-for (i in 1:ncol(vsn.mouse)){lines(density(vsn.mouse[,i]), col = rainbow(10)[i])}
+plot(density(vsn.qmouse), type = "n", xlab = "log Intensity", ylim = c(0, 0.6),main = "Density function of log intensity mouse ED after normalization")
+for (i in 1:ncol(vsn.qmouse)){lines(density(vsn.qmouse[,i]), col = rainbow(10)[i])}
 ```
+Scatterplots
 
-RNA degradation plot
 ```{r}
-mouse_RNAdeg <- AffyRNAdeg(data.mouse)
-plotAffyRNAdeg(mouse_RNAdeg)
-
-#There is a crossing line -> trying to find out which one
-crossingline= AffyRNAdeg(data.mouse[,7:15])
-plotAffyRNAdeg(crossingline)
+par(mai = c(0.9, 0.9, 0.7, 0.3))
+for (i in 1:14) {
+    for (j in (i+1):15){
+    
+      plot(vsn.qmouse[,i], vsn.qmouse[,j], pch = ".",
+            xlab = rownames(pData(qdata.mouse))[i],
+            ylab = rownames(pData(qdata.mouse))[j])
+      abline(0, 1, col = "red")
+      
+       title(main = paste("Scatterplot of microarrays\n", 
+                       rownames(pData(qdata.mouse))[i],
+                       "and",
+                       rownames(pData(qdata.mouse))[j],
+                       sep = " ", collapse = NULL))
+         
+  }
+}
 ```
-
-#Scatterplots
-#```{r}
-setwd(paste(projectPath, "plots" ,sep = "/"))
-par(mai = c(0.9, 0.9, 0.7, 0.3))
-
-for (i in 1:9) {
-  for (j in (i+1):10){
-    
-    plot(mouse_vsnrma_matrix[,i], breast_vsnrma_matrix[,j], pch = ".",
-       xlab = mouse_microarrays[, "number"][i], 
-       ylab = breast_microarrays[, "number"][j])
-    abline(0, 1, col = "red")
-    
-    title(main = paste("Scatterplot of probe",
-                     mouse_microarrays[, "number"] [i],
-                     "and", 
-                     mouse_microarrays[, "number"] [i+1],
-                     sep = " ", collapse = NULL))
-    
-    file.name = paste("Scatterplot_",
-                    as.character(mouse_microarrays[, "number"] [i], 
-                    "_", as.character(mouse_microarrays[, "number"][i+1]), ".pdf", 
-                    sep =" "))
-    dev.copy2pdf(file = file.name)
-    
-  }
-}
-#```
-
-
-#Scatterplots
-#```{r}
-setwd(paste(projectPath, "plots" ,sep = "/"))
-par(mai = c(0.9, 0.9, 0.7, 0.3))
-
-for (i in 1:9) {
-  for (j in (i+1):10){
-    
-    plot(mouse_vsnrma_matrix[,i], breast_vsnrma_matrix[,j], pch = ".",
-       xlab = mouse_microarrays[, "number"][i], 
-       ylab = breast_microarrays[, "number"][j])
-    abline(0, 1, col = "red")
-    
-    title(main = paste("Scatterplot of probe",
-                     mouse_microarrays[, "number"] [i],
-                     "and", 
-                     mouse_microarrays[, "number"] [i+1],
-                     sep = " ", collapse = NULL))
-    
-    file.name = paste("Scatterplot_",
-                    as.character(mouse_microarrays[, "number"] [i], 
-                    "_", as.character(mouse_microarrays[, "number"][i+1]), ".pdf", 
-                    sep =" "))
-    dev.copy2pdf(file = file.name)
-    
-  }
-}
-#```

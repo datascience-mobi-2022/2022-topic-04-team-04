@@ -1,0 +1,10 @@
+"0","#after discarding 3 chips"
+"0","set.seed(234)"
+"0","vsnqmouse <- vsnrma(qdata.mouse)"
+"2","vsn2: 506944 x 15 matrix (1 stratum). 
+"
+"2","Please use 'meanSdPlot' to verify the fit.
+"
+"1","Calculating Expression
+"
+"0","meanSdPlot(vsnqmouse, plot = FALSE)$gg + theme(aspect.ratio = 1)"

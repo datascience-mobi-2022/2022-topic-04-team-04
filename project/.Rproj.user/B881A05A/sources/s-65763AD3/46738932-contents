@@ -1,0 +1,329 @@
+---
+title: "Bioinfoproject"
+author: "Topic 4 team 4: Amena Elmadaawy, Mariam Hassan, Nina Droste, Aleksandra Dohren"
+date: "5/12/2022"
+output: md_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+Basic Info: 
+microarray chip: [HG-U133_Plus_2] Affymetrix Human Genome U133 Plus 2.0 Array
+Database:GEO dataset:GSE18290
+
+
+```{r libraries, include=FALSE}
+#Install corresponding packages
+# Bioconductor
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+library(moe430ammenstcdf)
+library(moe430ammenstprobe)
+library(hexbin)
+library(pheatmap)
+library(rstudioapi)
+library(tidyverse)
+```
+
+
+## TRAs
+
+#```{r}
+# ----------------------------------------------------------
+# TRAs 
+# ----------------------------------------------------------
+
+# set working directory to folder with TRA tables (rawdata/TRA_Data)
+projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+
+# read in 2 tables
+
+
+
+#TRAs1_mouse <-read_tsv("tra.2014.mouse.4301.5x.table.tsv")
+
+#TRAs2_mouse <-read_tsv("tra.2014.mouse.5x.table.tsv")
+#cols(
+#  ensembl.transcript = col_character(),
+ # ensembl.gene = col_character(),
+  #gene.symbol = col_character(),
+ # entrezID = col_character(),
+#  refseqID = col_character(),
+ # unigeneID = col_character(),
+#  chrom = col_character(),
+  startsite = col_integer(),
+  tiss.number = col_double(),
+  max.tissue = col_double()
+)
+#cols(
+  ensembl.transcript = col_character(),
+  ensembl.gene = col_character(),
+  gene.symbol = col_character(),
+  entrezID = col_character(),
+  refseqID = col_character(),
+  unigeneID = col_character(),
+  chrom = col_character(),
+  startsite = col_integer(),
+  tiss.number = col_double(),
+)
+## 
+
+
+## -- Column specification CHECK LATER --------------------------------------------------------
+##cols(
+##   Ensembl_mouse_genes = col_character(),
+##   Chromosome = col_character(),
+##   Startsite = col_double(),
+##   Strand = col_double(),
+##   Band = col_character(),
+##   Symbol = col_character(),
+##   EntrezGene = col_double(),
+##   Unigene = col_character(),
+##   Tissue_number = col_double(),
+##   Tissues = col_character(),
+##   Max_tissue = col_character()
+## )
+
+
+## 
+## -- Column specification --------------------------------------------------------
+## cols(
+##   ensembl.transcript = col_character(),
+##   ensembl.gene = col_character(),
+##   gene.symbol = col_character(),
+##   entrezID = col_character(),
+##   refseqID = col_character(),
+##   unigeneID = col_character(),
+##   chrom = col_character(),
+##   startsite = col_double(),
+##   tiss.number = col_double(),
+##   tissues = col_character(),
+##   max.tissue = col_character()
+## )
+# CHECK MouseTRAs1_mouse <- TRAs1_mouse[grep(x=TRAs1_mouse$Max_tissue,"panc"),]
+# CHECK MouseTRAs2_human <- TRAs2_mouse[grep(x=TRAs2_mouse$max.tissue,"Panc"),]
+
+# all TRAs
+#TRA_genes_mouse <-unique(c(TRAs1_mouse$gene.symbol,TRAs2_mouse$gene.symbol))
+#dataframe = data.frame()
+```
+#```{r}
+#data_ensemble_gene= merge(TRAs1_mouse,TRAs2_mouse)
+matched1=TRAs1_mouse[TRAs1_mouse$gene.symbol %in% TRA_genes_mouse, ]
+matched2=TRAs2_mouse[TRAs2_mouse$gene.symbol %in% TRA_genes_mouse, ]
+matched1_na= na.omit(matched1$gene.symbol)
+matched2_na= na.omit(matched2)
+```
+
+
+
+
+#```{r}
+TRA_transcript_mouse = unique(c(TRAs1_mouse$ensembl.transcript,TRAs2_mouse$ensembl.transcript))
+unique_matrix_trans = mouse_matrix[TRA_transcript_mouse %in% rownames(mouse_matrix)]
+```
+
+#Creating expression matrix
+```{r}
+# ----------------------------------------------------------
+# Create vsnrma normalized expression matrix
+# ----------------------------------------------------------
+
+set.seed(234) # with this vsnrma gives out the same values each time
+
+# get CEL files
+projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+setwd(paste(projectPath, "rawdata", "GSE18290_RAW_mouse", sep = "/"))
+data_mouse <- ReadAffy()
+
+# change cdf
+data_mouse@cdfName <- "moe430ammenstcdf"
+
+# create expression matrix
+data_mouse <- rma(data_mouse)
+mouse_matrix <- exprs(data_mouse)
+mouse_matrix_names <- data.frame(strsplit(rownames(mouse_matrix), "[.]"))[1,]
+rownames(mouse_matrix) <- mouse_matrix_names
+# match und dann c bind und die funktion da hin`????
+#trans_names_mouse=transpose(mouse_matrix_names)
+#unlist(trans_names_mouse)
+#hope= cbind(mouse_matrix,trans_names_mouse)
+#transponieren:
+#trans_names_mouse=transpose(mouse_matrix_names)
+#match and bind
+
+mouse_microarray_information <- colnames(mouse_matrix)
+ 
+# vsnrma normalization
+mouse_vsnrma <- vsnrma(mouse_matrix)
+```
+#Creating expression matrix
+```{r}
+# ----------------------------------------------------------
+# Create vsnrma normalized expression matrix
+# ----------------------------------------------------------
+
+set.seed(234) # with this vsnrma gives out the same values each time
+
+# get CEL files
+setwd(paste(projectPath, "rawdata", "GSE18290_RAW_mouse", sep = "/"))
+data_mouse <- ReadAffy()
+
+# change cdf
+data_mouse@cdfName <- "moe430ammenstcdf"
+
+# create expression matrix
+data_mouse <- rma(data_mouse)
+mouse_matrix <- exprs(data_mouse)
+mouse_matrix_names <- data.frame(strsplit(rownames(mouse_matrix), "[.]"))[1,]
+rownames(mouse_matrix) <- mouse_matrix_names
+# match und dann c bind und die funktion da hin
+
+# store colnames (microarray)
+mouse_microarray_information <- colnames(mouse_matrix)
+
+# vsnrma normalization
+mouse_vsnrma <- vsnrma(data_mouse)
+```
+
+## Quality control
+
+```{r}
+# ----------------------------------------------------------
+# Single chip control
+# ----------------------------------------------------------
+
+#setwd(paste(projectPath, "plots", sep = "/"))
+
+for (i in 1:10){
+  image(data_mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])
+  file.name = paste(as.character(mouse_microarrays[, "number"])[i],".pdf", sep = "")
+  #dev.copy2pdf(file = file.name)
+}
+
+## The chips do not appear to be faulty.
+# ----------------------------------------------------------
+# Pheno Data
+# ----------------------------------------------------------
+
+pData(data_mouse)
+# ----------------------------------------------------------
+# MeanSdPlot
+# ----------------------------------------------------------
+
+meanSdPlot(mouse_vsnrma, plot = FALSE)$gg + theme(aspect.ratio = 1)
+
+## DESCRIBE PLOT
+
+# ----------------------------------------------------------
+# RNA degradation plot:data set
+# ----------------------------------------------------------
+
+RNAdeg_mouse <- AffyRNAdeg(data_mouse)
+
+# Shift and scale
+par(pty = "s", mai = c(1.1,0.5,0.5,0.1))
+plotAffyRNAdeg(RNAdeg_mouse, col = rainbow(10))
+title(sub = "Mouse Rawdata")
+
+#setwd(paste(projectPath, "plots" ,sep = "/"))
+#dev.copy2pdf(file = "mouse_rnadeg_rawdata.pdf")
+
+# Shift
+par(pty = "s", mai = c(1.1,0.5,0.5,0.1))
+plotAffyRNAdeg(RNAdeg_mouse, col = rainbow(10), transform = "shift.only")
+title(sub = "Mouse Scaled")
+#dev.copy2pdf(file = "mouse_rnadeg_shift_rawdata.pdf")
+
+## DESCRIBE eg No crossing of lines was detected. The quality of the chips is good.
+
+# ----------------------------------------------------------
+# Histogram before and after normalization
+# ----------------------------------------------------------
+
+## Before normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+
+hist(data_mouse, 
+     col = rainbow(10), 
+     main = "Density function of log intensity (data set: GSE18290, Xie et al.)\nbefore normalization")
+
+#setwd(paste(projectPath, "plots" ,sep = "/"))
+#dev.copy2pdf(file = "mouse_hist_rawdata.pdf")
+
+## After normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+
+plot(density(mouse_vsnrma_matrix), 
+     type = "n", xlab = "log Intensity", ylim = c(0, 0.6),
+     main = "Density function of log intensity (data set: GSE18290, Xie et al.)\nafter normalization")
+
+for (i in 1:ncol(mouse_vsnrma_matrix)){
+  lines(density(mouse_vsnrma_matrix[,i]), col = rainbow(10)[i])
+}
+
+#setwd(paste(projectPath, "plots" ,sep = "/"))
+#dev.copy2pdf(file = "breast_hist_vsnrma_normalized.pdf
+
+# Boxplot before and after normalization
+# ----------------------------------------------------------
+
+## Before normalization
+par(las = 2, mai = c(1, 0.8, 0.7, 0.1)) 
+
+boxplot(data_mouse, names = mouse_microarrays[, "number"], 
+        col = rainbow(10),  ylab = "Intensity values",
+        main = "Gene expression in mouse before vsnrma normalization\ndata set: GSE18290 (Xie et al.)", 
+        cex.axis=0.8)
+
+#setwd(paste(projectPath, "plots" ,sep = "/"))
+#dev.copy2pdf(file = "mouse_boxplot_rawdata.pdf")
+
+## After normalization
+
+par(las = 2, mai = c(1, 0.8, 0.7, 0.1)) 
+
+boxplot(mouse_vsnrma_matrix, names = mouse_microarrays[, "number"], 
+        col = rainbow(10), ylab = "Intensity values",
+        main = "Gene expression in mouse after vsnrma normalization\ndata set: GSE18290 (Xie et al.)", 
+        cex.axis=0.8)
+
+#setwd(paste(projectPath, "plots" ,sep = "/"))
+#dev.copy2pdf(file = "breast_boxplot_vsnrma_normalized.pdf")
+
+# Scatterplots
+# ----------------------------------------------------------
+
+## DESCRIBE EG We plotted all scatterplots and found no abnormal distribution. Therefore, we decided against showing the numerous scatterplots. However, if there is need to review them, below you can see the code we used.
+
+setwd(paste(projectPath, "plots" ,sep = "/"))
+par(mai = c(0.9, 0.9, 0.7, 0.3))
+
+for (i in 1:9) {
+  for (j in (i+1):10){
+    
+    plot(mouse_vsnrma_matrix[,i], breast_vsnrma_matrix[,j], pch = ".",
+       xlab = mouse_microarrays[, "number"][i], 
+       ylab = breast_microarrays[, "number"][j])
+    abline(0, 1, col = "red")
+    
+    title(main = paste("Scatterplot of probe",
+                     mouse_microarrays[, "number"] [i],
+                     "and", 
+                     mouse_microarrays[, "number"] [i+1],
+                     sep = " ", collapse = NULL))
+    
+    file.name = paste("Scatterplot_",
+                    as.character(mouse_microarrays[, "number"] [i], 
+                    "_", as.character(mouse_microarrays[, "number"][i+1]), ".pdf", 
+                    sep =" "))
+    dev.copy2pdf(file = file.name)
+    
+  }
+}
+
+```
