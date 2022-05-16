@@ -1,28 +1,28 @@
 {
-    "id": "CAEF953E",
+    "id": "03A79857",
     "path": "~/Bioinfo/2022-topic-04-team-04/project/FinalQualityControl.Rmd",
     "project_path": "FinalQualityControl.Rmd",
     "type": "r_markdown",
     "hash": "355948164",
     "contents": "",
     "dirty": false,
-    "created": 1652445811458.0,
+    "created": 1652720942806.0,
     "source_on_save": false,
-    "relative_order": 9,
+    "relative_order": 3,
     "properties": {
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "103,0",
-        "scrollLine": "103",
-        "last_setup_crc32": "65763AD3e900b64d"
+        "cursorPosition": "29,3",
+        "scrollLine": "30",
+        "last_setup_crc32": ""
     },
     "folds": "",
     "lastKnownWriteTime": 1652639454,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1652639454204,
+    "last_content_update": 1652639454,
     "read_only": false,
     "read_only_alternatives": []
 }

@@ -1,2 +1,0 @@
-"0","projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)"
-"0","#setwd(paste(projectPath,""rawdata"",sep = ""/""))"
