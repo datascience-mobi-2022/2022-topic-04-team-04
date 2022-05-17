@@ -1,9 +1,0 @@
-library(GEOquery)
-library(limma)
-gset <- getGEO("GSE18290", GSEMatrix =TRUE, getGPL=FALSE)
-
-express_data.mouse= exprs(data.mouse)
-ex=na.omit(vsn.qmouse)
-plotSA(lmFit(ex), main="Mean variance trend, GSE18290")
-library(pheatmap)
-pheatmap(exp2_unique [1:50,], fontsize = 7, fontsize_row = 2)
