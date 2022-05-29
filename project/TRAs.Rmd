@@ -1,0 +1,59 @@
+---
+title: "TRAs"
+author: "Team 04 Group 04"
+date: '2022-05-29'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+library(moe430ammenstprobe)
+library(moe430ammenstcdf)
+library(hexbin)
+library(pheatmap)
+library(rstudioapi)
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+# set working directory to folder with TRA tables (rawdata/TRA Daten)
+projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+```
+
+```{r}
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+```
+
+```{r}
+# taking out control rows
+head(vsn.qmouse, n = 64)
+data_ohneaffx= vsn.qmouse[65:39345,]
+namen=(substr(x,0,18)[1:39281])
+rownames(data_ohneaffx) <- c(namen)
+data_ohneaffx
+```
+
+
+```{r}
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+TRAs1 <-read_tsv("tra.2014.mouse.5x.table.tsv")
+TRAs2 <-read_tsv("tra.2014.mouse.4301.5x.table.tsv")
+```
+
+```{r}
+TRA_total=rbind(TRAs1,TRAs2)
+TRA_unique = unique(TRA_total)
+TRA_u = unique(TRA_total, by= TRA_total[,1] )
+#TRA_uni <- TRA_total %>% distinct(TRA_total[,1], .keep_all = FALSE)
+#TRA_fuck = merge( x= TRA_total, y= TRA_uni, by= TRA_total[,1])
+```
+
+```{r}
+```
