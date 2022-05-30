@@ -1,0 +1,5 @@
+"0","#after discarding 3 chips"
+"0","set.seed(234)"
+"0","vsnqmouse <- vsnrma(qdata.mouse)"
+"2","Error in vsnrma(qdata.mouse) : could not find function ""vsnrma""
+"

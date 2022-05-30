@@ -53,27 +53,22 @@ TRAs2 <-read_tsv("tra.2014.mouse.4301.5x.table.tsv")
 combining TRA data
 ```{r}
 TRA_total=rbind(TRAs1,TRAs2)
-#TRA_unique = unique(TRA_total)
+TRA_unique = unique(TRA_total)
 #TRA_u = unique(TRA_total, by= TRA_total[,1] )
-#TRA_uni <- TRA_total %>% distinct(TRA_total[,1], .keep_all = FALSE)
+TRA_uni <- TRA_total %>% distinct(TRA_total[,1], .keep_all = FALSE)
 #TRA_fuck = merge( x= TRA_total, y= TRA_uni, by= TRA_total[,1])
-unique_TRAs = unique(TRAs1$ensembl.transcript, TRAs2$ensembl.transcript) #Thiens Lösung für unique
 ```
 
-#matching TRA data with mouse data
+matching TRA data with mouse data
 ```{r}
-#TRA_univ = as.vector(TRA_uni)
-#namenv = as.vector(namen)
-#matched = TRA_univ %in% namenv
-#sum(matched)
-#namenc = as.character(namen)
-#TRA_unic = as.character(TRA_uni)
-
-TRAs_mousedataset = data_ohneaffx[which(rownames(data_ohneaffx) %in% unique_TRAs),] # gematchte Gene, alle TRAs die es in unserem Datensatz gibt
+TRA_univ = as.vector(TRA_uni)
+namenv = as.vector(namen)
+matched = TRA_univ %in% namenv
+sum(matched)
+namenc = as.character(namen)
+TRA_unic = as.character(TRA_uni)
 
 ```
-
-
 ```{r}
 ensemble.genes = 
 

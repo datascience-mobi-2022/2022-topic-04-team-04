@@ -1,0 +1,2 @@
+"0","# set working directory to folder with TRA tables (rawdata/TRA Daten)"
+"0","projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)"
