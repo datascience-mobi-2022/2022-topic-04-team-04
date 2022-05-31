@@ -1,1 +1,0 @@
-"0","projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)"

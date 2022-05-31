@@ -1,5 +1,0 @@
-"0","merge(foo, bar, by = ""a"")
-"
-"2","Error in h(simpleError(msg, call)) : 
-  Fehler bei der Auswertung des Argumentes 'x' bei der Methodenauswahl für Funktion 'merge': object 'foo' not found
-"
