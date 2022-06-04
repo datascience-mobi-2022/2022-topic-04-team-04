@@ -1,0 +1,210 @@
+---
+title: "TRAs"
+author: "Team 04 Group 04"
+date: '2022-05-29'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+library(moe430ammenstprobe)
+library(moe430ammenstcdf)
+library(hexbin)
+library(pheatmap)
+library(rstudioapi)
+library(tidyverse)
+library(dplyr)
+library(icd.data)
+library(tibble)
+```
+
+prjectpath
+```{r}
+projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+```
+
+```{r}
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+```
+
+```{r}
+# taking out control rows
+head(vsn.qmouse, n = 64)
+data_ohneaffx= vsn.qmouse[65:39345,]
+x = rownames(data_ohneaffx)
+namen=(substr(x,0,18)[1:39281])
+rownames(data_ohneaffx) <- c(namen)
+data_ohneaffx
+```
+
+loading and reading TRA data
+```{r}
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+TRAs1 <-read_tsv("tra.2014.mouse.5x.table.tsv")
+TRAs2 <-read_tsv("tra.2014.mouse.4301.5x.table.tsv")
+```
+
+combining TRA data
+```{r}
+TRA_total=rbind(TRAs1,TRAs2)
+#TRA_unique = unique(TRA_total)
+#TRA_u = unique(TRA_total, by= TRA_total[,1] )
+#TRA_uni <- TRA_total %>% distinct(TRA_total[,1], .keep_all = FALSE)
+#TRA_fuck = merge( x= TRA_total, y= TRA_uni, by= TRA_total[,1])
+unique_TRAs = unique(TRAs1$ensembl.transcript, TRAs2$ensembl.transcript) #Thiens Lösung für unique
+```
+
+#matching TRA data with mouse data
+```{r}
+#TRA_univ = as.vector(TRA_uni)
+#namenv = as.vector(namen)
+#matched = TRA_univ %in% namenv
+#sum(matched)
+#namenc = as.character(namen)
+#TRA_unic = as.character(TRA_uni)
+
+TRAs_mousedataset = data_ohneaffx[which(rownames(data_ohneaffx) %in% unique_TRAs),] # gematchte Gene, alle TRAs die es in unserem Datensatz gibt
+
+```
+
+
+```{r}
+ensemble.genes = 
+
+mouse_df = data.frame(vsn.qmouse)
+mouse_df_ohne = mouse_df[65:39345,]
+rownames(mouse_df_ohne) = substr(rownames(mouse_df_ohne), 1, 18)
+#x = rownames(mouse_df_ohne)
+#namen=(substr(x,0,18)[1:39281])
+
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+TRAs1 <-read.table("tra.2014.mouse.5x.table.tsv", header = TRUE)
+TRAs2 <-read.table("tra.2014.mouse.4301.5x.table.tsv", header = TRUE)
+# differential gene expression, volcano plot, pca(größte variabilität sind x), klustering, corr pathway bank (why??) geneontology 
+
+
+```
+
+```{r}
+rownames(data_ohneaffx) = NULL
+dat = cbind(namen, data_ohneaffx)
+names = dat[,1]
+# boline vector um dataframe zu filtern: data.frame[]
+#ident: um 2 variablen zu vergleichen 
+#differential gene expression 
+
+```
+Mean expression of each cellstage of the triplicate 
+````{r}
+mean_expression_1cell= rowMeans(TRAs_mousedataset[,1:3])
+mean_expression_2cell= rowMeans(TRAs_mousedataset[,4:5])
+mean_expression_4cell= rowMeans(TRAs_mousedataset[,6:8])
+mean_expression_8cell= rowMeans(TRAs_mousedataset[,9:11])
+mean_expression_morula= TRAs_mousedataset[,12]
+mean_expression_blastocyst= rowMeans(TRAs_mousedataset[,13:15])
+`````
+Combining the mean expression into dataframe 
+````{r}
+df_mean_expression= data.frame(mean_expression_1cell, mean_expression_2cell, mean_expression_4cell, mean_expression_8cell, mean_expression_morula, mean_expression_blastocyst)
+`````
+We will preform a kmeans clustering to try to identify groups of genes that can be put in one group 
+````{r}
+#install package cluster 
+install.packages("ClusterR")
+install.packages("cluster")
+library(cluster)
+library(tidyverse)
+library(factoextra)
+set.seed(123)
+wss= function(k) {
+  kmeans(df_mean_expression, k, nstart = 10)$tot.withinss
+}
+k.values=1:15
+wss_values= map_dbl(k.values, wss)
+plot(k.values, wss_values, type= "b", pch=19, frame= FALSE, xlab= "Number of Clusters k", ylab= "total within- clusters sum of squares")
+# we suspect we will have 3 or 2 clusters, that's why we will prove it with the silhouete methode 
+avg_sil <- function(k) {
+  km.res <- kmeans(df_mean_expression, centers = k, nstart = 25)
+  ss <- silhouette(km.res$cluster, dist(df_mean_expression))
+  mean(ss[, 3])
+}
+
+# Compute and plot wss for k = 2 to k = 15
+k.values <- 2:15
+
+# extract avg silhouette for 2-15 clusters
+avg_sil_values <- map_dbl(k.values, avg_sil)
+
+plot(k.values, avg_sil_values,
+       type = "b", pch = 19, frame = FALSE, 
+       xlab = "Number of clusters K",
+       ylab = "Average Silhouettes")
+fviz_nbclust(df_mean_expression, kmeans, method= "silhouette")
+kmeans=kmeans(df_mean_expression, centers=2)
+
+`````
+
+````{r}
+cluster48= data.frame(df_mean_expression[,3], df_mean_expression[,4])
+
+avg_sil_48 <- function(k) {
+  km.res_48<- kmeans(cluster48, centers = k, nstart = 25)
+  ss_48<- silhouette(km.res_48$cluster, dist(cluster48))
+  mean(ss_48[, 3])
+}
+
+# Compute and plot wss for k = 2 to k = 15
+k.values_48 <- 2:15
+
+# extract avg silhouette for 2-15 clusters
+avg_sil_values_48 <- map_dbl(k.values_48, avg_sil_48)
+
+plot(k.values_48, avg_sil_values_48,
+       type = "b", pch = 19, frame = FALSE, 
+       xlab = "Number of clusters K",
+       ylab = "Average Silhouettes")
+fviz_nbclust(cluster48, kmeans, method= "silhouette")
+kmeans_48=kmeans(cluster48, centers=2)
+````
+
+````{r}
+#DGE
+#install limma
+#BiocManager::install("limma")
+library(limma)
+`````
+linear models can be used to identify differentially expressed genes in dataset: here we have to set 2 variables that we will concentrate on in our objective (vor example certain pathways that are upregulated in cell stages or whatever --> ian's corr pathway bank)
+Y=A+BX+C
+y:expression level of gene 
+A: mean expression level in whatever thing we want
+B: mean expression level of positive (that has gene or is upregulated in certain tissue) to neg (not upregulated in tissue also negative)
+x: status (o=neg, 1=positive)
+c: random noise
+Why did we choose limma? during the quality control we did a vsn which is a log transformation. Limma uses the log distribution unlike degseq which uses neg. binomial. the t-test is the recommended form of testing for the differential gene expression
+`````{r}
+design= model.matrix(~0+factor(c(1,1,1,2,2,3,3,3,4,4,4,5,6,6,6)))
+colnames(design)= c("one", "two","four", "eight", "morula", "blastocyst")
+fit= lmFit(mouse_df_ohne, design)
+contrast.matrix= makeContrasts(two-one,four-two, eight-four, morula-eight, blastocyst-morula,levels = design)
+fit2= contrasts.fit(fit, contrast.matrix)
+fit2= eBayes(fit2)
+#linear model is done
+`````
+In order to obtain a list of top genes differentially expressed in eg. two vs-one we use function topTable
+```{r}
+topTable(fit2, coef=1)
+````
+the outcome of each hypothesis test can be assigned using the function decideTest
+````{r}
+results= decideTests(fit2)
+view(results)
+````
+
