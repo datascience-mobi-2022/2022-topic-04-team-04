@@ -201,10 +201,30 @@ fit2= eBayes(fit2)
 In order to obtain a list of top genes differentially expressed in eg. two vs-one we use function topTable
 ```{r}
 topTable(fit2, coef=1)
-````
+```
 the outcome of each hypothesis test can be assigned using the function decideTest
-````{r}
+```{r}
 results= decideTests(fit2)
-view(results)
-````
-
+View(results)
+summary(results)
+```
+trying again but with matched
+```{r}
+design1= model.matrix(~0+factor(c(1,1,1,2,2,3,3,3,4,4,4,5,6,6,6)))
+colnames(design1)= c("one", "two","four", "eight", "morula", "blastocyst")
+fit_matched= lmFit(TRAs_mousedataset, design1)
+contrast.matrix_new= makeContrasts(two-one,four-two, eight-four, morula-eight, blastocyst-morula,levels = design1)
+fit_matched2= contrasts.fit(fit_matched, contrast.matrix)
+fit_matched2= eBayes(fit_matched2)
+#linear model is done
+```
+In order to obtain a list of top genes differentially expressed in eg. two vs-one we use function topTable
+```{r}
+topTable(fit_matched2, coef=1)
+```
+the outcome of each hypothesis test can be assigned using the function decideTest
+```{r}
+results1= decideTests(fit_matched2)
+View(results1)
+summary(results1)
+```
