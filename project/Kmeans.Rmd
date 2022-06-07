@@ -1,0 +1,69 @@
+---
+title: "Kmeans"
+author: "Team 04 Group 04"
+date: '2022-06-07'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+````{r}
+#install package cluster 
+#install.packages("ClusterR")
+#install.packages("cluster")
+library(cluster)
+library(tidyverse)
+library(factoextra)
+set.seed(123)
+wss= function(k) {
+  kmeans(df_mean_expression, k, nstart = 10)$tot.withinss
+}
+k.values=1:15
+wss_values= map_dbl(k.values, wss)
+plot(k.values, wss_values, type= "b", pch=19, frame= FALSE, xlab= "Number of Clusters k", ylab= "total within- clusters sum of squares")
+# we suspect we will have 3 or 2 clusters, that's why we will prove it with the silhouete methode 
+avg_sil <- function(k) {
+  km.res <- kmeans(df_mean_expression, centers = k, nstart = 25)
+  ss <- silhouette(km.res$cluster, dist(df_mean_expression))
+  mean(ss[, 3])
+}
+
+# Compute and plot wss for k = 2 to k = 15
+k.values <- 2:15
+
+# extract avg silhouette for 2-15 clusters
+avg_sil_values <- map_dbl(k.values, avg_sil)
+
+plot(k.values, avg_sil_values,
+       type = "b", pch = 19, frame = FALSE, 
+       xlab = "Number of clusters K",
+       ylab = "Average Silhouettes")
+fviz_nbclust(df_mean_expression, kmeans, method= "silhouette")
+kmeans=kmeans(df_mean_expression, centers=2)
+
+`````
+
+````{r}
+cluster48= data.frame(df_mean_expression[,3], df_mean_expression[,4])
+
+avg_sil_48 <- function(k) {
+  km.res_48<- kmeans(cluster48, centers = k, nstart = 25)
+  ss_48<- silhouette(km.res_48$cluster, dist(cluster48))
+  mean(ss_48[, 3])
+}
+
+# Compute and plot wss for k = 2 to k = 15
+k.values_48 <- 2:15
+
+# extract avg silhouette for 2-15 clusters
+avg_sil_values_48 <- map_dbl(k.values_48, avg_sil_48)
+
+plot(k.values_48, avg_sil_values_48,
+       type = "b", pch = 19, frame = FALSE, 
+       xlab = "Number of clusters K",
+       ylab = "Average Silhouettes")
+fviz_nbclust(cluster48,kmeans, method= "silhouette")
+kmeans_48=kmeans(cluster48, centers=2)
+````
