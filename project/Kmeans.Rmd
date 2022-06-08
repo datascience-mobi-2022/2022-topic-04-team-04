@@ -8,6 +8,21 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+Mean expression of each cellstage of the triplicate 
+````{r}
+mean_expression_1cell= rowMeans(TRAs_mousedataset[,1:3])
+mean_expression_2cell= rowMeans(TRAs_mousedataset[,4:5])
+mean_expression_4cell= rowMeans(TRAs_mousedataset[,6:8])
+mean_expression_8cell= rowMeans(TRAs_mousedataset[,9:11])
+mean_expression_morula= TRAs_mousedataset[,12]
+mean_expression_blastocyst= rowMeans(TRAs_mousedataset[,13:15])
+`````
+Combining the mean expression into dataframe 
+````{r}
+df_mean_expression= data.frame(mean_expression_1cell, mean_expression_2cell, mean_expression_4cell, mean_expression_8cell, mean_expression_morula, mean_expression_blastocyst)
+`````
+
+We will preform a kmeans clustering to try to identify groups of genes that can be put in one group 
 
 ````{r}
 #install package cluster 
