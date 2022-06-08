@@ -1,0 +1,160 @@
+---
+title: "TRAs"
+author: "Team 04 Group 04"
+date: '2022-05-29'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+library(moe430ammenstprobe)
+library(moe430ammenstcdf)
+library(hexbin)
+library(pheatmap)
+library(rstudioapi)
+library(tidyverse)
+library(dplyr)
+library(icd.data)
+library(tibble)
+```
+
+
+```{r}
+projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+```
+
+```{r}
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+```
+
+```{r}
+# taking out control rows
+head(vsn.qmouse, n = 64)
+data_ohneaffx= vsn.qmouse[65:39345,]
+x = rownames(data_ohneaffx)
+namen=(substr(x,0,18)[1:39281])
+rownames(data_ohneaffx) <- c(namen)
+data_ohneaffx #Datensatz ohne die Affymetrix Kontrollreihen
+```
+
+loading and reading TRA data
+```{r}
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+TRAs1 <-read_tsv("tra.2014.mouse.5x.table.tsv")
+TRAs2 <-read_tsv("tra.2014.mouse.4301.5x.table.tsv")
+```
+
+combining TRA data
+```{r}
+TRA_total=rbind(TRAs1,TRAs2) # Beide TRA Datensätze von Dr. Dinkelakcer zusammengefügt
+TRA_total_tissue = cbind(TRA_total[,1], TRA_total[,11]) #Dataframe, der Transcript ID und Max. tissue hat
+
+unique_TRAs_tissue = unique(TRA_total_tissue$ensembl.transcript) #Nochmal Unique, diesemal vieeeel mehr Einträge als vorher CHECK
+df_unique_TRA_tissue = as.data.frame(unique_TRAs_tissue)
+
+unique_TRAs = unique(TRAs1$ensembl.transcript, TRAs2$ensembl.transcript) # shows unique TRAs, to match with out Dataset
+
+```
+
+#matching TRA data with mouse data
+```{r}
+TRAs_mousedataset = data_ohneaffx[which(rownames(data_ohneaffx) %in% unique_TRAs),] # Zeigt, welche TRAs in Mausdataset vorhanden sind + ABsolute Expressionswerte, nur Zeilen, die TRAs sind sind drin
+
+
+keeprows_Mousedata = c(rownames(TRAs_mousedataset)) #Transcript IDs of TRAs present in Dataset
+
+#Erste col in TRA_total muss rownames werden weil sonst matching nicht klappt: 
+
+#transcriptID_TRA_total = c(TRA_total[,1])
+
+
+
+
+
+
+#TRAs_mousedataset_tissue = cbind(TRAs_mousedataset, tissues_TRAs)
+#-> Maus data ohne Kontrollen wurde gefiltert, sodass nur Zeilen bleiben, die Spaltennamen wie unique TRAs haben --> alle unique TRAs in Datensatz sind vorhanden 
+# gematchte Gene, alle TRAs die es in unserem Datensatz gibt
+
+```
+
+
+#```{r}
+ensemble.genes = 
+
+mouse_df = data.frame(vsn.qmouse)
+mouse_df_ohne = mouse_df[65:39345,]
+rownames(mouse_df_ohne) = substr(rownames(mouse_df_ohne), 1, 18)
+#x = rownames(mouse_df_ohne)
+#namen=(substr(x,0,18)[1:39281])
+
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+TRAs1 <-read.table("tra.2014.mouse.5x.table.tsv", header = TRUE)
+TRAs2 <-read.table("tra.2014.mouse.4301.5x.table.tsv", header = TRUE)
+
+
+#```
+
+#```{r}
+rownames(data_ohneaffx) = NULL
+dat = cbind(namen, data_ohneaffx)
+names = dat[,1]
+
+#```
+
+```{r}
+#Tissue overview in total TRA --- 08.06.2022 AD, ND
+
+TRA_total
+TRA_tissuenames = as.data.frame(TRA_total[,11])
+TRA_tissuevector = c(TRA_tissuenames)
+Tissue_counts = table(TRA_tissuevector)
+Tissue_sort = sort(Tissue_counts)
+Top_tissue = tail(Tissue_sort)
+plot(Top_tissue)
+plot(Tissue_counts)
+
+
+# Make a new table of results, 
+
+mean_expression_1cell = rowMeans(TRAs_mousedataset[,1:3])
+mean_expression_2cell = rowMeans(TRAs_mousedataset[,4:5])
+mean_expression_4cell = rowMeans(TRAs_mousedataset[,6:8])
+mean_expression_8cell = rowMeans(TRAs_mousedataset[,9:11])
+mean_expression_morula = TRAs_mousedataset[,12]
+mean_expression_blastocyst = rowMeans(TRAs_mousedataset[,13:15])
+
+# df mean expression zeigt mean expressions pro zellstadium, noch keine Tissues vorhanden
+df_mean_expression= data.frame(mean_expression_1cell, mean_expression_2cell, mean_expression_4cell, mean_expression_8cell, mean_expression_morula,mean_expression_blastocyst)
+df_mean_expression
+# In TRAs_mousedataset liegen alle TRAs, die in unserem Datensatz verfügbar sind, aber ohen tissue informationen
+# In df_mean_expression sind die Expressionslevel angezeigt
+
+
+#df_mean_expression[Tissue_max] = TRA_total[,11]
+
+#TRAs_Transkriptnames ist mean expression mit Transcript ID als Spalte
+#TRAs_Transcriptnames <- cbind(rownames(df_mean_expression), data.frame(df_mean_expression, row.names=NULL))
+
+# wir wollen: df_mean_expression mit tissues und Results -> Matchen von TRAs_Transcriptnames with TRAs_total
+#df_mean_expression -> Mean von 6188 Genes
+#TRA_total --> TRA table with tissue and all genes
+Tissue_TRA = df_mean_expression[which(rownames(df_mean_expression) %in% unique_TRAs)]
+
+TRAs_mousedataset = data_ohneaffx[which(rownames(data_ohneaffx) %in% unique_TRAs),] 
+Matched_with_tissue = cbind
+
+#merge(x = df_mean_expression, y = TRA_total[ , c("rownames(df_mean_expression", "max.tissue")], by = , all.x=TRUE)
+
+#-> Problem: wir wollten tabelle erstellen, die transcript ID, Tissue und result zeigt, aber nur von den TRAs, die in unserem Datenset vorhanden sind
+
+```
+
+
+
