@@ -55,7 +55,6 @@ TRA_unique_names = rownames(rownamesTRA_total) # vektor aus unique TRA names als
 
 
 #####Anderer Code Dump----------------------------####################
-```{r}
 #Tissue overview in total TRA --- 08.06.2022 AD, ND
 
 TRA_total
@@ -101,4 +100,16 @@ Matched_with_tissue = cbind
 
 #-> Problem: wir wollten tabelle erstellen, die transcript ID, Tissue und result zeigt, aber nur von den TRAs, die in unserem Datenset vorhanden sind
 
-```
+#####Amena Code Dump----------------------------####################
+matched_tissues = TRA_total[which(TRA_total[,1] %in% rownames(TRAs_mousedataset)),]
+View(matched_tissues)
+#matched_tissues_copy = cbind(matched_tissues[,1], matched_tissues)
+duplicates = duplicated(matched_tissues[,1])
+matched_tissues_new = matched_tissues[!duplicates,]
+
+####just trying to see if we could do the same with TRA total
+
+# 1. hagib TRA1 we TRA2 we hashuf anhi mesh zai ba3d men spalte 1
+# el false hashuf el indices beto3hom we ashil el TRUE men el datafram kolaha
+# hagib TRA 1 kolaha we azawed el false men TRA2 we a7otohom as TRA total
+# then match this with th TRA_mousedata
