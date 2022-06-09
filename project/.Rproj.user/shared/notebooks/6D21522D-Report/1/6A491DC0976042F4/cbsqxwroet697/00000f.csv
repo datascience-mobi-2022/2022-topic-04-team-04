@@ -1,0 +1,8 @@
+"0","design1= model.matrix(~0+factor(c(1,1,1,2,2,3,3,3,4,4,4,5,6,6,6)))"
+"0","colnames(design1)= c(""one"", ""two"",""four"", ""eight"", ""morula"", ""blastocyst"")"
+"0","fit_matched= lmFit(TRAs_mousedataset, design1)"
+"0","contrast.matrix_new= makeContrasts(two-one,four-two, eight-four, morula-eight, blastocyst-morula,levels = design1)"
+"0","fit_matched2= contrasts.fit(fit_matched, contrast.matrix)"
+"2","Error in contrasts.fit(fit_matched, contrast.matrix) : 
+  object 'contrast.matrix' not found
+"
