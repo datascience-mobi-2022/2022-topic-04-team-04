@@ -58,7 +58,11 @@ TRA_unique_names = rownames(rownamesTRA_total) # vektor aus unique TRA names als
 #Tissue overview in total TRA --- 08.06.2022 AD, ND
 
 TRA_total
-TRA_tissuenames = as.data.frame(TRA_total[,11])
+TRA_tissuenames = sort(table(c(as.data.frame(TRA_total[,11]))))
+TRA_top_tissue = tail(TRA_tissuenames)
+plot(TRA_tissuenames)
+plot(TRA_top_tissue)
+p
 TRA_tissuevector = c(TRA_tissuenames)
 Tissue_counts = table(TRA_tissuevector)
 Tissue_sort = sort(Tissue_counts)
@@ -107,9 +111,57 @@ View(matched_tissues)
 duplicates = duplicated(matched_tissues[,1])
 matched_tissues_new = matched_tissues[!duplicates,]
 
-####just trying to see if we could do the same with TRA total
 
-# 1. hagib TRA1 we TRA2 we hashuf anhi mesh zai ba3d men spalte 1
-# el false hashuf el indices beto3hom we ashil el TRUE men el datafram kolaha
-# hagib TRA 1 kolaha we azawed el false men TRA2 we a7otohom as TRA total
-# then match this with th TRA_mousedata
+
+
+vec = c(rownames(TRAs_mousedataset)) # alle unique TRAs sind jetzt in diesem Vektor
+tissue = TRA_total[is.element(TRA_total$ensembl.transcript, rownames(TRAs_mousedataset)), ] #hat 10207 Zeilen anstatt nur 6188...
+duplicate = duplicated(tissue[,1])
+matched_tissue = tissue[!duplicate,]
+saveRDS(matched_tissue, file = "matched_tissue.rds")
+
+
+matched_tissue1
+matched_tissuenames = as.data.frame(matched_tissue1[,11])
+matched_tissuevector = c(matched_tissuenames)
+matched_Tissue_counts = table(matched_tissuevector)
+matched_Tissue_sort = sort(matched_Tissue_counts)
+View(matched_Tissue_sort)
+matched_Top_tissue = tail(matched_Tissue_sort)
+plot(matched_Top_tissue)
+plot(matched_Tissue_counts)
+
+###############################DGe mit tissues in gleiche tabelle
+DGE_tissues = cbind(results1, matched_tissue[,11])
+
+##matrix mit 4-8 cell overexpressed
+DGE_foureight = cbind(DGE_tissues[,3],DGE_tissues[,6])
+rownames(DGE_foureight) = rownames(DGE_tissues)
+colnames(DGE_foureight) = c("four to eight","max.tissue")
+DGE_foureight_oe = DGE_foureight[DGE_foureight[,1] == 1,]
+View(DGE_foureight_oe)
+
+DGE_foureight_oe_count = sort(table(c(as.data.frame(DGE_foureight_oe[,2]))))
+DGE_foureight_oe_top = tail(DGE_foureight_oe_count)
+barplot(DGE_foureight_oe_count,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are overexpressed")
+view(DGE_foureight_oe_count)
+barplot(DGE_foureight_oe_top,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are overexpressed in the top 6 tissues")
+# blastocyst is overexpressed
+ # matrix mit 4-8 cell underexpressed
+DGE_foureight_ue = DGE_foureight[DGE_foureight[,1] == -1,]
+View(DGE_foureight_ue)
+DGE_foureight_ue_count = sort(table(c(as.data.frame(DGE_foureight_ue[,2]))))
+DGE_foureight_ue_top = tail(DGE_foureight_ue_count)
+barplot(DGE_foureight_ue_count,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are  underexpressed")
+view(DGE_foureight_ue_count)
+barplot(DGE_foureight_ue_top,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are underexpressed in the top 6 tissues")
+#oocyte is underexpressed 
+#twofour
+DGE_twofour_oe = cbind(DGE_tissues[,2],DGE_tissues[,6])
+rownames(DGE_twofour_oe) = rownames(DGE_tissues)
+colnames(DGE_twofour_oe) = c("2-4","max.tissue")
+DGE_twofour_oe_count = sort(table(c(as.data.frame(DGE_twofour_oe[,2]))))
+DGE_twofour_oe_top = tail(DGE_twofour_oe_count)
+barplot(DGE_twofour_oe_count,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are overexpressed")
+view(DGE_twofour_oe_count)
+barplot(DGE_twofour_oe_top,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are overexpressed in the top 6 tissues")

@@ -2,7 +2,9 @@
 title: "Report"
 author: "Team 04 Group 04"
 date: '2022-06-08'
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -143,7 +145,7 @@ Why did we choose limma as the form of differential gene expression? During the 
 design1= model.matrix(~0+factor(c(1,1,1,2,2,3,3,3,4,4,4,5,6,6,6)))
 colnames(design1)= c("one", "two","four", "eight", "morula", "blastocyst")
 fit_matched= lmFit(TRAs_mousedataset, design1)
-contrast.matrix_new= makeContrasts(two-one,four-two, eight-four, morula-eight, blastocyst-morula,levels = design1)
+contrast.matrix= makeContrasts(two-one,four-two, eight-four, morula-eight, blastocyst-morula,levels = design1)
 fit_matched2= contrasts.fit(fit_matched, contrast.matrix)
 fit_matched2= eBayes(fit_matched2)
 #linear model is done
@@ -166,4 +168,62 @@ plot(x=c(1,2,3,4,5), y=summary(results1)[2,],xlab ="cell stages", ylab="sum of  
 plot(x=c(1,2,3,4,5), y=summary(results1)[3,], xlab ="cell stages", ylab="sum of upregulated genes", type = "l")
 ```
 
-After we plotted the summary of the DGE, we can conclude that during the fourth to eighth cell stadium the highest upregulation can be seen. The amount of genes that were downregulated as well had no significance were between the secound and fourth cell stadium. 
+After we plotted the summary of the DGE, we can conclude that during the fourth to eighth cell stadium the highest upregulation can be seen. The amount of genes that were downregulated as well had no significance were between the secound and fourth cell stadium.
+
+These are the tissues in all TRA data plotted against their frequency. In the next plot only the top 6 tissues are shown.
+```{r}
+TRA_tissuenames = sort(table(c(as.data.frame(TRA_total[,11]))))
+TRA_top_tissue = tail(TRA_tissuenames)
+barplot(TRA_tissuenames,las =2, xlab = "tissue" , ylab="Frequency", main ="Frequency of TRAs in all tissues")
+barplot(TRA_top_tissue,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of TRAs in top tissues")
+```
+
+We created a matrix from "TRA_total" that only contains TRAs that our mouse data has.
+```{r}
+tissue = TRA_total[is.element(TRA_total$ensembl.transcript,
+                              rownames(TRAs_mousedataset)), ]
+duplicate = duplicated(tissue[,1])
+matched_tissue = tissue[!duplicate,]
+```
+
+These are the tissues in our matched dataset plotted against their frequency. In the next plot only the top 6 tissues are shown.
+```{r}
+matched_tissuenames = sort(table(c(as.data.frame(matched_tissue[,11]))))
+matched_top_tissue = tail(matched_tissuenames)
+barplot(matched_tissuenames, las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs in all tissues")
+barplot(matched_top_tissue, las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs in top tissues")
+```
+
+We added the "max.tissue" vector to the DGE results.
+```{r}
+DGE_tissues = cbind(results1, matched_tissue[,11])
+```
+
+After that we filtered for different expression levels. Reminder 1= overexpression, -1= underexpression and 0= not significant change. We focused on the 4-8 cell stages.
+```{r}
+#1. Overexpression
+DGE_foureight = cbind(DGE_tissues[,3],DGE_tissues[,6])
+rownames(DGE_foureight) = rownames(DGE_tissues)
+colnames(DGE_foureight) = c("four to eight","max.tissue")
+DGE_foureight_oe = DGE_foureight[DGE_foureight[,1] == 1,]
+View(DGE_foureight_oe)
+
+DGE_foureight_oe_count = sort(table(c(as.data.frame(DGE_foureight_oe[,2]))))
+DGE_foureight_oe_top = tail(DGE_foureight_oe_count)
+barplot(DGE_foureight_oe_count,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are overexpressed")
+view(DGE_foureight_oe_count)
+barplot(DGE_foureight_oe_top,las =2, xlab = "tissue" , ylab="Frequency",main="Frequency of matched TRAs that are overexpressed in the top 6 tissues")
+# We conclude that the blastocyst has the highest overexpression
+
+#2. Underexpression
+DGE_foureight_ue = DGE_foureight[DGE_foureight[,1] == -1,]
+View(DGE_foureight_ue)
+DGE_foureight_ue_count = sort(table(c(as.data.frame(DGE_foureight_ue[,2]))))
+DGE_foureight_ue_top = tail(DGE_foureight_ue_count)
+barplot(DGE_foureight_ue_count,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are  underexpressed")
+view(DGE_foureight_ue_count)
+barplot(DGE_foureight_ue_top,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are underexpressed in the top 6 tissues")
+#We conclude that the oocyte has the highest underexpression
+````
+
+
