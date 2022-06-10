@@ -104,6 +104,7 @@ qdata.mouse = ReadAffy()
 qdata.mouse@cdfName <- "MOE430A_Mm_ENST"
 vsnqmouse = vsnrma(qdata.mouse)
 vsn.qmouse = exprs(vsnqmouse)
+save.image(file="normalizeddata.rda")
 ```
 
 We took out the control rows starting with AFFX and then removed the last characters after the dot in the transcript IDs.

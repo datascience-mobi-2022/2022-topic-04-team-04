@@ -1,0 +1,15 @@
+"0","save.image(vsn.qmouse,file=""normalizeddata.rda"")
+"
+"2","Warning in !is.null(version) && version < 2 :"
+"2","
+ "
+"2"," 'length(x) = 590175 > 1' in coercion to 'logical(1)'
+"
+"2","Warning in !is.null(version) && version == 1 :"
+"2","
+ "
+"2"," 'length(x) = 590175 > 1' in coercion to 'logical(1)'
+"
+"2","Error in save(list = names(.GlobalEnv), file = outfile, version = version,  : 
+  version 8 not supported
+"

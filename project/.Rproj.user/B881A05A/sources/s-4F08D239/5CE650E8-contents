@@ -1,0 +1,230 @@
+---
+title: "Report"
+author: "Team 04 Group 04"
+date: '2022-06-08'
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE)
+```
+
+Loading libraries
+```{r}
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+library(moe430ammenstcdf)
+library(moe430ammenstprobe)
+library(cluster)
+library(dplyr)
+library(hexbin)
+library(pheatmap)
+library(rstudioapi)
+library(tidyverse)
+library(readr)
+library(ggplot2)
+library(knitr)
+library(limma)
+library(Rcpp)
+library(icd.data)
+library(tibble)
+```
+
+Setting project path
+```{r}
+projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+```
+1. Introduction
+
+Tissue restricted antigens ( TRAs) play a huge role in the positive and negative selection of T Cells in order to avoid autoreactive tcells in the immune system. In our project, we aim to analyze if the large changes in gene expression between the fourth and eighth cell stages are linked to the expression of TRAs and thus the tissue development.
+
+2. Quality Control
+
+
+
+Setting working directory and loading mouse data
+```{r}
+setwd(paste(projectPath,"rawdata","zippedmouse",sep = "/"))
+data.mouse=ReadAffy()
+data.mouse@cdfName <- "MOE430A_Mm_ENST"
+```
+
+A Quality Control tests the quality of the chips to eliminate the quality problems such as, finger prints, local dye problems or extreme light intensities. First we take a look at the microarray chips through reading them in. After taking a look at all 18 chips we postulated that chip 6, 14 and 15 are of bad quality and we continued the quality analysis to see if that was true.
+```{r}
+for (i in 1:18){
+   image(data.mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
+```
+
+After that comes the anaylsis of the rna degredation in order to see  the rate of degredation of individual transcripts by examining the 3′/5′ probe-set signal ratios.
+```{r}
+mouse_RNAdeg <- AffyRNAdeg(data.mouse)
+plotAffyRNAdeg(mouse_RNAdeg, col = rainbow(15))
+```
+
+Variance stabilization normalization was performed and the standard deviation was plotted against the mean.Through the meanSD plot the variance stabillization can be measured. The matrix "vsn.mouse" contains the gene expression values derived from the intensity values of the chips.
+```{r}
+set.seed(234)
+vsnmouse <- vsnrma(data.mouse)
+meanSdPlot(vsnmouse, plot = FALSE)$gg + theme(aspect.ratio = 1)
+vsn.mouse = exprs(vsnmouse)
+```
+
+A successful vsn would show us that the median of all chips are aligned which is here plotted. This plot was compared to the boxplot of our raw mouse data.
+```{r}
+## Before normalization
+par ( las =2)
+boxplot (data.mouse ,col = rainbow (150),cex.axis = 0.4,main ="Gene expression mouse embryonic development before normalization")
+
+## After normalization
+par ( las =2)
+boxplot (vsn.mouse,col = rainbow (150),cex.axis =0.5,main ="Gene expression mouse embryonic development after normalization")
+```
+
+After that we plotted the density function against the log intensity of each chip. We can see that the vsn was successful as the curves of the chips align together. This plot was compared to the histogram of our raw mouse data.
+```{r}
+## Before normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+hist(data.mouse, col = rainbow(10), main = "Density function of log intensity mouse ED before normalization")
+
+## After normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+plot(density(vsn.mouse), type = "n", xlab = "log Intensity", ylim = c(0, 0.6),main = "Density function of log intensity mouse ED after normalization")
+for (i in 1:ncol(vsn.mouse)){lines(density(vsn.mouse[,i]), col = rainbow(10)[i])}
+```
+The RNA degradation plot, boxplot and histogram confirmed that the 3 chips, that looked significantly different from the rest, were indeed low quality chips.
+
+
+As the QC showed, chips 6,14,15 are of low quality.That's why we will be disregarding them from now on.
+```{r}
+setwd(paste(projectPath,"rawdata","qualityzipped",sep = "/"))
+qdata.mouse = ReadAffy()
+qdata.mouse@cdfName <- "MOE430A_Mm_ENST"
+vsnqmouse = vsnrma(qdata.mouse)
+vsn.qmouse = exprs(vsnqmouse)
+save.image(file="normalizeddata.rda")
+```
+
+We took out the control rows starting with AFFX and then removed the last characters after the dot in the transcript IDs.
+```{r}
+data_ohneaffx= vsn.qmouse[65:39345,]
+namen=(substr(rownames(data_ohneaffx),0,18)[1:39281])
+rownames(data_ohneaffx) <- c(namen)
+data_ohneaffx
+```
+
+3.TRA matching and differential gene expression (DGE)
+
+Loading TRA data
+```{r}
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+TRAs1 <-read_tsv("tra.2014.mouse.5x.table.tsv")
+TRAs2 <-read_tsv("tra.2014.mouse.4301.5x.table.tsv")
+```
+
+Both TRA datasets were combined and all duplicates were removed. The new dataset containing no duplicates is called "unique_TRAs". It was then matched with our mouse data to create a matrix with all matched gene transcripts.The columns are the 15 chips and the rows consist of matched transcript IDs.
+```{r}
+TRA_total = rbind(TRAs1,TRAs2)
+unique_TRAs = unique(TRAs1$ensembl.transcript, TRAs2$ensembl.transcript)
+TRAs_mousedataset = data_ohneaffx[which(rownames(data_ohneaffx) %in% unique_TRAs),]
+```
+
+Linear Models can be used to identify differentially expressed genes in dataset with the following equation
+Y=A+BX+C . "They are
+typically used to assess strength of the relationship between Y and x, i.e., how much does Y really" (Dündar 2020)
+depend on x? 
+Y:expression level of gene 
+A:the value of the intercept, represents the expression values of the baseline condition;
+B: he regression coefficient, happens to capture the difference between Y from samples of different
+conditions
+x: status (0=neg, 1=positive)
+c: random noise
+Why did we choose limma as the form of differential gene expression? During the quality control we did a vsn which is a log transformation. Limma uses the log distribution unlike DegSeq which uses negative binomial. The t-test is the recommended form of testing for the differential gene expression
+```{r}
+design1= model.matrix(~0+factor(c(1,1,1,2,2,3,3,3,4,4,4,5,6,6,6)))
+colnames(design1)= c("one", "two","four", "eight", "morula", "blastocyst")
+fit_matched= lmFit(TRAs_mousedataset, design1)
+contrast.matrix= makeContrasts(two-one,four-two, eight-four, morula-eight, blastocyst-morula,levels = design1)
+fit_matched2= contrasts.fit(fit_matched, contrast.matrix)
+fit_matched2= eBayes(fit_matched2)
+#linear model is done
+```
+In order to obtain a list of top genes differentially expressed in eg. two vs-one we use function topTable
+```{r}
+topTable(fit_matched2, coef=1)
+```
+The outcome of each hypothesis test can be assigned using the function decideTest
+```{r}
+results1= decideTests(fit_matched2)
+View(results1)
+summary(results1)
+```
+We plotted the summary of the "results1" 
+```{r}
+#elbow plot
+plot(x=c(1,2,3,4,5), y=summary(results1)[1,], xlab ="cell stages", ylab="sum of downregulated genes", type = "l")
+plot(x=c(1,2,3,4,5), y=summary(results1)[2,],xlab ="cell stages", ylab="sum of  genes with no significant change", type = "l")
+plot(x=c(1,2,3,4,5), y=summary(results1)[3,], xlab ="cell stages", ylab="sum of upregulated genes", type = "l")
+```
+
+After we plotted the summary of the DGE, we can conclude that during the fourth to eighth cell stadium the highest upregulation can be seen. The amount of genes that were downregulated as well had no significance were between the secound and fourth cell stadium.
+
+These are the tissues in all TRA data plotted against their frequency. In the next plot only the top 6 tissues are shown.
+```{r}
+TRA_tissuenames = sort(table(c(as.data.frame(TRA_total[,11]))))
+TRA_top_tissue = tail(TRA_tissuenames)
+barplot(TRA_tissuenames,las =2, xlab = "tissue" , ylab="Frequency", main ="Frequency of TRAs in all tissues")
+barplot(TRA_top_tissue,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of TRAs in top tissues")
+```
+
+We created a matrix from "TRA_total" that only contains TRAs that our mouse data has.
+```{r}
+tissue = TRA_total[is.element(TRA_total$ensembl.transcript,
+                              rownames(TRAs_mousedataset)), ]
+duplicate = duplicated(tissue[,1])
+matched_tissue = tissue[!duplicate,]
+```
+
+These are the tissues in our matched dataset plotted against their frequency. In the next plot only the top 6 tissues are shown.
+```{r}
+matched_tissuenames = sort(table(c(as.data.frame(matched_tissue[,11]))))
+matched_top_tissue = tail(matched_tissuenames)
+barplot(matched_tissuenames, las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs in all tissues")
+barplot(matched_top_tissue, las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs in top tissues")
+```
+
+We added the "max.tissue" vector to the DGE results.
+```{r}
+DGE_tissues = cbind(results1, matched_tissue[,11])
+```
+
+After that we filtered for different expression levels. Reminder 1= overexpression, -1= underexpression and 0= not significant change. We focused on the 4-8 cell stages.
+```{r}
+#1. Overexpression
+DGE_foureight = cbind(DGE_tissues[,3],DGE_tissues[,6])
+rownames(DGE_foureight) = rownames(DGE_tissues)
+colnames(DGE_foureight) = c("four to eight","max.tissue")
+DGE_foureight_oe = DGE_foureight[DGE_foureight[,1] == 1,]
+View(DGE_foureight_oe)
+
+DGE_foureight_oe_count = sort(table(c(as.data.frame(DGE_foureight_oe[,2]))))
+DGE_foureight_oe_top = tail(DGE_foureight_oe_count)
+barplot(DGE_foureight_oe_count,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are overexpressed")
+view(DGE_foureight_oe_count)
+barplot(DGE_foureight_oe_top,las =2, xlab = "tissue" , ylab="Frequency",main="Frequency of matched TRAs that are overexpressed in the top 6 tissues")
+# We conclude that the blastocyst has the highest overexpression
+
+#2. Underexpression
+DGE_foureight_ue = DGE_foureight[DGE_foureight[,1] == -1,]
+View(DGE_foureight_ue)
+DGE_foureight_ue_count = sort(table(c(as.data.frame(DGE_foureight_ue[,2]))))
+DGE_foureight_ue_top = tail(DGE_foureight_ue_count)
+barplot(DGE_foureight_ue_count,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are  underexpressed")
+view(DGE_foureight_ue_count)
+barplot(DGE_foureight_ue_top,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are underexpressed in the top 6 tissues")
+#We conclude that the oocyte has the highest underexpression
+````
+
+
