@@ -226,5 +226,15 @@ view(DGE_foureight_ue_count)
 barplot(DGE_foureight_ue_top,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are underexpressed in the top 6 tissues")
 #We conclude that the oocyte has the highest underexpression
 ````
+We will focus on the heart as it is the earliest organ that developes 
+````{r}
+# Extracting all over expressed genes in the 4-8 cell stage that are found in the heart
+OE_foureight=as.data.frame(DGE_foureight_oe)
+view(DGE_foureight_oe)
+oe_foureight_corr=rownames_to_column(OE_foureight, var = "Gene Script")
+view(oe_foureight_corr)
+heart= oe_foureight_corr[oe_foureight_corr$max.tissue=="heart",]
+view(heart)
+````
 
 
