@@ -99,12 +99,13 @@ The RNA degradation plot, boxplot and histogram confirmed that the 3 chips, that
 
 As the QC showed, chips 6,14,15 are of low quality.That's why we will be disregarding them from now on.
 ```{r}
-setwd(paste(projectPath,"rawdata","qualityzipped",sep = "/"))
-qdata.mouse = ReadAffy()
-qdata.mouse@cdfName <- "MOE430A_Mm_ENST"
-vsnqmouse = vsnrma(qdata.mouse)
-vsn.qmouse = exprs(vsnqmouse)
-save.image(file="normalizeddata.rda")
+#setwd(paste(projectPath,"rawdata","qualityzipped",sep = "/"))
+#qdata.mouse = ReadAffy()
+#qdata.mouse@cdfName <- "MOE430A_Mm_ENST"
+#vsnqmouse = vsnrma(qdata.mouse)
+#vsn.qmouse = exprs(vsnqmouse)
+#save.image(file="normalizeddata.rda")
+load("normalizeddata.rda")
 ```
 
 We took out the control rows starting with AFFX and then removed the last characters after the dot in the transcript IDs.
