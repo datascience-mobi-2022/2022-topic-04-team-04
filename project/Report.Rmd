@@ -155,6 +155,8 @@ fit_matched2= eBayes(fit_matched2)
 In order to obtain a list of top genes differentially expressed in eg. two vs-one we use function topTable
 ```{r}
 topTable(fit_matched2, coef=1)
+VolcanoData <- topTable(fit_matched2, coef=1)
+save(VolcanoData, file= "~/GitHub/project/VolcanoData.RData")
 ```
 The outcome of each hypothesis test can be assigned using the function decideTest
 ```{r}
