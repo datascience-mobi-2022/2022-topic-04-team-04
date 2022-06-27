@@ -170,12 +170,16 @@ fit_matched= lmFit(TRAs_mousedataset, design1)
 contrast.matrix= makeContrasts(two-one,four-two, eight-four, morula-eight, blastocyst-morula,levels = design1)
 fit_matched2= contrasts.fit(fit_matched, contrast.matrix)
 fit_matched2= eBayes(fit_matched2)
+save(fit_matched2,file = "~/GitHub/project/fit_matched2.RData" )
 #linear model is done
 ```
 In order to obtain a list of top genes differentially expressed in eg. two vs-one we use function topTable
 ```{r}
 write.fit(fit_matched2, file="fit.tsv")
 topTable(fit_matched2, coef=1)
+VolcanoData <- topTable(fit_matched2, coef=1)
+save(VolcanoData, file= "~/GitHub/project/VolcanoData.RData")
+
 ```
 The outcome of each hypothesis test can be assigned using the function decideTest
 ```{r}
