@@ -116,6 +116,26 @@ rownames(data_ohneaffx) <- c(namen)
 data_ohneaffx
 ```
 
+The PCA is done in order to reduce the dimensions of a big data set by seeing which variables have a high correlation and can be explained by the other. Here the variables are the different genes expressed (39281) and we have 15 samples. We transposed the matrix in order to have the columns as the genes and the samples as the rows. After that a scree plot was done in order to see how many principal components are needed, which are 2 as those explain around 50% of all the data variance. 
+A PCA was done using the PCA function in R. 
+Through the ggplot2 we can see that the first two samples (one cell stage, first and second replicate) have excellent correlation which means one sample and explain the entirety of the second sample. Sample 3 (one cell stage, third replicate) is also close to them. This is also the case in sample 7 and 8 (four cell stage, first and second replicate) but here the third replicate  is farther than the case of sample 3, which hints at a difference between the gene expressions although it's in the same cell stage. 
+The blastocyst first and third replicate are closer to each other which hints at good correlation. What one can notice is that the second replicate of the blastocyst is a lot more farther away than the other two replicates, which could mean that there are errors in the gene expression itself as the variation is way too high for it to be in the same cell stage.
+```{r}
+pca = prcomp(t(data_ohneaffx), scale = TRUE)
+pca_var = pca$sdev^2    #calculating variation
+pca_var_per = round(pca_var/sum(pca_var)*100,1)   # variation into percentage
+barplot(pca_var_per, main = "Scree plot", xlab ="Principal Component", ylab ="Percent Variation")
+pcacolors = c("red","red","red","blue","blue","black","black","black","gray","gray","gray","green","purple","purple","purple")
+pca_data = data.frame(Sample = rownames(pca$x), X= pca$x[,1], Y = pca$x[,2])
+ggplot(data=pca_data, aes(x=X, y=Y, label=Sample)) +
+  xlab(paste("PC1 - ", pca_var_per[1], "%", sep="")) +
+  ylab(paste("PC2 - ", pca_var_per[2], "%", sep="")) +
+  theme_bw() +
+  ggtitle("My PCA Graph") +
+  geom_text(col=pcacolors)
+
+```
+
 3.TRA matching and differential gene expression (DGE)
 
 Loading TRA data
@@ -154,6 +174,7 @@ fit_matched2= eBayes(fit_matched2)
 ```
 In order to obtain a list of top genes differentially expressed in eg. two vs-one we use function topTable
 ```{r}
+write.fit(fit_matched2, file="fit.tsv")
 topTable(fit_matched2, coef=1)
 ```
 The outcome of each hypothesis test can be assigned using the function decideTest
