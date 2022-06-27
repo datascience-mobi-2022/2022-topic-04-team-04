@@ -26,7 +26,7 @@ Mm_hallmark_df <- msigdbr(
   category = "H")
 head(Mm_hallmark_df)
 keytypes(org.Mm.eg.db)
-
+dge_heart= subset(dge_df, ...1 %in% heart$`Gene Script`)
 # First let's create a mapped data frame we can join to the differential
 # expression stats
 dge_mapped_df <- data.frame(
@@ -48,18 +48,45 @@ dge_mapped_df <- data.frame(
   # Make an `Ensembl` column to store the rownames
   tibble::rownames_to_column("Ensembltrans") %>%
   # Now let's join the rest of the expression data
-  dplyr::inner_join(dge_df, by = c("Ensembltrans" = "...1"))
+  dplyr::inner_join(dge_heart, by = c("Ensembltrans" = "...1"))
+head(dge_mapped_df)
+#The goal of GSEA is to detect situations where many genes in a gene set change in a coordinated way, even when individual changes are small in magnitude (Subramanian et al. 2005).
 
-dup_entrez_ids <- dge_mapped_df %>%
+any(duplicated(dge_mapped_df$gene_symbols))
+dup_gene_symbol <- dge_mapped_df %>%
   dplyr::filter(duplicated(gene_symbols)) %>%
   dplyr::pull(gene_symbols)
 
-dup_entrez_ids
-
+view(dup_gene_symbol)
+#t test
+t.test(dge_mapped_df)
 filtered_dge_mapped_df <- dge_mapped_df %>%
   # Sort so that the highest absolute values of the t-statistic are at the top
-  dplyr::arrange(dplyr::desc(abs(t))) %>%
+  dplyr::arrange(dplyr::desc(abs(F))) %>%
   # Filter out the duplicated rows using `dplyr::distinct()`-- this will keep
   # the first row with the duplicated value thus keeping the row with the
   # highest absolute value of the t-statistic
   dplyr::distinct(gene_symbols, .keep_all = TRUE)
+
+# Let's create a named vector ranked based on the t-statistic values
+f_vector <- filtered_dge_mapped_df$F
+names(f_vector) <- filtered_dge_mapped_df$gene_symbols
+
+# We need to sort the t-statistic values in descending order here
+f_vector <- sort(f_vector, decreasing = TRUE)
+
+set.seed(2022)
+gsea_results <- GSEA(
+  geneList = f_vector, # Ordered ranked gene list
+  minGSSize = 25, # Minimum gene set size
+  maxGSSize = 500, # Maximum gene set set
+  pvalueCutoff = 0.05, # p-value cutoff
+  eps = 0, # Boundary for calculating the p-value
+  seed = TRUE, # Set seed to make results reproducible
+  pAdjustMethod = "BH", # Benjamini-Hochberg correction
+  TERM2GENE = dplyr::select(
+    Mm_hallmark_df,
+    gene_symbol,
+    gs_name
+  )
+)
