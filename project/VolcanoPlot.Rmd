@@ -20,8 +20,14 @@ View(VolcanoData)
 library(org.Mm.eg.db)
 VolcanoData.df <- as.data.frame(VolcanoData)
 #converting ENSEMBLID to Gene Symbol (Mouse)
-#VolcanoData.df <- mapIds(org.Mm.eg.db, keys = rownames(VolcanoData.df), keytype = "ENSEMBL", column ="SYMBOL", multiVals="first")
+VolcanoData.df <- mapIds(org.Mm.eg.db, keys = rownames(VolcanoData.df), keytype = "ENSEMBL", column ="SYMBOL", multiVals="first")
 VolcanoData.df
+
+
+
+
+
+
 ```
 ```{r}
 #Volcanoploots:
@@ -33,5 +39,41 @@ library(EnhancedVolcano)
 EnhancedVolcano(VolcanoData.df, x = "logFC", y ="adj.P.Val", lab = rownames(VolcanoData))
 
 ```
+
+```{r}
+
+load('~/GitHub/project/fit_matched2.RData')
+
+Volcano = topTable(fit_matched2, number = 92820, coef = 1)
+EnhancedVolcano(Volcano, x = "logFC", y ="adj.P.Val", lab = rownames(Volcano),
+                subtitle = 'Significance = 5%',pCutoff = 0.05, pointSize = 1, ylim = c(0, 10))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
