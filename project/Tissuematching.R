@@ -136,6 +136,9 @@ DGE_tissues = cbind(results1, matched_tissue[,11])
 
 ##matrix mit 4-8 cell overexpressed
 DGE_foureight = cbind(DGE_tissues[,3],DGE_tissues[,6])
+
+saveRDS(DGE_foureight, file = "DGE_foureight.rds")
+
 rownames(DGE_foureight) = rownames(DGE_tissues)
 colnames(DGE_foureight) = c("four to eight","max.tissue")
 DGE_foureight_oe = DGE_foureight[DGE_foureight[,1] == 1,]
@@ -146,8 +149,10 @@ DGE_foureight_oe_top = tail(DGE_foureight_oe_count)
 barplot(DGE_foureight_oe_count,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are overexpressed")
 view(DGE_foureight_oe_count)
 barplot(DGE_foureight_oe_top,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are overexpressed in the top 6 tissues")
-# blastocyst is overexpressed
- # matrix mit 4-8 cell underexpressed
+# genes in blastocyst are overexpressed most
+ 
+############### matrix mit 4-8 cell underexpressed#################
+
 DGE_foureight_ue = DGE_foureight[DGE_foureight[,1] == -1,]
 View(DGE_foureight_ue)
 DGE_foureight_ue_count = sort(table(c(as.data.frame(DGE_foureight_ue[,2]))))
@@ -155,7 +160,9 @@ DGE_foureight_ue_top = tail(DGE_foureight_ue_count)
 barplot(DGE_foureight_ue_count,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are  underexpressed")
 view(DGE_foureight_ue_count)
 barplot(DGE_foureight_ue_top,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are underexpressed in the top 6 tissues")
-#oocyte is underexpressed 
+#Most underexpressed genes are connected to oozte (456)
+
+
 #twofour
 DGE_twofour_oe = cbind(DGE_tissues[,2],DGE_tissues[,6])
 rownames(DGE_twofour_oe) = rownames(DGE_tissues)
@@ -165,3 +172,12 @@ DGE_twofour_oe_top = tail(DGE_twofour_oe_count)
 barplot(DGE_twofour_oe_count,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are overexpressed")
 view(DGE_twofour_oe_count)
 barplot(DGE_twofour_oe_top,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are overexpressed in the top 6 tissues")
+
+
+
+#######################Matched underexpressed genes##############
+
+##matrix mit 4-8 cell overexpressed
+DGE_foureight = cbind(DGE_tissues[,3],DGE_tissues[,6])
+
+saveRDS(DGE_foureight, file = "DGE_foureight.rds")
