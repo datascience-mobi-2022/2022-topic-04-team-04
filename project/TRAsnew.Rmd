@@ -155,3 +155,14 @@ plot(x=c(1,2,3,4,5), y=summary(results1)[3,], xlab ="cell stages", ylab="sum of 
 # upregulated genes in cell stages unterschiedlich
 #> auch mit tissues
 # selber angucken dann trend analysieren
+
+
+```{r}
+duplicateTRA_total=duplicated(TRA_total[,1])
+TRA_total_unique= TRA_total[!duplicateTRA_total,]
+TRAs_heart = TRA_total_unique[which(TRA_total_unique[,1] %in% rownames(heartoe)),]
+TRA_heartoenames = sort(table(c(as.data.frame(TRAs_heart[,3]))))
+TRA_top_heartoe = tail(TRA_heartoenames)
+#hier haben wir die 3 UE eines Proteins gefunden die am meisten vorkommen (Ndufb5,Ndufb10,Ndufv1)
+
+```
