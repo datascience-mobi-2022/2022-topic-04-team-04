@@ -1,0 +1,150 @@
+---
+title: "Volcano Plot"
+author: "Aleksandra Dohren"
+date: '2022-06-25'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#alles aus exp2_unique raus ( alle Gene und die erste Spalte)
+```{r}
+#the dataset I will be working with; zEile 154 aus RMD REport; here is the lsit of top diff. Expr Genes
+load('~/GitHub/project/VolcanoData.RData')
+View(VolcanoData)
+
+```
+```{r}
+library(org.Mm.eg.db)
+VolcanoData.df <- as.data.frame(VolcanoData)
+#converting ENSEMBLID to Gene Symbol (Mouse)
+#VolcanoData.df <- mapIds(org.Mm.eg.db, keys = rownames(VolcanoData.df), keytype = "ENSEMBL", column ="SYMBOL", multiVals="first")
+VolcanoData.df
+
+```
+```{r}
+#Volcanoploots:
+library(EnhancedVolcano)
+```
+
+```{r}
+#now run a VolcanoPlot
+#EnhancedVolcano(VolcanoData.df, x = "logFC", y ="adj.P.Val", lab = rownames(VolcanoData))
+
+```
+Cell staged 4, 8 under und overexpressed genes
+```{r}
+#PLot on 4/8 cell stages in DGE
+load('~/GitHub/project/fit_matched2.RData')
+
+Volcano = topTable(fit_matched2, number = 92820, coef = 1)
+EnhancedVolcano(Volcano, x = "logFC", y ="adj.P.Val", lab = rownames(Volcano),
+                subtitle = 'Significance = 5%',pCutoff = 0.05, pointSize = 1, ylim = c(0, 10.5))
+
+
+```
+
+
+bovine Chips
+
+```{r}
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+library(cluster)
+library(dplyr)
+library(hexbin)
+library(pheatmap)
+library(rstudioapi)
+library(tidyverse)
+library(readr)
+library(ggplot2)
+library(knitr)
+library(limma)
+library(Rcpp)
+library(icd.data)
+library(tibble)
+library(bovgene10stbtenstprobe)
+library(bovgene10stbtenstcdf)
+library(bovgene11stbtenstprobe)
+library(bovgene11stbtenstcdf)
+library(bovinebtenstcdf)
+library(bovinebtenstprobe)
+
+```
+
+Setting project path
+```{r}
+projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+```
+1. Introduction
+
+Tissue restricted antigens ( TRAs) play a huge role in the positive and negative selection of T Cells in order to avoid autoreactive tcells in the immune system. In our project, we aim to analyze if the large changes in gene expression between the fourth and eighth cell stages are linked to the expression of TRAs and thus the tissue development.
+
+2. Quality Control
+
+
+
+Setting working directory and loading mouse data
+```{r}
+setwd(paste(projectPath,"rawdata","zippedbovine",sep = "/"))
+data.bovine=ReadAffy(celfile.path = "C:/Users/Aleksandra/Documents/GitHub/project/rawdata/zippedbovine")
+data.bovine@cdfName <- "Bovine_Bt_ENST"
+```
+
+```{r}
+for (i in 1:16){
+   image(data.bovine[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
+```
+
+
+```{r}
+bovine_RNAdeg <- AffyRNAdeg(data.bovine)
+plotAffyRNAdeg(bovine_RNAdeg, col = rainbow(16))
+```
+
+
+```{r}
+set.seed(234)
+vsnbovine <- vsnrma(data.bovine)
+meanSdPlot(vsnbovine, plot = FALSE)$gg + theme(aspect.ratio = 1)
+vsn.bovine = exprs(vsnbovine)
+```
+
+
+```{r}
+## Before normalization
+par ( las =2)
+boxplot (data.bovine ,col = rainbow (150),cex.axis = 0.4,main ="Gene expression bovine embryonic development before normalization")
+
+## After normalization
+par ( las =2)
+boxplot (vsn.bovine,col = rainbow (150),cex.axis =0.5,main ="Gene expression bovine embryonic development after normalization")
+```
+
+```{r}
+## Before normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+hist(data.bovine, col = rainbow(10), main = "Density function of log intensity bovine ED before normalization")
+
+## After normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+plot(density(vsn.bovine), type = "n", xlab = "log Intensity", ylim = c(0, 0.6),main = "Density function of log intensity bovine ED after normalization")
+for (i in 1:ncol(vsn.bovine)){lines(density(vsn.bovine[,i]), col = rainbow(10)[i])}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
