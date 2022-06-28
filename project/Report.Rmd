@@ -126,6 +126,7 @@ pca_var = pca$sdev^2    #calculating variation
 pca_var_per = round(pca_var/sum(pca_var)*100,1)   # variation into percentage
 barplot(pca_var_per, main = "Scree plot", xlab ="Principal Component", ylab ="Percent Variation")
 pcacolors = c("red","red","red","blue","blue","black","black","black","gray","gray","gray","green","purple","purple","purple")
+library(ggplot2)
 pca_data = data.frame(Sample = rownames(pca$x), X= pca$x[,1], Y = pca$x[,2])
 ggplot(data=pca_data, aes(x=X, y=Y, label=Sample)) +
   xlab(paste("PC1 - ", pca_var_per[1], "%", sep="")) +
@@ -171,12 +172,13 @@ contrast.matrix= makeContrasts(two-one,four-two, eight-four, morula-eight, blast
 fit_matched2= contrasts.fit(fit_matched, contrast.matrix)
 fit_matched2= eBayes(fit_matched2)
 save(fit_matched2,file = "~/GitHub/project/fit_matched2.RData" )
+topTable(fit_matched2, coef=1)
 #linear model is done
 ```
 In order to obtain a list of top genes differentially expressed in eg. two vs-one we use function topTable
 ```{r}
 write.fit(fit_matched2, file="fit.tsv")
-topTable(fit_matched2, coef=1)
+dge_df=topTable(fit_matched2, coef=1, number=nrow(fit_matched2))
 VolcanoData <- topTable(fit_matched2, coef=1)
 save(VolcanoData, file= "~/GitHub/project/VolcanoData.RData")
 
