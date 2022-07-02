@@ -66,10 +66,10 @@ library(limma)
 library(Rcpp)
 library(icd.data)
 library(tibble)
-library(bovgene10stbtenstprobe)
-library(bovgene10stbtenstcdf)
-library(bovgene11stbtenstprobe)
-library(bovgene11stbtenstcdf)
+#library(bovgene10stbtenstprobe)
+#library(bovgene10stbtenstcdf)
+#library(bovgene11stbtenstprobe)
+#library(bovgene11stbtenstcdf)
 library(bovinebtenstcdf)
 library(bovinebtenstprobe)
 
@@ -90,7 +90,8 @@ Tissue restricted antigens ( TRAs) play a huge role in the positive and negative
 Setting working directory and loading mouse data
 ```{r}
 setwd(paste(projectPath,"rawdata","zippedbovine",sep = "/"))
-data.bovine=ReadAffy(celfile.path = "C:/Users/Aleksandra/Documents/GitHub/project/rawdata/zippedbovine")
+data.bovine= ReadAffy()
+#data.bovine=ReadAffy(celfile.path = "C:/Users/Aleksandra/Documents/GitHub/project/rawdata/zippedbovine")
 data.bovine@cdfName <- "Bovine_Bt_ENST"
 ```
 
@@ -111,6 +112,7 @@ set.seed(234)
 vsnbovine <- vsnrma(data.bovine)
 meanSdPlot(vsnbovine, plot = FALSE)$gg + theme(aspect.ratio = 1)
 vsn.bovine = exprs(vsnbovine)
+save(vsn.bovine, file = "normalizedbovine.rda")
 ```
 
 
