@@ -20,20 +20,16 @@ View(VolcanoData)
 library(org.Mm.eg.db)
 VolcanoData.df <- as.data.frame(VolcanoData)
 #converting ENSEMBLID to Gene Symbol (Mouse)
-#VolcanoData.df <- mapIds(org.Mm.eg.db, keys = rownames(VolcanoData.df), keytype = "ENSEMBL", column ="SYMBOL", multiVals="first")
+VolcanoData.df <- mapIds(org.Mm.eg.db, keys = rownames(VolcanoData.df), keytype = "ENSEMBL", column ="SYMBOL", multiVals="first")
 VolcanoData.df
-
+#matchen mit datadr/ name und symbol als Rownames/ 
 ```
 ```{r}
 #Volcanoploots:
 library(EnhancedVolcano)
 ```
 
-```{r}
-#now run a VolcanoPlot
-#EnhancedVolcano(VolcanoData.df, x = "logFC", y ="adj.P.Val", lab = rownames(VolcanoData))
 
-```
 Cell staged 4, 8 under und overexpressed genes
 ```{r}
 #PLot on 4/8 cell stages in DGE
@@ -72,6 +68,7 @@ library(bovgene11stbtenstprobe)
 library(bovgene11stbtenstcdf)
 library(bovinebtenstcdf)
 library(bovinebtenstprobe)
+library(biomaRt)
 
 ```
 
@@ -79,19 +76,12 @@ Setting project path
 ```{r}
 projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
 ```
-1. Introduction
 
-Tissue restricted antigens ( TRAs) play a huge role in the positive and negative selection of T Cells in order to avoid autoreactive tcells in the immune system. In our project, we aim to analyze if the large changes in gene expression between the fourth and eighth cell stages are linked to the expression of TRAs and thus the tissue development.
-
-2. Quality Control
-
-
-
-Setting working directory and loading mouse data
 ```{r}
 setwd(paste(projectPath,"rawdata","zippedbovine",sep = "/"))
-data.bovine=ReadAffy(celfile.path = "C:/Users/Aleksandra/Documents/GitHub/project/rawdata/zippedbovine")
-data.bovine@cdfName <- "Bovine_Bt_ENST"
+data.bovine=ReadAffy()
+Data.bovine=data.bovine@cdfName <- "Bovine_Bt_ENST"
+
 ```
 
 ```{r}
@@ -135,6 +125,48 @@ plot(density(vsn.bovine), type = "n", xlab = "log Intensity", ylim = c(0, 0.6),m
 for (i in 1:ncol(vsn.bovine)){lines(density(vsn.bovine[,i]), col = rainbow(10)[i])}
 ```
 
+hier dann das df ohne Controllchips erstellen:
+
+```{r}
+data_ohneaffxbovine= vsn.bovine[113:17520,]
+namen = strsplit(rownames(data_ohneaffxbovine), split = '.', fixed = TRUE)
+namen = sapply(namen , FUN = function(x){return(x[1])})
+rownames(data_ohneaffxbovine) <- namen
+data_ohneaffxbovine
+```
+
+
+jetzt GeneID in Genesymbols umwandeln:
+
+
+```{r}
+mart = useEnsembl(dataset = "btaurus_gene_ensembl", biomart='ensembl')
+getgenename = function(gene){
+
+res = getBM(attributes = c("ensembl_gene_id", "external_gene_name"),
+            filters = "ensembl_gene_id",
+            values = gene,
+            mart = mart )
+message('Let me check that for you :D')
+
+return(res)
+}
+
+getgenename(namen[1])
+
+```
+
+```{r}
+#BiocManager::install("org.Bt.eg.db")
+#BiocManager::install("clusterProfiler")
+library(org.Bt.eg.db)
+columns(org.Bt.eg.db)
+symbols = select(org.Bt.eg.db, keys = keys(org.Bt.eg.db), columns = c('ENSEMBLTRANS', 'SYMBOL'))  
+symbols = na.omit(symbols)
+BovineGeneSymbols = symbols[match(namen, symbols$ENSEMBLTRANS), 2:3]
+
+
+```
 
 
 
@@ -144,6 +176,22 @@ for (i in 1:ncol(vsn.bovine)){lines(density(vsn.bovine[,i]), col = rainbow(10)[i
 
 
 
+
+
+
+
+
+
+
+
+
+hier als backup weil es am Ende wieder nich klappt:
+```{r}
+setwd(paste(projectPath,"rawdata","zippedbovine",sep = "/"))
+data.bovine=ReadAffy(celfile.path = "C:/Users/Aleksandra/Documents/GitHub/project/rawdata/zippedbovine")
+Data.bovine=data.bovine@cdfName <- "Bovine_Bt_ENST"
+view(Data.bovine)
+```
 
 
 
