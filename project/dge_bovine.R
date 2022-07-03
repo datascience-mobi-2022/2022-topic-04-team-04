@@ -8,7 +8,7 @@ design2= model.matrix(~0+factor(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7,8)))
 colnames(design2)= c( "oocyte","one", "two","four", "eight","sixteen", "morula", "blastocyst")
 fit_matched_bovine= lmFit(bovine_ohneaffx, design2)
 contrast.matrixbovine= makeContrasts(oocyte-one,two-one,four-two, eight-four, morula-eight, blastocyst-morula,levels = design2)
-fit_matched3= contrasts.fit(fit_matched_bovine, contrast.matrix)
+fit_matched3= contrasts.fit(fit_matched_bovine, contrast.matrixbovine)
 fit_matched3= eBayes(fit_matched3)
 
 save(fit_matched3,file = "fit_matched3.rda" )
