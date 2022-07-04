@@ -1,8 +1,8 @@
 ## GSEA trial
 # install packages
-#BiocManager::install("clusterProfiler", update = FALSE)
-#iocManager::install("msigdbr", update = FALSE)
-#BiocManager::install("org.Mm.eg.db", update = FALSE)
+BiocManager::install("clusterProfiler", update = FALSE)
+BiocManager::install("msigdbr", update = FALSE)
+BiocManager::install("org.Mm.eg.db", update = FALSE)
 
 ## library
 library(clusterProfiler)
@@ -103,4 +103,8 @@ gsea_results <- GSEA(
 )
 
 head(gsea_results@result)
+View(gsea_results)
 saveRDS(gsea_results, file="Gsea_mouse.rds")
+saveRDS(gsea_results@result, file="GSEA_mouse_tableresults.rds")
+GSEA_mouse_resulttable = gsea_results@result
+View(GSEA_mouse_resulttable[,11])
