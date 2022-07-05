@@ -14,3 +14,4 @@ fit_matched3= eBayes(fit_matched3)
 save(fit_matched3,file = "fit_matched3.rda" )
 topTable(fit_matched3, coef=1)
 dge_bovine= topTable(fit_matched3, coef=1, number=nrow(fit_matched3))
+

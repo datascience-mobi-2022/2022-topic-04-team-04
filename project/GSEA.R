@@ -108,3 +108,102 @@ saveRDS(gsea_results, file="Gsea_mouse.rds")
 saveRDS(gsea_results@result, file="GSEA_mouse_tableresults.rds")
 GSEA_mouse_resulttable = gsea_results@result
 View(GSEA_mouse_resulttable[,11])
+
+#####For new sets#########
+
+
+Mm_hallmarkC1_df <- msigdbr(
+  species = "Mus musculus", # Replace with species name relevant to your data
+  category = "C1")
+head(Mm_hallmarkC1_df)
+
+
+set.seed(2022)
+gseaC1_results <- GSEA(
+  geneList = t_vector, # Ordered ranked gene list
+  minGSSize = 25, # Minimum gene set size
+  maxGSSize = 500, # Maximum gene set set,
+  pvalueCutoff = 0.5,# p-value cutoff
+  eps = 0, # Boundary for calculating the p-value
+  seed = TRUE, # Set seed to make results reproducible
+  pAdjustMethod = "BH", # Benjamini-Hochberg correction
+  TERM2GENE = dplyr::select(
+    Mm_hallmarkC1_df,
+    gs_name,
+    gene_symbol,
+  )
+)
+
+head(gseaC1_results@result)
+View(gseaC1_results)
+saveRDS(gseaC1_results, file="GseaC1_mouse.rds")
+saveRDS(gseaC1_results@result, file="GSEAC1_mouse_tableresults.rds")
+GSEAC1_mouse_resulttable = gseaC1_results@result
+View(GSEAC1_mouse_resulttable[,11])
+
+
+
+
+##########
+
+Mm_hallmarkC7_df <- msigdbr(
+  species = "Mus musculus", # Replace with species name relevant to your data
+  category = "C7")
+head(Mm_hallmarkC7_df)
+
+
+set.seed(2022)
+gseaC7_results <- GSEA(
+  geneList = t_vector, # Ordered ranked gene list
+  minGSSize = 25, # Minimum gene set size
+  maxGSSize = 500, # Maximum gene set set,
+  pvalueCutoff = 0.5,# p-value cutoff
+  eps = 0, # Boundary for calculating the p-value
+  seed = TRUE, # Set seed to make results reproducible
+  pAdjustMethod = "BH", # Benjamini-Hochberg correction
+  TERM2GENE = dplyr::select(
+    Mm_hallmarkC7_df,
+    gs_name,
+    gene_symbol,
+  )
+)
+
+head(gseaC7_results@result)
+View(gseaC7_results)
+saveRDS(gseaC7_results, file="GseaC7_mouse.rds")
+saveRDS(gseaC7_results@result, file="GSEAC7_mouse_tableresults.rds")
+GSEAC7_mouse_resulttable = gseaC7_results@result
+View(GSEAC7_mouse_resulttable[,11])
+
+#########
+
+
+Mm_hallmarkC8_df <- msigdbr(
+  species = "Mus musculus", # Replace with species name relevant to your data
+  category = "C8")
+head(Mm_hallmarkC8_df)
+
+
+set.seed(2022)
+gseaC8_results <- GSEA(
+  geneList = t_vector, # Ordered ranked gene list
+  minGSSize = 25, # Minimum gene set size
+  maxGSSize = 500, # Maximum gene set set,
+  pvalueCutoff = 0.5,# p-value cutoff
+  eps = 0, # Boundary for calculating the p-value
+  seed = TRUE, # Set seed to make results reproducible
+  pAdjustMethod = "BH", # Benjamini-Hochberg correction
+  TERM2GENE = dplyr::select(
+    Mm_hallmarkC8_df,
+    gs_name,
+    gene_symbol,
+  )
+)
+
+head(gseaC8_results@result)
+View(gseaC8_results)
+saveRDS(gseaC8_results, file="GseaC8_mouse.rds")
+saveRDS(gseaC8_results@result, file="GSEAC8_mouse_tableresults.rds")
+GSEAC8_mouse_resulttable = gseaC8_results@result
+View(GSEAC8_mouse_resulttable[,11])
+##########
