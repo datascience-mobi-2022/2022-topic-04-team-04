@@ -85,5 +85,10 @@ gsea_bovineresults <- GSEA(
 )
 
 head(gsea_bovineresults@result)
-saveRDS(gsea_bovineresults, file="Gsea_mouse.rds")
-
+saveRDS(gsea_bovineresults, file="Gsea_bovine.rds")
+saveRDS(gsea_bovineresults@geneSets, file="GSEA_bovine_genesets.rds")
+View(gsea_bovineresults)
+View(gsea_bovineresults@result)
+GSEA_bovine_tableresults = gsea_bovineresults[,11]
+View(GSEA_bovine_tableresults)
+saveRDS(gsea_bovineresults@result, file="GSEA_bovine_resulttable.rds")
