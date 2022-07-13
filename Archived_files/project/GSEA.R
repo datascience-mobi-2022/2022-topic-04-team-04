@@ -91,7 +91,7 @@ gsea_results <- GSEA(
   geneList = t_vector, # Ordered ranked gene list
   minGSSize = 25, # Minimum gene set size
   maxGSSize = 500, # Maximum gene set set,
- pvalueCutoff = 0.5,# p-value cutoff
+ pvalueCutoff = 0.05,# p-value cutoff
   eps = 0, # Boundary for calculating the p-value
   seed = TRUE, # Set seed to make results reproducible
   pAdjustMethod = "BH", # Benjamini-Hochberg correction

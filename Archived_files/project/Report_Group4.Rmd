@@ -1,0 +1,24 @@
+---
+title: "Report_Group4"
+author: "Mariam"
+date: "7/13/2022"
+output: pdf_document
+bibliography: references.bib 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Materials and Methods#
+##R and RStudio
+This research was entirely done in R and RStudio version 2021.09.0. 
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+citation()
+RStudio.Version()
+print(<citation>, bibtex=TRUE)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
