@@ -1,0 +1,2 @@
+"0","for (i in 1:18){"
+"0","   image(data.mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}"

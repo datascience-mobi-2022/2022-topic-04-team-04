@@ -1,0 +1,14 @@
+"0","design1= model.matrix(~0+factor(c(1,1,1,2,2,3,3,3,4,4,4,5,6,6,6)))"
+"0","colnames(design1)= c(""one"", ""two"",""four"", ""eight"", ""morula"", ""blastocyst"")"
+"0","fit_matched= lmFit(TRAs_mousedataset, design1)"
+"0","contrast.matrix= makeContrasts(two-one,four-two, eight-four, morula-eight, blastocyst-morula,levels = design1)"
+"0","fit_matched2= contrasts.fit(fit_matched, contrast.matrix)"
+"0","fit_matched2= eBayes(fit_matched2)"
+"0","save(fit_matched2,file = ""~/GitHub/project/fit_matched2.RData"" )"
+"2","Warning in gzfile(file, ""wb"") :"
+"2","
+ "
+"2"," cannot open compressed file 'C:/Users/ninad/OneDrive/Dokumente/GitHub/project/fit_matched2.RData', probable reason 'No such file or directory'
+"
+"2","Error in gzfile(file, ""wb"") : cannot open the connection
+"

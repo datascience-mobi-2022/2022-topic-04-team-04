@@ -1,0 +1,4 @@
+"0","TRA_total = rbind(TRAs1,TRAs2)
+"
+"2","Error in eval(quote(list(...)), env) : object 'TRAs1' not found
+"

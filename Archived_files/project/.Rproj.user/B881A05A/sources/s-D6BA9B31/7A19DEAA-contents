@@ -1,0 +1,89 @@
+#download data and ID conversion
+options(stringsAsFactors = F)
+Sys.setenv("VROOM_CONNECTION_SIZE"=131702*600)
+library(GEOquery)
+library(limma)
+library(affy)
+gse<-getGEO("GSE18290",destdir = ".", 
+            getGPL = T,
+           AnnotGPL =T)
+gse[[2]]
+exp2<-exprs(gse[[2]])
+Clinfo2<-pData(gse[[2]])
+group<-c(rep("aoocyte",2), rep("bonecell",2), rep("ctwocell",2), rep("dfourcell",2),
+         rep("eightcell",2), rep("fsixteencell",2),rep("gmorula",2), rep("hblast",2))
+GPL1<-fData(gse[[2]])
+gpl1<-GPL1[,c(1,3)]
+gpl1$"Gene symbol" <-data.frame(sapply(gpl1$"Gene symbol", function(x)unlist(strsplit(x, "///"))[1]),
+ stringsAsFactors = F) [,1]
+
+exp2<-as.data.frame(exp2)
+
+exp2$ID<-rownames(exp2)
+exp2_symbol<-merge(exp2,gpl1,by = "ID")
+exp2_symbol<-na.omit(exp2_symbol)
+table(duplicated(exp2_symbol$`Gene symbol`))
+exp2_unique<-avereps(exp2_symbol[,-c(1,ncol(exp2_symbol))], ID = exp2_symbol$`Gene symbol`)
+table(duplicated(rownames(exp2_unique)))
+save(exp2, exp2_symbol,exp2_unique, GPL1, gpl1, gse, group, Clinfo2,file = "GSE18290_GPL2112.Rdata")
+
+load("GSE18290_GPL2112.Rdata")
+boxplot(exp2_unique)
+options (stringsAsFactors = F)
+library(limma)
+
+# expression matrix, design matrix, contrast matrix
+# design matrix
+design<-model.matrix(~0+factor(group))
+colnames(design)<-levels(factor(group))
+rownames(design)<-colnames(exp2_unique)
+
+#contrast matrix"
+contrast.matrix<-makeContrasts(blast-onecell, blast-twocell, blast-fourcell, blast-eightcell,
+                               blast-sixteencell, blast-morula, levels = design )
+contrast.matrix
+
+# limma DEG
+
+fit<-lmFit(exp1_unique, design1)
+fit2<-contrasts.fit(fit,contrast.matrix)
+fit2<-eBayes(fit2)
+options(digits = 4)
+DEG<-topTable(fit2,coef = 1, n =Inf)
+DEG$group<-ifelse(DEG$P.Value>0.01,"no change",
+                  ifelse(DEG$logFC>2.5,"up",
+                         ifelse(DEG$logFC< -2.5, "down", "no change")))
+table(DEG$group)
+
+DEG$gene<-rownames(DEG)
+
+#single gene expression
+
+library(ggplot2)
+library(ggpubr)
+datatest<-data.frame(gene=exp1_unique["TCF7",],group=group)
+ggplot(data=datatest, aes(x=group, y=gene, fill=group))+geom_boxplot()+
+  geom_point()+stat_compare_means()
+
+
+#volcano plot
+library(ggplot2)
+#basic volcano plot
+DEG$p<- -log10(DEG$P.Value)
+ggplot(data=DEG,aes(x=logFC,y=p, color=group))+geom_point()
+
+#advanced volcano plot
+library(ggrepel)
+ggplot(data=DEG,aes(x=logFC,y=p, color=group))+
+  geom_point(data=DEG[DEG$P.Value<0.01&abs(DEG$logFC)>1000,],size=3)+
+  geom_point(data=DEG[DEG$P.Value>0.01&abs(DEG$logFC)<1000,],size=2)+
+  scale_color_manual(values = c("#7bccc4","grey65","#fe9929"))+
+  xlab("log2(FoldChange)")+ylab("-log10(P.value)")+
+  geom_text_repel(data = DEG[DEG$P.Value<0.001&abs(DEG$logFC>7500),],
+                  aes(label = gene),
+                  size = 4)
+
+#heatmap
+
+library(pheatmap)
+pheatmap(exp1_unique [1:50,])

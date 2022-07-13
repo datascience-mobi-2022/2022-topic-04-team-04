@@ -1,0 +1,7 @@
+"0","set.seed(123)"
+"0","wss= function(k) {"
+"0","  kmeans(df_mean_expression, k, nstart = 10)$tot.withinss"
+"0","}"
+"0","k.values=1:15"
+"0","wss_values= map_dbl(k.values, wss)"
+"0","plot(k.values, wss_values, type= ""b"", pch=19, frame= FALSE, xlab= ""Number of Clusters k"", ylab= ""total within- clusters sum of squares"")"

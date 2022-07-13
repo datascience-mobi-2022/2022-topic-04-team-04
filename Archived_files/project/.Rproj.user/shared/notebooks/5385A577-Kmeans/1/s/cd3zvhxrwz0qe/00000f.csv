@@ -1,0 +1,47 @@
+"0","cluster48= data.frame(df_mean_expression[,3], df_mean_expression[,4])"
+"0",""
+"0","avg_sil_48 <- function(k) {"
+"0","  km.res_48<- kmeans(cluster48, centers = k, nstart = 25)"
+"0","  ss_48<- silhouette(km.res_48$cluster, dist(cluster48))"
+"0","  mean(ss_48[, 3])"
+"0","}"
+"0",""
+"0","# Compute and plot wss for k = 2 to k = 15"
+"0","k.values_48 <- 2:15"
+"0",""
+"0","# extract avg silhouette for 2-15 clusters"
+"0","avg_sil_values_48 <- map_dbl(k.values_48, avg_sil_48)"
+"2","Warning:"
+"2"," keine Konvergenz nach 10 Schritten
+"
+"2","Warning:"
+"2"," keine Konvergenz nach 10 Schritten
+"
+"2","Warning:"
+"2"," keine Konvergenz nach 10 Schritten
+"
+"2","Warning:"
+"2"," keine Konvergenz nach 10 Schritten
+"
+"2","Warning:"
+"2"," keine Konvergenz nach 10 Schritten
+"
+"2","Warning:"
+"2"," keine Konvergenz nach 10 Schritten
+"
+"2","Warning:"
+"2"," keine Konvergenz nach 10 Schritten
+"
+"2","Warning:"
+"2"," keine Konvergenz nach 10 Schritten
+"
+"2","Warning:"
+"2"," keine Konvergenz nach 10 Schritten
+"
+"2","Warning:"
+"2"," keine Konvergenz nach 10 Schritten
+"
+"0","plot(k.values_48, avg_sil_values_48,"
+"0","       type = ""b"", pch = 19, frame = FALSE, "
+"0","       xlab = ""Number of clusters K"","
+"0","       ylab = ""Average Silhouettes"")"

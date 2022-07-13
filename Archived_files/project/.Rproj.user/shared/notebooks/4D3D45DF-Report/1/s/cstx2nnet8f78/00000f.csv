@@ -1,0 +1,9 @@
+"0","set.seed(234)"
+"0","vsnmouse <- vsnrma(data.mouse)"
+"2","vsn2: 506944 x 18 matrix (1 stratum). 
+"
+"2","Please use 'meanSdPlot' to verify the fit.
+"
+"1","Calculating Expression
+"
+"0","meanSdPlot(vsnmouse, plot = FALSE)$gg + theme(aspect.ratio = 1)"

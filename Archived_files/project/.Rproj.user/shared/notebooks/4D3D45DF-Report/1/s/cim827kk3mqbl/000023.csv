@@ -1,0 +1,4 @@
+"0","TRAs2 <-read_tsv(""tra.2014.mouse.4301.5x.table.tsv"")
+"
+"2","Error: 'tra.2014.mouse.4301.5x.table.tsv' does not exist in current working directory ('C:/Users/ninad/OneDrive - bwedu/Universität Nina/FS4_SS22/Bioinfo Projekt/GitHub Desktop/2022-topic-04-team-04/project').
+"

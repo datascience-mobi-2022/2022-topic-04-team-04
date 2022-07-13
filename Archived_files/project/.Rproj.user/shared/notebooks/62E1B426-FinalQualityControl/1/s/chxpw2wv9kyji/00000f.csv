@@ -1,0 +1,4 @@
+"0","pheatmap(data.mouse)"
+"2","Error in as.vector(data) : 
+  no method for coercing this S4 class to a vector
+"

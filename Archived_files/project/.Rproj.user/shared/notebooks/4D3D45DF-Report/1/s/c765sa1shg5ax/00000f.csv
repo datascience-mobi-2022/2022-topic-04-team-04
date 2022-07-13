@@ -1,0 +1,5 @@
+"0","setwd(paste(projectPath,""rawdata"",""zippedmouse"",sep = ""/""))
+"
+"2","Error in setwd(paste(projectPath, ""rawdata"", ""zippedmouse"", sep = ""/"")) : 
+  cannot change working directory
+"

@@ -1,0 +1,5 @@
+"0","Tissue_TRA = df_mean_expression[which(rownames(df_mean_expression) %in% unique_TRAs)]
+"
+"2","Error in `[.data.frame`(df_mean_expression, which(rownames(df_mean_expression) %in%  : 
+  nicht definierte Spalten gewählt
+"

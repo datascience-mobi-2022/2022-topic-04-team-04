@@ -1,0 +1,7 @@
+Verschiedene Ordner: 
+
+- PLots
+- Raw_data (Raw data mouse and
+- Sessions (am Ende ein R Markdown, rda files and rds files
+-Tables-> Tables_csv
+- Final report als PDF

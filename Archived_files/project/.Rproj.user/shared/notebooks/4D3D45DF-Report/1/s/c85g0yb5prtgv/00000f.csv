@@ -1,0 +1,5 @@
+"0","TRA_total = rbind(TRAs1,TRAs2)"
+"0","unique_TRAs = unique(TRAs1$ensembl.transcript, TRAs2$ensembl.transcript)"
+"0","TRAs_mousedataset = data_ohneaffx[which(rownames(data_ohneaffx) %in% unique_TRAs),]"
+"2","Error: object 'data_ohneaffx' not found
+"

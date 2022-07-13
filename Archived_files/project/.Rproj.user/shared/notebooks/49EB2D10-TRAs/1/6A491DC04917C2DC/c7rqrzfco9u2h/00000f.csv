@@ -1,0 +1,6 @@
+"0","#TRA_total=rbind(TRAs1,TRAs2)"
+"0","#TRA_unique = unique(TRA_total)"
+"0","#TRA_u = unique(TRA_total, by= TRA_total[,1] )"
+"0","#TRA_uni <- TRA_total %>% distinct(TRA_total[,1], .keep_all = FALSE)"
+"0","#TRA_fuck = merge( x= TRA_total, y= TRA_uni, by= TRA_total[,1])"
+"0","unique_TRAs = unique(TRAs1$ensembl.transcript, TRAs2$ensembl.transcript) # Lösung für unique"

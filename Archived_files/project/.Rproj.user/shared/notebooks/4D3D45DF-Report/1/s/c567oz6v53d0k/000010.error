@@ -1,0 +1,1 @@
+{"frames":[{"func":"save(fit_matched2, file = \"~/GitHub/project/fit_matched2.RData\")","file":"","line_number":0,"end_line_number":0,"character_number":0,"end_character_number":0},{"func":"gzfile(file, \"wb\")","file":"","line_number":0,"end_line_number":0,"character_number":0,"end_character_number":0}],"message":"Error in gzfile(file, \"wb\") : cannot open the connection\n"}

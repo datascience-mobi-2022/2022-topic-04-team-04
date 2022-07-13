@@ -1,0 +1,5 @@
+"0","unique_TRAs_tissue = unique(TRA_total_tissue$ensembl.transcript) #Nochmal Unique, diesemal vieeeel mehr Einträge als vorher CHECK
+"
+"2","Error in h(simpleError(msg, call)) : 
+  Fehler bei der Auswertung des Argumentes 'x' bei der Methodenauswahl für Funktion 'unique': object 'TRA_total_tissue' not found
+"

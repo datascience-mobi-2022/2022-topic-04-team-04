@@ -1,0 +1,7 @@
+"0","#setwd(paste(projectPath,""rawdata"",""qualityzipped"",sep = ""/""))"
+"0","#qdata.mouse = ReadAffy()"
+"0","#qdata.mouse@cdfName <- ""MOE430A_Mm_ENST"""
+"0","#vsnqmouse = vsnrma(qdata.mouse)"
+"0","#vsn.qmouse = exprs(vsnqmouse)"
+"0","#save.image(file=""normalizeddata.rda"")"
+"0","load(""normalizeddata.rda"")"

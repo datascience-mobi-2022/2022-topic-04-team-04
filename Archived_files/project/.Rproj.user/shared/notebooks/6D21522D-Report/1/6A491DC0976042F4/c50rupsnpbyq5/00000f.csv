@@ -1,0 +1,28 @@
+"0","setwd(paste(projectPath, ""rawdata"", ""TRA_data"", sep = ""/""))"
+"2","Warning:"
+"2"," The working directory was changed to C:/Users/ninad/OneDrive - bwedu/Universität Nina/FS4_SS22/Bioinfo Projekt/GitHub Desktop/2022-topic-04-team-04/project/rawdata/TRA_data inside a notebook chunk. The working directory will be reset when the chunk is finished running. Use the knitr root.dir option in the setup chunk to change the working directory for notebook chunks.
+"
+"0","TRAs1 <-read_tsv(""tra.2014.mouse.5x.table.tsv"")"
+"1","[1mRows: [22m[34m7986[39m [1mColumns: [22m[34m11[39m
+"
+"1","[36m──[39m [1mColumn specification[22m [36m─────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m ""\t""
+[31mchr[39m (9): ensembl.transcript, ensembl.gene, gene.symbol, entrezID, refseqID, u...
+[32mdbl[39m (2): startsite, tiss.number
+"
+"1","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message.
+"
+"0","TRAs2 <-read_tsv(""tra.2014.mouse.4301.5x.table.tsv"")"
+"1","[1mRows: [22m[34m19761[39m [1mColumns: [22m[34m11[39m
+"
+"1","[36m──[39m [1mColumn specification[22m [36m─────────────────────────────────────────────────────────[39m
+[1mDelimiter:[22m ""\t""
+[31mchr[39m (9): ensembl.transcript, ensembl.gene, gene.symbol, entrezID, refseqID, u...
+[32mdbl[39m (2): startsite, tiss.number
+"
+"1","
+[36mℹ[39m Use `spec()` to retrieve the full column specification for this data.
+[36mℹ[39m Specify the column types or set `show_col_types = FALSE` to quiet this message.
+"

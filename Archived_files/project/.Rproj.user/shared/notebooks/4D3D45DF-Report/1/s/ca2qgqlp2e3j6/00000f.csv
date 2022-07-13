@@ -1,0 +1,3 @@
+"0","## Before normalization"
+"0","par ( las =2)"
+"0","boxplot (data.mouse ,col = rainbow (150),cex.axis = 0.4,main =""Gene expression mouse embryonic development before normalization"")"

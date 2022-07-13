@@ -1,0 +1,170 @@
+---
+title: "TRAs"
+author: "Team 04 Group 04"
+date: '2022-05-29'
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+library(moe430ammenstprobe)
+library(moe430ammenstcdf)
+library(hexbin)
+library(pheatmap)
+library(rstudioapi)
+library(tidyverse)
+library(dplyr)
+library(icd.data)
+library(tibble)
+library(limma)
+```
+
+prjectpath
+```{r}
+projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+```
+
+```{r}
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+```
+
+We took out the control rows starting with AFFX and then removed the last characters after the dot in the transcript IDs.
+```{r}
+data_ohneaffx= vsn.qmouse[65:39345,]
+namen=(substr(rownames(data_ohneaffx),0,18)[1:39281])
+rownames(data_ohneaffx) <- c(namen)
+data_ohneaffx
+```
+
+loading TRA data
+```{r}
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+TRAs1 <-read_tsv("tra.2014.mouse.5x.table.tsv")
+TRAs2 <-read_tsv("tra.2014.mouse.4301.5x.table.tsv")
+```
+
+Both TRA datasets were combined and all duplicates were removed. The new dataset containing no duplicates is called "unique_TRAs". It was then matched with our mouse data to create a matrix with all matched gene transcripts.The columns are the 15 chips and the rows consist of matched transcript IDs.
+```{r}
+TRA_total = rbind(TRAs1,TRAs2)
+unique_TRAs = unique(TRAs1$ensembl.transcript, TRAs2$ensembl.transcript)
+TRAs_mousedataset = data_ohneaffx[which(rownames(data_ohneaffx) %in% unique_TRAs),]
+```
+
+```{r}
+matched_tissues = TRA_total[which(TRA_total[,1] %in% rownames(TRAs_mousedataset)),]
+View(matched_tissues)
+```
+
+#```{r}
+mouse_df = data.frame(vsn.qmouse)
+mouse_df_ohne = mouse_df[65:39345,]
+rownames(mouse_df_ohne) = substr(rownames(mouse_df_ohne), 1, 18)
+#x = rownames(mouse_df_ohne)
+#namen=(substr(x,0,18)[1:39281])
+
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+TRAs1 <-read.table("tra.2014.mouse.5x.table.tsv", header = TRUE)
+TRAs2 <-read.table("tra.2014.mouse.4301.5x.table.tsv", header = TRUE)
+# differential gene expression, volcano plot, pca(größte variabilität sind x), klustering, corr pathway bank (why??) geneontology 
+
+```{r}
+rownames(data_ohneaffx) = NULL
+dat = cbind(namen, data_ohneaffx)
+names = dat[,1]
+# boline vector um dataframe zu filtern: data.frame[]
+#ident: um 2 variablen zu vergleichen 
+#differential gene expression 
+
+```
+
+
+````{r}
+#DGE
+#install limma
+#BiocManager::install("limma")
+`````
+Linear models can be used to identify differentially expressed genes in dataset: here we have to set 2 variables that we will concentrate on in our objective (for example certain pathways that are upregulated in cell stages or whatever --> ian's corr pathway bank)
+Y=A+BX+C
+y:expression level of gene 
+A: mean expression level in whatever thing we want
+B: mean expression level of positive (that has gene or is upregulated in certain tissue) to neg (not upregulated in tissue also negative)
+x: status (o=neg, 1=positive)
+c: random noise
+Why did we choose limma? during the quality control we did a vsn which is a log transformation. Limma uses the log distribution unlike degseq which uses neg. binomial. the t-test is the recommended form of testing for the differential gene expression
+```{r}
+# mit mousedaten alle
+design= model.matrix(~0+factor(c(1,1,1,2,2,3,3,3,4,4,4,5,6,6,6)))
+colnames(design)= c("one", "two","four", "eight", "morula", "blastocyst")
+fit= lmFit(mouse_df_ohne, design)
+contrast.matrix= makeContrasts(two-one,four-two, eight-four, morula-eight, blastocyst-morula,levels = design)
+fit2= contrasts.fit(fit, contrast.matrix)
+fit2= eBayes(fit2)
+#linear model is done
+```
+In order to obtain a list of top genes differentially expressed in eg. two vs-one we use function topTable
+```{r}
+topTable(fit2, coef=1)
+```
+the outcome of each hypothesis test can be assigned using the function decideTest
+```{r}
+results= decideTests(fit2)
+View(results)
+summary(results)
+```
+To see the link between overall change in gene expression and change in TRA gene expression we also performed a differential gene expression on the matrix that only contains TRAs from our mouse dataset.
+```{r}
+#mit gematchte Gene
+design1= model.matrix(~0+factor(c(1,1,1,2,2,3,3,3,4,4,4,5,6,6,6)))
+colnames(design1)= c("one", "two","four", "eight", "morula", "blastocyst")
+fit_matched= lmFit(TRAs_mousedataset, design1)
+contrast.matrix_new= makeContrasts(two-one,four-two, eight-four, morula-eight, blastocyst-morula,levels = design1)
+fit_matched2= contrasts.fit(fit_matched, contrast.matrix)
+fit_matched2= eBayes(fit_matched2)
+#linear model is done
+```
+In order to obtain a list of top genes differentially expressed in eg. two vs-one we use function topTable
+```{r}
+topTable(fit_matched2, coef=1)
+```
+the outcome of each hypothesis test can be assigned using the function decideTest
+```{r}
+results1= decideTests(fit_matched2)
+View(results1)
+summary(results1)
+```
+```{r}
+#elbow plot
+plot(x=c(1,2,3,4,5), y=summary(results1)[1,], xlab ="cell stages", ylab="sum of downregulated genes", type = "l")
+plot(x=c(1,2,3,4,5), y=summary(results1)[2,],xlab ="cell stages", ylab="sum of  genes with no siginificant change", type = "l")
+plot(x=c(1,2,3,4,5), y=summary(results1)[3,], xlab ="cell stages", ylab="sum of upregulated genes", type = "l")
+```
+# elbow plot zu summary von DGE
+#package volcano plot
+# kmeans with DGE data
+# pca
+# DGE von bovine und mouse matchen
+#DGE gene enrichment analysis
+# upregulated genes in cell stages unterschiedlich
+#> auch mit tissues
+# selber angucken dann trend analysieren
+
+
+```{r}
+duplicateTRA_total=duplicated(TRA_total[,1])
+TRA_total_unique= TRA_total[!duplicateTRA_total,]
+TRAs_heart = TRA_total_unique[which(TRA_total_unique[,1] %in% heartoe[,1]),]
+
+view(heartoe)
+TRA_heartoenames = sort(table(c(as.data.frame(TRAs_heart[,3]))))
+TRA_top_heartoe = tail(TRA_heartoenames)
+#hier haben wir die 3 UE eines Proteins gefunden die am meisten vorkommen (Ndufb5,Ndufb10,Ndufv1)
+
+```

@@ -1,0 +1,7 @@
+"0","#discarding chip 6, 14, 15"
+"0","setwd(paste(projectPath,""rawdata"",""qualityzipped"",sep = ""/""))"
+"2","Warning:"
+"2"," The working directory was changed to C:/Users/ninad/OneDrive - bwedu/Universität Nina/FS4_SS22/Bioinfo Projekt/GitHub Desktop/2022-topic-04-team-04/project/rawdata/qualityzipped inside a notebook chunk. The working directory will be reset when the chunk is finished running. Use the knitr root.dir option in the setup chunk to change the working directory for notebook chunks.
+"
+"0","qdata.mouse = ReadAffy()"
+"0","qdata.mouse@cdfName <- ""MOE430A_Mm_ENST"""

@@ -1,0 +1,4 @@
+"0","pca = prcomp(t(data_ohneaffx), scale = TRUE)"
+"0","pca_var = pca$sdev^2    #calculating variation"
+"0","pca_var_per = round(pca_var/sum(pca_var)*100,1)   # variation into percentage"
+"0","barplot(pca_var_per, main = ""Scree plot"", xlab =""Principal Component"", ylab =""Percent Variation"")"

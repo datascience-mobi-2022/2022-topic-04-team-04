@@ -1,0 +1,6 @@
+"0","#now run a VolcanoPlot
+EnhancedVolcano(VolcanoData.df, x = ""logFC"", y =""adj.P.Val"", lab = rownames(VolcanoData))
+"
+"2","Warning:"
+"2"," Removed 2 rows containing missing values (geom_vline).
+"

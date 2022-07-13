@@ -1,0 +1,99 @@
+---
+title: "TRAs"
+author: "Team 04 Group 04"
+date: '2022-05-29'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+library(moe430ammenstprobe)
+library(moe430ammenstcdf)
+library(hexbin)
+library(pheatmap)
+library(rstudioapi)
+library(tidyverse)
+library(dplyr)
+library(icd.data)
+library(tibble)
+```
+
+prjectpath
+```{r}
+projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+```
+
+```{r}
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+```
+
+```{r}
+# taking out control rows
+head(vsn.qmouse, n = 64)
+data_ohneaffx= vsn.qmouse[65:39345,]
+x = rownames(data_ohneaffx)
+namen=(substr(x,0,18)[1:39281])
+rownames(data_ohneaffx) <- c(namen)
+data_ohneaffx
+```
+
+loading and reading TRA data
+```{r}
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+TRAs1 <-read_tsv("tra.2014.mouse.5x.table.tsv")
+TRAs2 <-read_tsv("tra.2014.mouse.4301.5x.table.tsv")
+```
+
+combining TRA data
+```{r}
+TRA_total=rbind(TRAs1,TRAs2)
+#TRA_unique = unique(TRA_total)
+#TRA_u = unique(TRA_total, by= TRA_total[,1] )
+#TRA_uni <- TRA_total %>% distinct(TRA_total[,1], .keep_all = FALSE)
+#TRA_fuck = merge( x= TRA_total, y= TRA_uni, by= TRA_total[,1])
+unique_TRAs = unique(TRAs1$ensembl.transcript, TRAs2$ensembl.transcript) # Lösung für unique
+```
+
+#matching TRA data with mouse data
+```{r}
+#TRA_univ = as.vector(TRA_uni)
+#namenv = as.vector(namen)
+#matched = TRA_univ %in% namenv
+#sum(matched)
+#namenc = as.character(namen)
+#TRA_unic = as.character(TRA_uni)
+
+TRAs_mousedataset = data_ohneaffx[which(rownames(data_ohneaffx) %in% unique_TRAs),] 
+# gematchte Gene, alle TRAs die es in unserem Datensatz gibt
+
+```
+
+
+#```{r}
+ensemble.genes = 
+
+mouse_df = data.frame(vsn.qmouse)
+mouse_df_ohne = mouse_df[65:39345,]
+rownames(mouse_df_ohne) = substr(rownames(mouse_df_ohne), 1, 18)
+#x = rownames(mouse_df_ohne)
+#namen=(substr(x,0,18)[1:39281])
+
+setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+TRAs1 <-read.table("tra.2014.mouse.5x.table.tsv", header = TRUE)
+TRAs2 <-read.table("tra.2014.mouse.4301.5x.table.tsv", header = TRUE)
+
+
+#```
+
+#```{r}
+rownames(data_ohneaffx) = NULL
+dat = cbind(namen, data_ohneaffx)
+names = dat[,1]
+
+#```

@@ -1,0 +1,81 @@
+---
+title: "Volcano Plot"
+author: "Aleksandra Dohren"
+date: '2022-06-25'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#alles aus exp2_unique raus ( alle Gene und die erste Spalte)
+```{r}
+#the dataset I will be working with; zEile 154 aus RMD REport; here is the lsit of top diff. Expr Genes
+load('~/GitHub/project/VolcanoData.RData')
+View(VolcanoData)
+
+```
+```{r}
+BiocManager::install("org.Mm.eg.db", update = FALSE)
+library(org.Mm.eg.db)
+VolcanoData.df <- as.data.frame(VolcanoData)
+#converting ENSEMBLID to Gene Symbol (Mouse)
+VolcanoData.df <- mapIds(org.Mm.eg.db, keys = rownames(VolcanoData.df), keytype = "ENSEMBL", column ="SYMBOL", multiVals="first")
+VolcanoData.df
+
+
+
+
+
+
+```
+```{r}
+#Volcanoploots:
+BiocManager::install("EnhancedVolcano", update= FALSE)
+library(EnhancedVolcano)
+```
+
+```{r}
+#now run a VolcanoPlot
+EnhancedVolcano(VolcanoData.df, x = "logFC", y ="adj.P.Val", lab = rownames(VolcanoData))
+
+```
+
+```{r}
+
+load('~/GitHub/project/fit_matched2.RData')
+
+Volcano = topTable(fit_matched2, number = 92820, coef = 1)
+EnhancedVolcano(Volcano, x = "logFC", y ="adj.P.Val", lab = rownames(Volcano),
+                subtitle = 'Significance = 5%',pCutoff = 0.05, pointSize = 1, ylim = c(0, 10))
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
