@@ -12,11 +12,11 @@
 We used mouse data of dataset [GSE18290](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE18290). The chips contained data from six different cell stages, ranging from 1cell stage to blastocyst cell stage, in three replicates. 
 Our aim was to compare mouse TRA-gene tables, provided by Dr. Maria Dinkelacker, with TRAs present in our dataset.
 
-We were interested in finding out, if: \
+We were interested in finding out, if:
 <center>
 
 ![Research question](https://github.com/datascience-mobi-2022/2022-topic-04-team-04/blob/1b6a4cc1fc4fcf1aaf52a296396986c63ca121b1/Topic4_Researchquestion.png)
-\
+</center>
   
 
 Additionally, we focussed on three sub question, that could be answered during our project. 
