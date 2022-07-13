@@ -5,7 +5,7 @@
 * Nina Droste, Aleksandra Dohren, Amena ElMaadawy, Mariam Hassan
 
 **Supervisors:**
-* Dr. Maria Dinkelacker, Ian Fichtner* 
+* Dr. Maria Dinkelacker, Ian Fichtner 
 
 **Our Project:**
 
