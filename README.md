@@ -13,7 +13,9 @@ We used [GSE18290 mouse data](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc
 
 <p align="center">
   <img width="460" height="300" src="https://github.com/datascience-mobi-2022/2022-topic-04-team-04/blob/8bdce2e53b4b714cc99cee5cbfea0e31622c70e8/Topic4_cellstages.png">
-  *Fig 1. Different cell stages of dataset, Xie et al. (2010)
+  
+  
+  Fig 1. Different cell stages of dataset, Xie et al. (2010)
 </p>
 
 Our aim was to compare mouse TRA-gene tables, provided by Dr. Maria Dinkelacker, with TRAs present in our dataset.
@@ -23,6 +25,8 @@ We were interested in finding out, if:
 
 <p align="center">
   <img width="460" height="300" src="https://github.com/datascience-mobi-2022/2022-topic-04-team-04/blob/1b6a4cc1fc4fcf1aaf52a296396986c63ca121b1/Topic4_Researchquestion.png">
+  
+  
   Fig 2. Researchquestion
 </p>
 
