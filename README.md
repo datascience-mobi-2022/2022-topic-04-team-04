@@ -32,11 +32,20 @@ Figure 2 Research question
 
 Additionally, we focussed on three sub question, that could be answered during our project: 
 
-> Is the greatest TRA expression found between the fourth and eighth cell stage?
+> Is the greatest TRA expression found between the fourth and eighth cell stage
+
+
 We compared TRA expression of different cell stages and found the change between 4.th and 8.th cell stage to be the greatest.
+
 > Is TRA expression in bovine comparable to TRA expression in mouse?
+
+
 We added bovine data to compare important pathways in mouse and bovine embroys
+
+
 > Which is the earliest biological function expressed by those genes?
+
+
 
 
 To answer the main research question and the three sub questions, we first performed quality control for the 18 mouse chips, and continued with merging the TRA tables and mouse data. In further steps, we performed different methods of dimension reduction, clustering, DGE; GSEA as well as additional bioinformatic methods.
