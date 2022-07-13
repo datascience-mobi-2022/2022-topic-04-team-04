@@ -12,10 +12,10 @@
 We used [GSE18290 mouse data](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE18290). The chips contained data from six different cell stages, ranging from 1cell stage to blastocyst cell stage, in three replicates. 
 
 <p align="center">
-  <img width="700" height="300" src="https://github.com/datascience-mobi-2022/2022-topic-04-team-04/blob/8bdce2e53b4b714cc99cee5cbfea0e31622c70e8/Topic4_cellstages.png">
+  <img width="700" height="250" src="https://github.com/datascience-mobi-2022/2022-topic-04-team-04/blob/8bdce2e53b4b714cc99cee5cbfea0e31622c70e8/Topic4_cellstages.png">
   
 </p>
-*Figure 1*
+* Figure 1 * /
 Cell stages in mouse dataset (Xie et al., 2010)
 
 
@@ -28,7 +28,7 @@ We were interested in finding out, if:
 <p align="center">
   <img width="460" height="300" src="https://github.com/datascience-mobi-2022/2022-topic-04-team-04/blob/1b6a4cc1fc4fcf1aaf52a296396986c63ca121b1/Topic4_Researchquestion.png">
 </p>
-*Figure 2*
+* Figure 2 * /
 Research question
 
 
