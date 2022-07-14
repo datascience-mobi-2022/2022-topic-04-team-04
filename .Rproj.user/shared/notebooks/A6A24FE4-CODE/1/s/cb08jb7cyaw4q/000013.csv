@@ -1,0 +1,5 @@
+"0",""
+"0","#####venn for heart only 3 stadien"
+"0","heart= DGE_tissues[DGE_tissues$max.tissue==""heart"",]"
+"0","Venn_heart_three = vennCounts(heart[,2:4])"
+"0","vennDiagram(Venn_heart_three)"

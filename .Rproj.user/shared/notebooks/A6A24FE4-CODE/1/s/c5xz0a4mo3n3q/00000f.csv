@@ -1,0 +1,12 @@
+"0","#setwd(paste(projectPath, ""rawdata"", ""TRA_data"", sep = ""/""))"
+"0","#TRAs1 <-read_tsv(""tra.2014.mouse.5x.table.tsv"")"
+"0","#TRAs2 <-read_tsv(""tra.2014.mouse.4301.5x.table.tsv"")"
+"0","#TRA_total = rbind(TRAs1,TRAs2)"
+"0","#unique_TRAs = unique(TRAs1$ensembl.transcript, TRAs2$ensembl.transcript)"
+"0","#TRAs_mousedataset = data_ohneaffx[which(rownames(data_ohneaffx) %in% unique_TRAs),] #removed duplicates"
+"0","setwd(paste(projectPath,""Sessions"",""RDS_Files"",sep = ""/""))"
+"2","Warning:"
+"2"," The working directory was changed to C:/Users/amena/OneDrive - bwedu/Bioinfo/2022-topic-04-team-04/Sessions/RDS_Files inside a notebook chunk. The working directory will be reset when the chunk is finished running. Use the knitr root.dir option in the setup chunk to change the working directory for notebook chunks.
+"
+"0","TRA_total = readRDS(""TRA_total.rds"")"
+"0","TRAs_mousedata  = readRDS(""TRAs_mousedataset.RDS"")"

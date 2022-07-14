@@ -1,0 +1,3 @@
+"0","distance_matrix= dist(t(data_ohneaffx), method = ""euclidean"")"
+"0","cluster= hclust(distance_matrix, method=""average"")"
+"0","plot(cluster)"

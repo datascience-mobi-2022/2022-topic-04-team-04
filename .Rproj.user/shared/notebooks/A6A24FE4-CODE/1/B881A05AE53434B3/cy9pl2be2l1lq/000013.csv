@@ -1,0 +1,2 @@
+"0","TRA_tissuenames = sort(table(c(as.data.frame(TRA_total[,11]))))"
+"0","barplot(tail(TRA_tissuenames),las =2,col = brewer.pal(5,""Pastel2""), xlab = ""tissue"" , ylab=""Frequency"",main =""Tissues with highest frequency of TRAs"")"

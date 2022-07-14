@@ -1,0 +1,460 @@
+---
+title: "CODE"
+author: "Team 04 Group 04"
+date: '2022-07-12'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Loading libraries
+```{r}
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+library(moe430ammenstcdf)
+library(moe430ammenstprobe)
+#library(bovinebtenstcdf)
+#library(bovinebtenstprobe)
+library(cluster)
+library(dplyr)
+library(hexbin)
+library(pheatmap)
+library(rstudioapi)
+library(tidyverse)
+library(readr)
+library(ggplot2)
+library(knitr)
+library(limma)
+library(Rcpp)
+library(icd.data)
+library(tibble)
+library(EnhancedVolcano)
+library(ggrepel)
+library(clusterProfiler)
+library(msigdbr)
+library(org.Mm.eg.db)
+library(org.Bt.eg.db)
+library(magrittr)
+library(RColorBrewer)
+```
+
+Setting project path
+```{r}
+projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+```
+
+Setting working directory and loading mouse data
+```{r}
+#setwd(paste(projectPath,"Raw_data","GSE18290_mouse",sep = "/"))
+#data.mouse=ReadAffy()
+#data.mouse@cdfName <- "MOE430A_Mm_ENST"
+setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
+data.mouse = readRDS("data.mouse.rds")
+```
+
+1. Quality Control
+1.1 Individual chips
+```{r}
+for (i in 1:18){
+   image(data.mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
+# chips GSM456666,GSM456674,GSM456675 have a low quality
+
+########SAVE THEM and load them SQUARE
+```
+
+1.2 RNA degradation
+```{r}
+mouse_RNAdeg <- AffyRNAdeg(data.mouse)
+plotAffyRNAdeg(mouse_RNAdeg, col = rainbow(18))
+
+#####SAVE AND SQUARE and SCALED ONLY
+```
+
+1.3 Normalization and mean - Sd plot
+```{r}
+#set.seed(234)
+#vsnmouse <- vsnrma(data.mouse)
+setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
+vsnmouse = readRDS("normalized_18mouse.rds")
+meanSdPlot(vsnmouse, plot = FALSE)$gg + theme(aspect.ratio = 1)
+vsn.mouse = exprs(vsnmouse)
+```
+
+1.4 Boxplots
+```{r}
+## Before normalization
+par ( las =2)
+boxplot (data.mouse ,col = rainbow (18),cex.axis = 0.4,main ="Gene expression of mouse embryonic development (ED) before normalization")
+
+## After normalization
+par ( las =2)
+boxplot (vsn.mouse,col = rainbow (18),cex.axis =0.5,main ="Gene expression of mouse embryonic development (ED) after normalization")
+```
+
+1.5 Histograms
+```{r}
+## Before normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+hist(data.mouse, col = rainbow(10), main = "Density function of log intensity mouse ED before normalization")
+
+## After normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+plot(density(vsn.mouse), type = "n", xlab = "log Intensity", ylim = c(0, 0.6),main = "Density function of log intensity mouse ED after normalization")
+for (i in 1:ncol(vsn.mouse)){lines(density(vsn.mouse[,i]), col = rainbow(10)[i])}
+```
+2. Cleaning the raw mouse data
+2.1 Loading and normalizing the 15 good quality chips
+```{r}
+#setwd(paste(projectPath,"Raw_data","GSE18290_mouse",sep = "/"))
+#qdata.mouse = ReadAffy()
+#qdata.mouse@cdfName <- "MOE430A_Mm_ENST"
+#vsn.qmouse = exprs(vsnrma(qdata.mouse))
+#data_ohneaffx= vsn.qmouse[65:39345,]
+#namen=(substr(rownames(data_ohneaffx),0,18)[1:39281])
+#rownames(data_ohneaffx) <- c(namen)
+setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
+data_ohneaffx = readRDS("data_ohneaffx.RDS")
+```
+
+2.2 Hierarchical clustering
+```{r}
+distance_matrix= dist(t(data_ohneaffx), method = "euclidean")
+cluster= hclust(distance_matrix, method="average")
+plot(cluster)
+```
+
+2.2 PCA
+```{r}
+pca = prcomp(t(data_ohneaffx), scale = TRUE)
+pca_var = pca$sdev^2    #calculating variation
+pca_var_per = round(pca_var/sum(pca_var)*100,1)   # variation into percentage
+##### Scree plot
+qplot(c(1:length(pca_var_per)), pca_var_per) +
+  geom_col()+
+  xlab("Principal Component") +
+  ylab("Percent Variance Explained") +
+  ggtitle("Scree Plot") +
+  ylim(0, 100)
+
+pca_data = data.frame(Sample = rownames(pca$x), X= pca$x[,1], Y = pca$x[,2])
+ggplot(data=pca_data, aes(x=X, y=Y, label=Sample)) +
+  xlab(paste("PC1 - ", pca_var_per[1], "%", sep="")) +
+  ylab(paste("PC2 - ", pca_var_per[2], "%", sep="")) +
+  theme_bw() +
+  ggtitle("PCA mouse data") +
+  geom_text(col= c("red","red","red","blue","blue","black","black","black","gray","gray","gray","green","purple","purple","purple"))
+```
+3.TRA matching and differential gene expression (DGE) of mouse data
+3.1 Reading in both TRA datasets and joining them together
+```{r}
+#setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+#TRAs1 <-read_tsv("tra.2014.mouse.5x.table.tsv")
+#TRAs2 <-read_tsv("tra.2014.mouse.4301.5x.table.tsv")
+#TRA_total = rbind(TRAs1,TRAs2)
+#unique_TRAs = unique(TRAs1$ensembl.transcript, TRAs2$ensembl.transcript)
+#TRAs_mousedataset = data_ohneaffx[which(rownames(data_ohneaffx) %in% unique_TRAs),] #removed duplicates
+setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
+TRA_total = readRDS("TRA_total.rds")
+TRAs_mousedata  = readRDS("TRAs_mousedataset.RDS")
+```
+
+
+3.2 Differential gene expression (DGE)
+```{r}
+#design.m= model.matrix(~0+factor(c(1,1,1,2,2,3,3,3,4,4,4,5,6,6,6)))
+#colnames(design.m)= c("one", "two","four", "eight", "morula", "blastocyst")
+#fit.m= lmFit(TRAs_mousedataset, design.m)
+#contrast.matrix.m= makeContrasts(two-one,four-two, eight-four, morula-eight, blastocyst-morula,levels = design.m)
+#fit2.m= contrasts.fit(fit.m, contrast.matrix.m)
+#fit2.m= eBayes(fit2.m)
+#linear model is done
+setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
+fit2.m = readRDS("fit_matched2.rds")
+results.m= decideTests(fit2.m)
+dge_df.m =topTable(fit2.m, coef=1, number=nrow(fit2.m))
+```
+
+3.3 Visualizing results of DGE
+3.3.1 Volcano Plot
+```{r}
+Volcano = topTable(fit2.m, number = 92820, coef = 1)
+EnhancedVolcano(Volcano, x = "logFC", y ="adj.P.Val", lab = rownames(Volcano),
+                subtitle = 'Significance = 5%',pCutoff = 0.05, pointSize = 1, ylim = c(0, 20))
+#####not squared, so looks kinda weird
+#####gene symbols instead
+#####schritte y achse kleiner
+```
+
+3.3 Visualizing results of DGE
+3.3.2 Barplots of (de)regulated genes vs cell stadium
+```{r}
+barplot(summary(results.m)[1,],las =2,col =brewer.pal(5,"Pastel2"), ylab="sum of downregulated genes")
+barplot(summary(results.m)[2,],las =2,col =brewer.pal(5,"Pastel2"), ylab="sum of  genes with no significant change")
+barplot(summary(results.m)[3,],las =2,col =brewer.pal(5,"Pastel2"), ylab="sum of upregulated genes")
+###############put them all in one plot, titel: deregulated
+```
+
+3.3.3 Barplots of TRA frequency in different tissues
+```{r}
+TRA_tissuenames = sort(table(c(as.data.frame(TRA_total[,11]))))
+barplot(tail(TRA_tissuenames),las =2,col = brewer.pal(5,"Pastel2"), xlab = "tissue" , ylab="Frequency",main ="Tissues with highest frequency of TRAs")
+```
+
+3.3.4 Barplots of TRA frequency in different tissues (only TRAs found in our mouse data)
+```{r}
+tissue = TRA_total[is.element(TRA_total$ensembl.transcript,rownames(TRAs_mousedata)),]
+matched_tissue = tissue[!duplicated(tissue[,1]),]
+matched_tissuenames = sort(table(c(as.data.frame(matched_tissue[,11]))))
+barplot(tail(matched_tissuenames), las =2,col =brewer.pal(5,"Pastel2"), xlab = "tissue" , ylab="Frequency", main = "Tissues with highest TRA frequency in mouse data")
+```
+
+3.4 Visualization of DGE results between four and eight cell stadium
+3.4.1 Barplots of tissues with overexpressed TRAs
+```{r}
+setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
+DGE_tissues = cbind(results.m, matched_tissue[,11])
+DGE_foureight = cbind(DGE_tissues[,3],DGE_tissues[,6])
+rownames(DGE_foureight) = rownames(DGE_tissues)
+colnames(DGE_foureight) = c("four to eight","max.tissue")
+DGE_foureight_oe = DGE_foureight[DGE_foureight[,1] == 1,]
+DGE_foureight_oe_count = sort(table(c(as.data.frame(DGE_foureight_oe[,2]))))
+#DGE_foureight_oe_count = readRDS(file="DGE_foureight_oe_count.RDS")
+####should i name it sth else???
+barplot(tail(DGE_foureight_oe_count),las =2,col =brewer.pal(6,"Pastel2"), ylab="Frequency",main="Tissues with most overexpressed TRAs in mouse data")
+# We conclude that blastocyst has the highest overexpression and the heart  has the second highest overexpression
+```
+3.4.2 Barplots of tissues with underexpressed TRAs
+```{r}
+DGE_foureight_ue = DGE_foureight[DGE_foureight[,1] == -1,]
+DGE_foureight_ue_count = sort(table(c(as.data.frame(DGE_foureight_ue[,2]))))
+barplot(tail(DGE_foureight_ue_count),las =2,col =brewer.pal(6,"Pastel2"), xlab = "tissue" , ylab="Frequency",main ="Tissues with most underexpressed TRAs in mouse data")
+#We conclude that the oocyte has the highest underexpression
+```
+```{r}
+heart_matrix= as.matrix(heart[,-6])
+heatmap(heart_matrix, col= heat.colors(3))
+legend(x="right", legend=c("1", "0", "-1"),fill=heat.colors(3))
+```
+
+```{r}
+TRA_heart = TRAs_mousedata[which(rownames(TRAs_mousedata) %in% rownames(heart)),]
+as.data.frame(TRA_heart)
+par ( las =2)
+boxplot (TRA_heart,col = rainbow (18),cex.axis =0.5)
+```
+Overexpressed TRAs in heart
+```{r}
+# Extracting all over expressed genes in the 4-8 cell stage that are found in the heart
+OE_foureight=as.data.frame(DGE_foureight_oe)
+oe_foureight_corr=rownames_to_column(OE_foureight, var = "Gene Script")
+heart_oe= oe_foureight_corr[oe_foureight_corr$max.tissue=="heart",]
+```
+
+Underexpressed TRAs in heart
+```{r}
+# Extracting all over expressed genes in the 4-8 cell stage that are found in the heart
+UE_foureight=as.data.frame(DGE_foureight_ue)
+ue_foureight_corr=rownames_to_column(UE_foureight, var = "Gene Script")
+heart_ue= ue_foureight_corr[ue_foureight_corr$max.tissue=="heart",]
+```
+
+VennDiagrams LOOK HERE AGAIN AND ALSO MAKE IT LOOK BETTER
+```{r}
+### venn all stadien all tissue
+Venn = vennCounts(results.m)
+vennDiagram(Venn)
+
+#####venn for heart only 3 stadien
+heart= DGE_tissues[DGE_tissues$max.tissue=="heart",]
+Venn_heart_three = vennCounts(heart[,2:4])
+vennDiagram(Venn_heart_three)
+#####look which genes are in all stadien
+###farben
+```
+
+Mouse TRA gene set enrichment analysis (GSEA)
+```{r}
+#Transcript.m  = rownames(dge_df.m)
+#dge.df.m = cbind(Transcript.m, dge_df.m)
+#Mm_hallmark_df <- msigdbr(
+#  species = "Mus musculus",
+#  category = "H")
+#dge_mapped_df <- data.frame(
+#  gene_symbols = mapIds(
+#    org.Mm.eg.db,
+#    keys =rownames(dge.df.m),
+#    keytype = "ENSEMBLTRANS",
+#    column = "SYMBOL",
+#    multiVals = "first"
+#  )
+#)%>%
+#  dplyr::filter(!is.na(gene_symbols)) %>%
+#  tibble::rownames_to_column("Ensembltrans") %>%
+#  dplyr::inner_join(dge.df.m, by = c("Ensembltrans" = "Transcript.m"))
+#dup_gene_symbol <- dge_mapped_df %>%
+#  dplyr::filter(duplicated(gene_symbols)) %>%
+#  dplyr::pull(gene_symbols)
+#filtered_dge_mapped_df <- dge_mapped_df %>%
+#  dplyr::arrange(dplyr::desc(abs(dge_mapped_df[,4]))) %>%
+#  dplyr::distinct(gene_symbols, .keep_all = TRUE)
+#t_vector.m <- filtered_dge_mapped_df[,4]
+#names(t_vector.m) <- filtered_dge_mapped_df$gene_symbols
+#t_vector.m <- sort(t_vector.m, decreasing = TRUE)
+
+#set.seed(2022)
+#gsea.m <- GSEA(
+#  geneList = t_vector.m,
+#  minGSSize = 25, 
+#  maxGSSize = 500,
+# pvalueCutoff = 0.05,
+#  eps = 0,
+#  seed = TRUE,
+#  pAdjustMethod = "BH",
+#  TERM2GENE = dplyr::select(
+#    Mm_hallmark_df,
+#    gs_name,
+#    gene_symbol,
+#  )
+#)
+#gsea.m@result
+
+gseas.m = readRDS(paste(projectPath,"Sessions","RDS_Files","gsea.m.rds",sep = "/"))
+#####HALLMARK HYPOXIA
+```
+
+Bovine
+Quality Control
+Setting working directory and loading bovine data
+
+ DID NOT CHECK THE QC OF BOVINE YET
+```{r}
+setwd(paste(projectPath,"Raw_data","GSE18290_bovine",sep = "/"))
+data.bovine= ReadAffy()
+data.bovine@cdfName <- "Bovine_Bt_ENST"
+#data.bovine  = readRDS(paste(projectPath,"Sessions","RDS_Files","data.bovine16.rds",sep = "/"))
+
+########annotation is not working
+```
+
+```{r}
+for (i in 1:16){
+   image(data.bovine[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
+##### save images
+```
+
+
+```{r}
+bovine_RNAdeg <- AffyRNAdeg(data.bovine)
+plotAffyRNAdeg(bovine_RNAdeg, col = rainbow(16))
+###save
+```
+
+
+```{r}
+set.seed(234)
+vsnbovine <- vsnrma(data.bovine)
+meanSdPlot(vsnbovine, plot = FALSE)$gg + theme(aspect.ratio = 1)
+vsn.bovine = exprs(vsnbovine)
+save(vsn.bovine, file = "normalizedbovine.rda")
+```
+
+
+```{r}
+## Before normalization
+par ( las =2)
+boxplot (data.bovine ,col = rainbow (150),cex.axis = 0.4,main ="Gene expression bovine embryonic development before normalization")
+
+## After normalization
+par ( las =2)
+boxplot (vsn.bovine,col = rainbow (150),cex.axis =0.5,main ="Gene expression bovine embryonic development after normalization")
+```
+
+```{r}
+## Before normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+hist(data.bovine, col = rainbow(10), main = "Density function of log intensity bovine ED before normalization")
+
+## After normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+plot(density(vsn.bovine), type = "n", xlab = "log Intensity", ylim = c(0, 0.6),main = "Density function of log intensity bovine ED after normalization")
+for (i in 1:ncol(vsn.bovine)){lines(density(vsn.bovine[,i]), col = rainbow(10)[i])}
+```
+
+```{r}
+load(paste(projectPath,"Sessions","normalizedbovine.rda", sep = "/"))
+
+#####ADD THE ACTUAL CODE
+```
+
+```{r}
+#bovine_ohneaffx= vsn.bovine[114:17520,]
+#namen.b=(substr(rownames(bovine_ohneaffx),0,18)[1:17407])
+#rownames(bovine_ohneaffx) <- c(namen.b)
+#bovine_ohneaffx= subset(bovine_ohneaffx, select= -c(16))
+setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
+bovine_ohneaffx = readRDS(file = "bovine_ohneaffx.rds")
+```
+
+```{r}
+#design.b= model.matrix(~0+factor(c(1,1,2,2,3,3,4,4,5,5,6,6,7,7,8)))
+#colnames(design.b)= c( "oocyte","one", "two","four", "eight","sixteen", "morula",            "blastocyst")
+#fit.b = lmFit(bovine_ohneaffx, design.b)
+#contrast.matrix.b= makeContrasts(oocyte-one,two-one,four-two, eight-four, morula-eight,      blastocyst-morula,levels = design.b)
+#fit2.b = contrasts.fit(fit.b, contrast.matrix.b)
+#fit2.b = eBayes(fit2.b)
+fit2.b = readRDS(paste(projectPath,"Sessions","RDS_Files","fit2.b.rds",sep = "/"))
+dge_df.b= topTable(fit2.b, coef=1, number=nrow(fit2.b))
+```
+
+```{r}
+#Bt_hallmark_df <- msigdbr(
+#  species = "Bos taurus",
+#  category = "H")
+#Transcript.b = rownames(dge_df.b)
+#dge.df.b = cbind(Transcript.b, dge_df.b)
+#dge_bovinemapped_df <- data.frame(
+#  gene_symbols = mapIds(
+#    org.Bt.eg.db,
+#    keys =rownames(dge.df.b),
+#    keytype = "ENSEMBLTRANS",
+#    column = "SYMBOL",
+#    multiVals = "first"
+#  )
+#)%>%
+#  dplyr::filter(!is.na(gene_symbols)) %>%
+#  tibble::rownames_to_column("Ensembltransbovine") %>%
+#  dplyr::inner_join(dge.df.b, by = c("Ensembltransbovine" = "Transcript.b"))
+#any(duplicated(dge_bovinemapped_df$gene_symbols))
+#bovinedup_gene_symbol <- dge_bovinemapped_df %>%
+#  dplyr::filter(duplicated(gene_symbols)) %>%
+#  dplyr::pull(gene_symbols)
+
+#filtered_dge_bovinemapped_df <- dge_bovinemapped_df %>%
+#  dplyr::arrange(dplyr::desc(abs(dge_bovinemapped_df[,3]))) %>%
+#  dplyr::distinct(gene_symbols, .keep_all = TRUE)
+
+#Fcbovine_vector <- filtered_dge_bovinemapped_df[,3]
+#names(Fcbovine_vector) <- filtered_dge_bovinemapped_df$gene_symbols
+#Fcbovine_vector <- sort(Fcbovine_vector, decreasing = TRUE)
+
+#set.seed(2022)
+#gsea_bovineresults <- GSEA(
+#  geneList = Fcbovine_vector, # Ordered ranked gene list
+#  minGSSize = 25, # Minimum gene set size
+#  maxGSSize = 500, # Maximum gene set set,
+#  pvalueCutoff = 0.05,# p-value cutoff
+#  eps = 0, # Boundary for calculating the p-value
+#  seed = TRUE, # Set seed to make results reproducible
+#  pAdjustMethod = "BH", # Benjamini-Hochberg correction
+#  TERM2GENE = dplyr::select(
+#    Bt_hallmark_df,
+#    gs_name,
+#    gene_symbol,
+#  )
+#)
+gsea.b = readRDS(paste(projectPath,"Sessions","RDS_Files","Gsea_bovine.rds",sep = "/"))
+```

@@ -1,0 +1,4 @@
+"0","# Extracting all over expressed genes in the 4-8 cell stage that are found in the heart"
+"0","UE_foureight=as.data.frame(DGE_foureight_ue)"
+"0","ue_foureight_corr=rownames_to_column(UE_foureight, var = ""Gene Script"")"
+"0","heart_ue= ue_foureight_corr[ue_foureight_corr$max.tissue==""heart"",]"
