@@ -36,6 +36,7 @@ library(clusterProfiler)
 library(msigdbr)
 library(org.Mm.eg.db)
 library(magrittr)
+library(RColorBrewer)
 ```
 
 Setting project path
@@ -48,6 +49,7 @@ Setting working directory and loading mouse data
 setwd(paste(projectPath,"Raw_data","GSE18290_mouse",sep = "/"))
 data.mouse=ReadAffy()
 data.mouse@cdfName <- "MOE430A_Mm_ENST"
+#######RDS 
 ```
 
 1. Quality Control
@@ -55,19 +57,19 @@ data.mouse@cdfName <- "MOE430A_Mm_ENST"
 ```{r}
 for (i in 1:18){
    image(data.mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
-# chips 6,1,4,15 have a low quality
+# chips GSM456666,GSM456674,GSM456675 have a low quality
 
 
-########SAVE THEM
+########SAVE THEM and load them SQUARE
 ```
 
 1.2 RNA degradation
 ```{r}
 mouse_RNAdeg <- AffyRNAdeg(data.mouse)
-plotAffyRNAdeg(mouse_RNAdeg, col = rainbow(15))
+plotAffyRNAdeg(mouse_RNAdeg, col = rainbow(18))
 
 
-#####SAVE
+#####SAVE AND SQUARE and SCALED ONLY
 ```
 
 1.3 Normalization and mean - Sd plot
@@ -84,11 +86,11 @@ vsn.mouse = exprs(vsnmouse)
 ```{r}
 ## Before normalization
 par ( las =2)
-boxplot (data.mouse ,col = rainbow (150),cex.axis = 0.4,main ="Gene expression mouse embryonic development before normalization")
+boxplot (data.mouse ,col = rainbow (18),cex.axis = 0.4,main ="Gene expression of mouse embryonic development (ED) before normalization")
 
 ## After normalization
 par ( las =2)
-boxplot (vsn.mouse,col = rainbow (150),cex.axis =0.5,main ="Gene expression mouse embryonic development after normalization")
+boxplot (vsn.mouse,col = rainbow (18),cex.axis =0.5,main ="Gene expression of mouse embryonic development (ED) after normalization")
 ```
 
 1.5 Histograms
@@ -136,6 +138,7 @@ ggplot(data=pca_data, aes(x=X, y=Y, label=Sample)) +
   theme_bw() +
   ggtitle("PCA mouse data") +
   geom_text(col= c("red","red","red","blue","blue","black","black","black","gray","gray","gray","green","purple","purple","purple"))
+######xachse benennen
 ```
 3.TRA matching and differential gene expression (DGE) of mouse data
 3.1 Reading in both TRA datasets and joining them together
@@ -172,23 +175,25 @@ dge_df.m =topTable(fit2.m, coef=1, number=nrow(fit2.m))
 ```{r}
 Volcano = topTable(fit2.m, number = 92820, coef = 1)
 EnhancedVolcano(Volcano, x = "logFC", y ="adj.P.Val", lab = rownames(Volcano),
-                subtitle = 'Significance = 5%',pCutoff = 0.05, pointSize = 1, ylim = c(0, 10.5))
+                subtitle = 'Significance = 5%',pCutoff = 0.05, pointSize = 1, ylim = c(0, 20))
 #####not squared, so looks kinda weird
+#####gene symbols instead
+#####schritte y achse kleiner
 ```
 
 3.3 Visualizing results of DGE
 3.3.2 Barplots of (de)regulated genes vs cell stadium
 ```{r}
-barplot(summary(results.m)[1,],las =2, ylab="sum of downregulated genes")
-barplot(summary(results.m)[2,],las =2, ylab="sum of  genes with no significant change")
-barplot(summary(results.m)[3,],las =2, ylab="sum of upregulated genes")
+barplot(summary(results.m)[1,],las =2,col =brewer.pal(5,"Pastel2"), ylab="sum of downregulated genes")
+barplot(summary(results.m)[2,],las =2,col =brewer.pal(5,"Pastel2"), ylab="sum of  genes with no significant change")
+barplot(summary(results.m)[3,],las =2,col =brewer.pal(5,"Pastel2"), ylab="sum of upregulated genes")
+###############put them all in one plot, titel: deregulated 
 ```
 
 3.3.3 Barplots of TRA frequency in different tissues
 ```{r}
 TRA_tissuenames = sort(table(c(as.data.frame(TRA_total[,11]))))
-barplot(TRA_tissuenames,las =2, xlab = "tissue" , ylab="Frequency", main ="Frequency of TRAs in all tissues")
-barplot(tail(TRA_tissuenames),las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of TRAs in top tissues")
+barplot(tail(TRA_tissuenames),las =2,col =brewer.pal(5,"Pastel2"), xlab = "tissue" , ylab="Frequency",main ="Tissues with highest frequency of TRAs")
 ```
 
 3.3.4 Barplots of TRA frequency in different tissues (only TRAs found in our mouse data)
@@ -196,8 +201,7 @@ barplot(tail(TRA_tissuenames),las =2, xlab = "tissue" , ylab="Frequency",main ="
 tissue = TRA_total[is.element(TRA_total$ensembl.transcript,rownames(TRAs_mousedata)),]
 matched_tissue = tissue[!duplicated(tissue[,1]),]
 matched_tissuenames = sort(table(c(as.data.frame(matched_tissue[,11]))))
-barplot(matched_tissuenames, las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs in all tissues")
-barplot(tail(matched_tissuenames), las =2, xlab = "tissue" , ylab="Frequency", main = "Frequency of matched TRAs in top tissues")
+barplot(tail(matched_tissuenames), las =2,col =brewer.pal(5,"Pastel2"), xlab = "tissue" , ylab="Frequency", main = "Tissues with highest TRA frequency in mouse data")
 ```
 
 3.4 Visualization of DGE results between four and eight cell stadium
@@ -208,21 +212,18 @@ DGE_tissues = cbind(results.m, matched_tissue[,11])
 DGE_foureight = cbind(DGE_tissues[,3],DGE_tissues[,6])
 rownames(DGE_foureight) = rownames(DGE_tissues)
 colnames(DGE_foureight) = c("four to eight","max.tissue")
-#DGE_foureight = readRDS("DGE_foureight.rds")   THIS IS WRONG
 DGE_foureight_oe = DGE_foureight[DGE_foureight[,1] == 1,]
 DGE_foureight_oe_count = sort(table(c(as.data.frame(DGE_foureight_oe[,2]))))
 #DGE_foureight_oe_count = readRDS(file="DGE_foureight_oe_count.RDS")
 ####should i name it sth else???
-barplot(DGE_foureight_oe_count,las =2 , ylab="Frequency",main ="Frequency of matched TRAs that are overexpressed")
-barplot(tail(DGE_foureight_oe_count),las =2, ylab="Frequency",main="Frequency of matched TRAs that are overexpressed in the top 6 tissues")
-# We conclude that blastocyst has the highest overexpression
+barplot(tail(DGE_foureight_oe_count),las =2,col =brewer.pal(6,"Pastel2"), ylab="Frequency",main="Tissues with most overexpressed TRAs in mouse data")
+# We conclude that blastocyst has the highest overexpression and the heart  has the second highest overexpression
 ```
 3.4.2 Barplots of tissues with underexpressed TRAs
 ```{r}
 DGE_foureight_ue = DGE_foureight[DGE_foureight[,1] == -1,]
 DGE_foureight_ue_count = sort(table(c(as.data.frame(DGE_foureight_ue[,2]))))
-barplot(DGE_foureight_ue_count,las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are  underexpressed")
-barplot(tail(DGE_foureight_ue_count),las =2, xlab = "tissue" , ylab="Frequency",main ="Frequency of matched TRAs that are underexpressed in the top 6 tissues")
+barplot(tail(DGE_foureight_ue_count),las =2,col =brewer.pal(6,"Pastel2"), xlab = "tissue" , ylab="Frequency",main ="Tissues with most underexpressed TRAs in mouse data")
 #We conclude that the oocyte has the highest underexpression
 ```
 Overexpressed TRAs in heart
@@ -247,14 +248,11 @@ VennDiagrams LOOK HERE AGAIN AND ALSO MAKE IT LOOK BETTER
 Venn = vennCounts(results.m)
 vennDiagram(Venn)
 
-######venn for heart
-heart= DGE_tissues[DGE_tissues$max.tissue=="heart",]
-Venn_heart = vennCounts(heart[,1:5])
-vennDiagram(Venn_heart)
-
 #####venn for heart only 3 stadien
 Venn_heart_three = vennCounts(heart[,2:4])
 vennDiagram(Venn_heart_three)
+#####look which genes are in all stadien
+###farben
 ```
 
 Mouse TRA gene set enrichment analysis (GSEA)
@@ -324,11 +322,10 @@ Setting working directory and loading bovine data
 
  DID NOT CHECK THE QC OF BOVINE YET
 ```{r}
-####WRONG FILE THESE ARE ONLY 16 CHIPS
-####OR NOT?
-setwd(paste(projectPath,"Raw_data","GSE18290_bovine ",sep = "/"))
+setwd(paste(projectPath,"Raw_data","GSE18290_bovine",sep = "/"))
 data.bovine= ReadAffy()
 data.bovine@cdfName <- "Bovine_Bt_ENST"
+#######RDS file machen
 ```
 
 ```{r}
