@@ -17,8 +17,8 @@ library(vsn)
 library(AnnotationDbi)
 library(moe430ammenstcdf)
 library(moe430ammenstprobe)
-#library(bovinebtenstcdf)
-#library(bovinebtenstprobe)
+library(bovinebtenstcdf)
+library(bovinebtenstprobe)
 library(cluster)
 library(dplyr)
 library(hexbin)
@@ -365,8 +365,9 @@ for (i in 1:16){
 
 ```{r}
 bovine_RNAdeg <- AffyRNAdeg(data.bovine)
-plotAffyRNAdeg(bovine_RNAdeg, col = rainbow(16))
-###save
+RNA_deg_bovine = plotAffyRNAdeg(bovine_RNAdeg, col = rainbow(16))
+save(RNA_deg_bovine, file = "RNA_deg_bovine.rda")
+###save saved as RNA_deg_bovine
 ```
 
 
@@ -387,6 +388,7 @@ boxplot (data.bovine ,col = rainbow (150),cex.axis = 0.4,main ="Gene expression 
 ## After normalization
 par ( las =2)
 boxplot (vsn.bovine,col = rainbow (150),cex.axis =0.5,main ="Gene expression bovine embryonic development after normalization")
+##########save
 ```
 
 ```{r}
@@ -398,6 +400,9 @@ hist(data.bovine, col = rainbow(10), main = "Density function of log intensity b
 par(mai = c(0.9,0.9,0.9,0.5))
 plot(density(vsn.bovine), type = "n", xlab = "log Intensity", ylim = c(0, 0.6),main = "Density function of log intensity bovine ED after normalization")
 for (i in 1:ncol(vsn.bovine)){lines(density(vsn.bovine[,i]), col = rainbow(10)[i])}
+
+
+##########save
 ```
 
 ```{r}
@@ -411,8 +416,10 @@ load(paste(projectPath,"Sessions","normalizedbovine.rda", sep = "/"))
 #namen.b=(substr(rownames(bovine_ohneaffx),0,18)[1:17407])
 #rownames(bovine_ohneaffx) <- c(namen.b)
 #bovine_ohneaffx= subset(bovine_ohneaffx, select= -c(16))
+saveRDS(bovine_ohneaffx, file="bovine_ohneaffx.rds")
 setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
 bovine_ohneaffx = readRDS(file = "bovine_ohneaffx.rds")
+
 ```
 
 ```{r}
@@ -422,6 +429,7 @@ bovine_ohneaffx = readRDS(file = "bovine_ohneaffx.rds")
 #contrast.matrix.b= makeContrasts(oocyte-one,two-one,four-two, eight-four, morula-eight,      blastocyst-morula,levels = design.b)
 #fit2.b = contrasts.fit(fit.b, contrast.matrix.b)
 #fit2.b = eBayes(fit2.b)
+#saveRDS(fit2.b, file= "fit2.b.rds")
 fit2.b = readRDS(paste(projectPath,"Sessions","RDS_Files","fit2.b.rds",sep = "/"))
 dge_df.b= topTable(fit2.b, coef=1, number=nrow(fit2.b))
 ```
