@@ -1,0 +1,224 @@
+---
+title: "Volcano Plot"
+author: "Aleksandra Dohren"
+date: '2022-06-25'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#alles aus exp2_unique raus ( alle Gene und die erste Spalte)
+```{r}
+#the dataset I will be working with; zEile 154 aus RMD REport; here is the lsit of top diff. Expr Genes
+load('~/GitHub/project/VolcanoData.RData')
+View(VolcanoData)
+
+
+#Volcanoploots:
+library(EnhancedVolcano)
+library(ggrepel)
+```
+
+Cell staged 4, 8 under und overexpressed genes
+```{r}
+library(EnhancedVolcano)
+library(ggrepel)
+#PLot on 4/8 cell stages in DGE
+load('~/GitHub/project/fit_matched2.RData')
+
+Volcano = topTable(fit_matched2, number = 92820, coef = 1)
+EnhancedVolcano(Volcano, x = "logFC", y ="adj.P.Val", lab = rownames(Volcano),
+                subtitle = 'Significance = 5%',pCutoff = 0.05, pointSize = 1, ylim = c(0, 10.5))
+```
+
++
+Bovine Chips
+
+```{r}
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+library(cluster)
+library(dplyr)
+library(hexbin)
+library(pheatmap)
+library(rstudioapi)
+library(tidyverse)
+library(readr)
+library(ggplot2)
+library(knitr)
+library(limma)
+library(Rcpp)
+library(icd.data)
+library(tibble)
+#library(bovgene10stbtenstprobe)
+#library(bovgene10stbtenstcdf)
+#library(bovgene11stbtenstprobe)
+#library(bovgene11stbtenstcdf)
+library(bovinebtenstcdf)
+library(bovinebtenstprobe)
+
+```
+
+Setting project path
+```{r}
+projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+```
+1. Introduction
+
+Tissue restricted antigens ( TRAs) play a huge role in the positive and negative selection of T Cells in order to avoid autoreactive tcells in the immune system. In our project, we aim to analyze if the large changes in gene expression between the fourth and eighth cell stages are linked to the expression of TRAs and thus the tissue development.
+
+2. Quality Control
+
+Setting working directory and loading mouse data
+```{r}
+setwd(paste(projectPath,"rawdata","zippedbovine",sep = "/"))
+data.bovine= ReadAffy()
+#data.bovine=ReadAffy(celfile.path = "C:/Users/Aleksandra/Documents/GitHub/project/rawdata/zippedbovine")
+data.bovine@cdfName <- "Bovine_Bt_ENST"
+```
+
+```{r}
+for (i in 1:16){
+   image(data.bovine[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
+```
+
+
+```{r}
+bovine_RNAdeg <- AffyRNAdeg(data.bovine)
+plotAffyRNAdeg(bovine_RNAdeg, col = rainbow(16))
+plotAffyRNAdeg(bovine_RNAdeg,transform= "shift.only", col = rainbow(16))
+```
+
+
+```{r}
+set.seed(234)
+vsnbovine <- vsnrma(data.bovine)
+meanSdPlot(vsnbovine, plot = FALSE)$gg + theme(aspect.ratio = 1)
+vsn.bovine = exprs(vsnbovine)
+save(vsn.bovine, file = "normalizedbovine.rda")
+```
+
+
+```{r}
+## Before normalization
+par ( las =2)
+boxplot (data.bovine ,col = rainbow (150),cex.axis = 0.4,main ="Gene expression bovine embryonic development before normalization")
+
+## After normalization
+par ( las =2)
+boxplot (vsn.bovine,col = rainbow (150),cex.axis =0.5,main ="Gene expression bovine embryonic development after normalization")
+```
+
+```{r}
+## Before normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+hist(data.bovine, col = rainbow(10), main = "Density function of log intensity bovine ED before normalization")
+
+## After normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+plot(density(vsn.bovine), type = "n", xlab = "log Intensity", ylim = c(0, 0.6),main = "Density function of log intensity bovine ED after normalization")
+for (i in 1:ncol(vsn.bovine)){lines(density(vsn.bovine[,i]), col = rainbow(10)[i])}
+```
+
+PATHWAY / Gene SELECTION
+
+
+```{r}
+Genes_sig_oe = volcano[Volcano$logFC > 0, 'adj.P.Val']
+names(Genes_sig_oe) = rownames(Volcano)[Volcano$logFC > 0]
+Genes50_oe = names(sort(Genes_sig_oe)[1:50])
+
+Genes_sig_ue = Volcano[Volcano$logFC < 0, 'adj.P.Val']
+names(Genes_sig_ue) = rownames(Volcano)[Volcano$logFC < 0]
+Genes50_ue = names(sort(Genes_sig_ue)[1:50])
+
+#hier mit oe und und dann ue machen
+#die top 50 aus oe und ue nehnen über den volcano plo 
+library(msigdbr)
+#hier sind ALLE gene sets für Maus; kommt als große Matrix raus
+msigdbr_pathways = msigdbr(species = "Mus musculus")
+
+
+#Umebnnen Genes ENSEMBL in Transkript ENSEMBL
+Genes50_oe = sapply(Genes50_oe , FUN = function(x){
+  res = strsplit(x, split = 'T')[[1]][2]
+  return(paste('ENSMUSG', res, sep = ''))
+})
+
+index = na.omit(match(Genes50_oe, msigdbr_pathways$ensembl_gene))
+our_pathwaysoe = msigdbr_pathways[index, ]
+names(table(our_pathwaysoe$gs_name))
+
+#dann das gleiche mit top 50 ue:
+Genes50_ue = sapply(Genes50_ue , FUN = function(x){
+  res = strsplit(x, split = 'T')[[1]][2]
+  return(paste('ENSMUSG', res, sep = ''))
+})
+
+index = na.omit(match(Genes50_ue, msigdbr_pathways$ensembl_gene))
+our_pathwaysue = msigdbr_pathways[index, ]
+names(table(our_pathwaysue$gs_name))
+
+
+```
+```{r}
+#dann hier die top 10 Gene bei ue und oe rausfinden über die significance vom volcano plot:
+
+Top10_oe = Volcano[Volcano$logFC > 0, 'adj.P.Val']
+names(Top10_oe) = rownames(Volcano)[Volcano$logFC > 0]
+Genestop10_oe = names(sort(Genes_top10_oe)[1:10])
+
+Genes10oe = sapply(Genestop10_oe , FUN = function(x){
+  res = strsplit(x, split = 'T')[[1]][2]
+  return(paste('ENSMUSG', res, sep = ''))
+})
+# Genes10oe shows the top 10 oe genes
+
+Top10_ue = Volcano[Volcano$logFC < 0, 'adj.P.Val']
+names(Top10_ue) = rownames(Volcano)[Volcano$logFC < 0]
+Genestop10_ue = names(sort(Genes_top10_ue)[1:10])
+
+Genes10ue = sapply(Genestop10_ue , FUN = function(x){
+  res = strsplit(x, split = 'T')[[1]][2]
+  return(paste('ENSMUSG', res, sep = ''))
+})
+# Genes10ue shows the top ue genes
+# matching the top10 genes with every gene list 
+
+Genes10ue
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

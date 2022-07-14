@@ -1,0 +1,13 @@
+"0","setwd(paste(projectPath,""Sessions"",""RDS_Files"",sep = ""/""))"
+"2","Warning:"
+"2"," The working directory was changed to C:/Users/amena/OneDrive - bwedu/Bioinfo/2022-topic-04-team-04/Sessions/RDS_Files inside a notebook chunk. The working directory will be reset when the chunk is finished running. Use the knitr root.dir option in the setup chunk to change the working directory for notebook chunks.
+"
+"0","DGE_tissues = cbind(results.m, matched_tissue[,11])"
+"0","DGE_foureight = cbind(DGE_tissues[,3],DGE_tissues[,6])"
+"0","rownames(DGE_foureight) = rownames(DGE_tissues)"
+"0","colnames(DGE_foureight) = c(""four to eight"",""max.tissue"")"
+"0","DGE_foureight_oe = DGE_foureight[DGE_foureight[,1] == 1,]"
+"0","DGE_foureight_oe_count = sort(table(c(as.data.frame(DGE_foureight_oe[,2]))))"
+"0","#DGE_foureight_oe_count = readRDS(file=""DGE_foureight_oe_count.RDS"")"
+"0","####should i name it sth else???"
+"0","barplot(tail(DGE_foureight_oe_count),las =2,col =brewer.pal(6,""Pastel2""), ylab=""Frequency"",main=""Tissues with most overexpressed TRAs in mouse data"")"

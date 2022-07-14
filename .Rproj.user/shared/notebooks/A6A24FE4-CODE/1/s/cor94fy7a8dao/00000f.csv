@@ -1,0 +1,6 @@
+"0","tissue = TRA_total[is.element(TRA_total$ensembl.transcript,rownames(TRAs_mousedata)),]"
+"0","matched_tissue = tissue[!duplicated(tissue[,1]),]"
+"0","matched_tissuenames = sort(table(c(as.data.frame(matched_tissue[,11]))))"
+"0","barplot(tail(matched_tissuenames), las =2,col =brewer.pal(5,""Pastel2""), xlab = ""tissue"" , ylab=""Frequency"", main = ""Tissues with highest TRA frequency in mouse data"")"
+"2","Error in brewer.pal(5, ""Pastel2"") : could not find function ""brewer.pal""
+"

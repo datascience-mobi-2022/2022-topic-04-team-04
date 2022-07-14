@@ -1,0 +1,9 @@
+"0","#setwd(paste(projectPath,""Raw_data"",""GSE18290_mouse"",sep = ""/""))"
+"0","#data.mouse=ReadAffy()"
+"0","#data.mouse@cdfName <- ""MOE430A_Mm_ENST"""
+"0","#######RDS "
+"0","setwd(paste(projectPath,""Sessions"",""RDS_Files"",sep = ""/""))"
+"2","Warning:"
+"2"," The working directory was changed to C:/Users/amena/OneDrive - bwedu/Bioinfo/2022-topic-04-team-04/Sessions/RDS_Files inside a notebook chunk. The working directory will be reset when the chunk is finished running. Use the knitr root.dir option in the setup chunk to change the working directory for notebook chunks.
+"
+"0","data.mouse = readRDS(""data.mouse.rds"")"

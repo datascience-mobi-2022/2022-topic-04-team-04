@@ -1,0 +1,3 @@
+"0","Volcano = topTable(fit2.m, number = 92820, coef = 1)"
+"0","EnhancedVolcano(Volcano, x = ""logFC"", y =""adj.P.Val"", lab = rownames(Volcano),"
+"0","                subtitle = 'Significance = 5%',pCutoff = 0.05, pointSize = 1, ylim = c(0, 20))"

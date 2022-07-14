@@ -1,0 +1,5 @@
+"0","DGE_foureight_ue = DGE_foureight[DGE_foureight[,1] == -1,]"
+"0","DGE_foureight_ue_count = sort(table(c(as.data.frame(DGE_foureight_ue[,2]))))"
+"0","barplot(tail(DGE_foureight_ue_count),las =2,col =brewer.pal(6,""Pastel2""), xlab = ""tissue"" , ylab=""Frequency"",main =""Tissues with most underexpressed TRAs in mouse data"")"
+"2","Error in brewer.pal(6, ""Pastel2"") : could not find function ""brewer.pal""
+"
