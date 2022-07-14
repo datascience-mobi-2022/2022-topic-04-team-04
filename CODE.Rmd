@@ -39,6 +39,8 @@ library(msigdbr)
 library(org.Mm.eg.db)
 library(org.Bt.eg.db)
 library(magrittr)
+library(RColorBrewer)
+library(treemap)
 ```
 
 Setting project path
@@ -200,7 +202,7 @@ barplot(summary(results.m)[3,],las =2,col =brewer.pal(5,"Pastel2"), ylab="sum of
 3.3.3 Barplots of TRA frequency in different tissues
 ```{r}
 TRA_tissuenames = sort(table(c(as.data.frame(TRA_total[,11]))))
-barplot(tail(TRA_tissuenames),las =2,col =brewer.pal(5,"Pastel2"), xlab = "tissue" , ylab="Frequency",main ="Tissues with highest frequency of TRAs")
+barplot(tail(TRA_tissuenames),las =2,col = brewer.pal(5,"Pastel2"), xlab = "tissue" , ylab="Frequency",main ="Tissues with highest frequency of TRAs")
 ```
 
 3.3.4 Barplots of TRA frequency in different tissues (only TRAs found in our mouse data)
@@ -208,22 +210,37 @@ barplot(tail(TRA_tissuenames),las =2,col =brewer.pal(5,"Pastel2"), xlab = "tissu
 tissue = TRA_total[is.element(TRA_total$ensembl.transcript,rownames(TRAs_mousedata)),]
 matched_tissue = tissue[!duplicated(tissue[,1]),]
 matched_tissuenames = sort(table(c(as.data.frame(matched_tissue[,11]))))
-barplot(tail(matched_tissuenames), las =2,col =brewer.pal(5,"Pastel2"), xlab = "tissue" , ylab="Frequency", main = "Tissues with highest TRA frequency in mouse data")
+matched_tissuenames_df = as.data.frame(matched_tissuenames)
+treemap.tissue = c(matched_tissuenames_df$max.tissue)
+treemap.freq = c(matched_tissuenames_df$Freq)
+treemap.m = data.frame(treemap.tissue, treemap.freq)
+treemap(treemap.m,
+        index= "treemap.tissue",
+        vSize= "treemap.freq",
+        type="index",
+        palette = "Pastel2",
+        title =" Tissues with highest TRA frequency in mouse data"
+)
 ```
 
 3.4 Visualization of DGE results between four and eight cell stadium
 3.4.1 Barplots of tissues with overexpressed TRAs
 ```{r}
-setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
 DGE_tissues = cbind(results.m, matched_tissue[,11])
 DGE_foureight = cbind(DGE_tissues[,3],DGE_tissues[,6])
 rownames(DGE_foureight) = rownames(DGE_tissues)
 colnames(DGE_foureight) = c("four to eight","max.tissue")
 DGE_foureight_oe = DGE_foureight[DGE_foureight[,1] == 1,]
-DGE_foureight_oe_count = sort(table(c(as.data.frame(DGE_foureight_oe[,2]))))
-#DGE_foureight_oe_count = readRDS(file="DGE_foureight_oe_count.RDS")
-####should i name it sth else???
-barplot(tail(DGE_foureight_oe_count),las =2,col =brewer.pal(6,"Pastel2"), ylab="Frequency",main="Tissues with most overexpressed TRAs in mouse data")
+DGE_foureight_oe_count = as.data.frame(sort(table(c(as.data.frame(DGE_foureight_oe[,2])))))
+treemap.tissue.oe = c(DGE_foureight_oe_count$DGE_foureight_oe...2.)
+treemap.freq.oe = c(DGE_foureight_oe_count$Freq)
+treemap.m.oe = data.frame(treemap.tissue.oe, treemap.freq.oe)
+treemap(treemap.m.oe,index= "treemap.tissue.oe",
+        vSize= "treemap.freq.oe",
+        type="index",
+        palette = "Pastel2",
+        title ="Tissues with most overexpressed TRAs between fourth and eighth cell stages in mouse data"
+) 
 # We conclude that blastocyst has the highest overexpression and the heart  has the second highest overexpression
 ```
 3.4.2 Barplots of tissues with underexpressed TRAs
