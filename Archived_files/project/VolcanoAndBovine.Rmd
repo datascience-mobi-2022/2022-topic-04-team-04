@@ -89,6 +89,7 @@ for (i in 1:16){
 ```{r}
 bovine_RNAdeg <- AffyRNAdeg(data.bovine)
 plotAffyRNAdeg(bovine_RNAdeg, col = rainbow(16))
+plotAffyRNAdeg(bovine_RNAdeg,transform= "shift.only", col = rainbow(16))
 ```
 
 
@@ -126,7 +127,7 @@ PATHWAY / Gene SELECTION
 
 
 ```{r}
-Genes_sig_oe = Volcano[Volcano$logFC > 0, 'adj.P.Val']
+Genes_sig_oe = volcano[Volcano$logFC > 0, 'adj.P.Val']
 names(Genes_sig_oe) = rownames(Volcano)[Volcano$logFC > 0]
 Genes50_oe = names(sort(Genes_sig_oe)[1:50])
 

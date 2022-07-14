@@ -141,6 +141,7 @@ ggplot(data=pca_data, aes(x=X, y=Y, label=Sample)) +
 
 Loading TRA data
 ```{r}
+projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
 setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
 TRAs1 <-read_tsv("tra.2014.mouse.5x.table.tsv")
 TRAs2 <-read_tsv("tra.2014.mouse.4301.5x.table.tsv")
