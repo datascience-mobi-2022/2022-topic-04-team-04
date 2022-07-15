@@ -9,6 +9,38 @@ bibliography: citations.bib
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+```{r, echo=FALSE}
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+library(moe430ammenstcdf)
+library(moe430ammenstprobe)
+library(bovinebtenstcdf)
+library(bovinebtenstprobe)
+library(cluster)
+library(dplyr)
+library(hexbin)
+library(pheatmap)
+library(rstudioapi)
+library(tidyverse)
+library(readr)
+library(ggplot2)
+library(knitr)
+library(limma)
+library(Rcpp)
+library(icd.data)
+library(tibble)
+library(EnhancedVolcano)
+library(ggrepel)
+library(clusterProfiler)
+library(msigdbr)
+library(org.Mm.eg.db)
+library(org.Bt.eg.db)
+library(magrittr)
+library(RColorBrewer)
+library(treemap)
+```
 #Introduction
 Mouse development and organogenesis occurs as early as compaction and the formation of a blastocyst before preimplantation of the mouse embryo. After the fertilization the most important stages of development are the two cell; four cell; eight cell stadium just as the morula and the blastocyst which already contains three different cell types: trophectoderm; epiblast and the endoderm [@Kojima_2014]. The blastula is roughly reached after 72 hours [@Ciemerych2005]. The very first two cycles after fertilization have a lengthened duration compared to the fourth and eighth cell stage. This is due to the chromatin remodeling and the decondensation of maternal and parental chromatin in order to gain a functional nucleus [@Ciemerych2005]. The dynamic cell changes are controlled by so called D-cyclins, many transcription factors, and mainly performed by DNA- and Histone methylases and demethylases [@Mihajlovi__2017], [@Sha_2019]. In the one cell stage and right after the end of the two-cell stage entering the fourth cell stage, the minor and the major Zygote Genome Activation (ZGA) onsets  [@Mihajlovi__2017]. This implies that from now on the development will be directed by the zygote’s genome transcripts, while the maternal mRNA transcripts will be degraded, and thus the expression pattern will drastically change [@AOKI2022]. We will concentrate on the dynamic change of the gene expression especially in the fourth cell stage. In comparison ZGA takes place between the fourth and the eight-cell stage in humans [@Xie_2010].
 Since mammalian embryos develop under low oxygen conditions, managing these conditions and providing enough oxygen for morphogenesis and cell proliferation and tissue formation is essential. In order to prevent hypoxia, a low oxygen condition, while embryogenesis, there are hypoxia sensitive genes which will be activated [@Dunwoodie2009]. One of the most important factors for this matter is the Hypoxia Inducing Factor (HIF). HIF binds to the HIF-Responsive element, which is encoded by three genes. Whenever HIF is absent or epigenetically silenced, the morphogenesis of the heart is impaired. Especially affected is the formation of the endothelium in the cardiovascular muscles and the chamber formation of the heart. To conclude, in order to develop a healthy cardiovascular system HIF is essential [@Krishnan_2008].
@@ -48,15 +80,33 @@ data.mouse = readRDS("data.mouse.rds")
 
 ```{r, echo=FALSE}
 for (i in 1:18){
-   image(data.mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
+  image(data.mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
 # chips GSM456666,GSM456674,GSM456675 have a low quality
-
+#saveRDS(mouse_images, file= "mouse_images.rds")
 ########SAVE THEM and load them SQUARE
 ```
-The second step in the quality control was done through an RNA degraadtion plot on the data set, that is shifted and scaled. The RNA degradation plot, follows the degradation of the RNA by targeting the probe set in different regions of the selected transcript, the central section, the 3 prime and the 5 prime. This allows assessing the degradation rate of individual transcripts by examining the 3'/5' probe-set signal ratios. A good RNA degradation plot would show a steady upward trend with minimal crossing. In our case we can see that the orange line follows a different trend than the others and that there is crossing.On the other hand, if we only shift the RNA degradation plot without scaling, we can't see an effect. This could be due to the three chips that have low quality.
+The second step in the quality control was done through an RNA degradtaion plot on the data set, that is shifted and scaled. The RNA degradation plot, follows the degradation of the RNA by targeting the probe set in different regions of the selected transcript, the central section, the 3 prime and the 5 prime. This allows assessing the degradation rate of individual transcripts by examining the 3'/5' probe-set signal ratios. A good RNA degradation plot would show a steady upward trend with minimal crossing. In our case we can see that the orange line follows a different trend than the others and that there is crossing.On the other hand, if we only shift the RNA degradation plot without scaling, we can't see an effect. This could be due to the three chips that have low quality.
+````{r, echo= FALSE}
+mouse_RNAdeg <- AffyRNAdeg(data.mouse)
+plotAffyRNAdeg(mouse_RNAdeg, col = rainbow(18))
+plotAffyRNAdeg(mouse_RNAdeg, col = rainbow(18), transform= "shift.only")
+````
+
 
 ### Bovine 
 The same procedure was done for the bovine data set. Through the quality control of the bovine chips, we saw that the last chip had quality issues, as the dye showed a difference from the rest. This can also be seen by plotting the RNA degradation plot of the 16 chips, as the 16th chip (GSM456642) (blastocyst, second replicate) crosses the rest of the chips. 
+````{r, echo= FALSE}
+setwd(paste(projectPath,"Raw_data","GSE18290_bovine",sep = "/"))
+data.bovine= ReadAffy()
+data.bovine@cdfName <- "Bovine_Bt_ENST"
+for (i in 1:16){
+   image(data.bovine[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
+bovine_RNAdeg <- AffyRNAdeg(data.bovine)
+RNA_deg_bovine = plotAffyRNAdeg(bovine_RNAdeg, col = rainbow(16))
+RNA_deg_bovine_shifted = plotAffyRNAdeg(bovine_RNAdeg, col = rainbow(16), transform= "shift.only")
+save(RNA_deg_bovine, file = "RNA_deg_bovine.rda")
+save(RNA_deg_bovine_shifted, file = "RNA_deg_bovine_shifted.rda")
+````
 
 ## 2.Variance Stabilization Normalization
 Variance Stabilization Normalization (VSN) is a stastistical method,developed by Huber et al. [@vsn] that is used for micro-arrays to reduce background noise, optical illusions and dye irregularities. It is done through a log transformation in order to get a  better concept of perception. It includes three main steps, the normalization, which is done through data calibration, the mean- variance- dependance of the the model, and a variance stabilizing transformation. (Huber et. al)
@@ -86,10 +136,62 @@ The GSEA is based on the results from the DGE that includes the results of the t
 For us the GSEA will help us with enriching pathways that might play a role in tissue formation. 
 
 #Results 
-## VSN 
-After the QC, we proceeded to normalize our data using the variance stabilization method. To see if the VSN was successful we used to plotting techniques, the mean versus standard deviation plot and the density probability.
+## 1. VSN 
+After the QC, we proceeded to normalize our data using the variance stabilization method. To see if the VSN was successful we used two plotting techniques, the mean versus standard deviation plot and the density probability against the log intensity. The mean versus standard deviation, shows a slight upward trend of the red line which represents the median estimator. If all chips were of good quality, the median estimator would show a horizontal line. 
 
 ```{r pressure, echo=FALSE}
+#setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
+vsnmouse = readRDS("normalized_18mouse.rds")
+meanSdPlot(vsnmouse, plot = FALSE)$gg + theme(aspect.ratio = 1)
+vsn.mouse = exprs(vsnmouse)
 ```
+The density plot shows that all chips align with slight differences. 
+````{r, echo=FALSE}
+par(mai = c(0.9,0.9,0.9,0.5))
+hist(data.mouse, col = rainbow(10), main = "Density function of log intensity mouse ED before normalization")
+
+## After normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+plot(density(vsn.mouse), type = "n", xlab = "log Intensity", ylim = c(0, 0.6),main = "Density function of log intensity mouse ED after normalization")
+for (i in 1:ncol(vsn.mouse)){lines(density(vsn.mouse[,i]), col = rainbow(10)[i])}
+````
+Additionally, we plotted the VSN reuslts using boxplots. The boxplots show us that the median of all chips align on one line, but comparing this boxplot to the boxplot before normalization one can see that the boxplot after VSN has more outliers.
+```{r,echo=FALSE}
+## Before normalization
+par ( las =2)
+boxplot (data.mouse ,col = rainbow (18),cex.axis = 0.4,main ="Gene expression of mouse embryonic development (ED) before normalization")
+
+## After normalization
+par ( las =2)
+boxplot (vsn.mouse,col = rainbow (18),cex.axis =0.5,main ="Gene expression of mouse embryonic development (ED) after normalization")
+```
+After all those steps were done, we decided to disregard 3 chips in total (see Quality Control)
+
+## 2. Principal Component Analysis 
+We wanted to see if the different replicates of the chips would show high correlation if they belonged to the same stage and to see if we can reduce the dimension of our data set. This is why we performed a principal component analysis. 
+Here the variables are the different genes expressed (39281) and we have 15 samples. We transposed the matrix in order to have the columns as the genes and the samples as the rows. After that a scree plot was done in order to see how many principal components are needed, which are 2 as those explain around 50% of all the data variance. 
+A PCA was done using the PCA function in R. 
+Through the ggplot2 we can see that the first two samples (one cell stage, first and second replicate) have excellent correlation which means one sample and explain the entirety of the second sample. Sample 3 (GSM456663) is also close to them. This is also the case in sample 7 and 8 (GSM456667 and GSM456668) but here the third replicate is farther than the case of sample 3, which hints at a difference between the gene expressions although it's in the same cell stage. 
+The blastocyst first and third replicate (GSM456676 and GSM456678) are closer to each other which hints at good correlation. What one can notice is that the second replicate of the blastocyst (GSM456677) is a lot more farther away than the other two replicates, which could mean that there are errors in the gene expression itself as the variation is way too high for it to be in the same cell stage.
+```{r}
+pca = prcomp(t(data_ohneaffx), scale = TRUE)
+pca_var = pca$sdev^2    #calculating variation
+pca_var_per = round(pca_var/sum(pca_var)*100,1)   # variation into percentage
+##### Scree plot
+qplot(c(1:length(pca_var_per)), pca_var_per) +
+  geom_col()+
+  xlab("Principal Component") +
+  ylab("Percent Variance Explained") +
+  ggtitle("Scree Plot") +
+  ylim(0, 100)
+pca_data = data.frame(Sample = rownames(pca$x), X= pca$x[,1], Y = pca$x[,2])
+ggplot(data=pca_data, aes(x=X, y=Y, label=Sample)) +
+  xlab(paste("PC1 - ", pca_var_per[1], "%", sep="")) +
+  ylab(paste("PC2 - ", pca_var_per[2], "%", sep="")) +
+  theme_bw() +
+  ggtitle("PCA mouse data") +
+  geom_text(col= c("red","red","red","blue","blue","black","black","black","gray","gray","gray","green","purple","purple","purple"))
+```
+
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
