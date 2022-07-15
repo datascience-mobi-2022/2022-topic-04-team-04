@@ -40,6 +40,7 @@ library(org.Mm.eg.db)
 library(org.Bt.eg.db)
 library(magrittr)
 library(RColorBrewer)
+library(treemap)
 ```
 
 Setting project path
