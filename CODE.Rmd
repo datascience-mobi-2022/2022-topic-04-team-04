@@ -17,8 +17,8 @@ library(vsn)
 library(AnnotationDbi)
 library(moe430ammenstcdf)
 library(moe430ammenstprobe)
-library(bovinebtenstcdf)
-library(bovinebtenstprobe)
+#library(bovinebtenstcdf)
+#library(bovinebtenstprobe)
 library(cluster)
 library(dplyr)
 library(hexbin)
@@ -40,7 +40,6 @@ library(org.Mm.eg.db)
 library(org.Bt.eg.db)
 library(magrittr)
 library(RColorBrewer)
-library(treemap)
 ```
 
 Setting project path
@@ -54,7 +53,7 @@ Setting working directory and loading mouse data
 #data.mouse=ReadAffy()
 #data.mouse@cdfName <- "MOE430A_Mm_ENST"
 setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
-data.mouse = readRDS(paste(projectPath,"Sessions","RDS_Files","data_mouse.rds",sep = "/"))
+data.mouse = readRDS("data.mouse.rds")
 ```
 
 1. Quality Control
@@ -181,9 +180,14 @@ dge_df.m =topTable(fit2.m, coef=1, number=nrow(fit2.m))
 3.3 Visualizing results of DGE
 3.3.1 Volcano Plot
 ```{r}
+<<<<<<< Updated upstream
 png("volcano_mouse.png", height= 800, width= 800)
 Volcano.m = readRDS(paste(projectPath,"Sessions","RDS_Files",'filtered_dge_mapped_df.rds',sep= "/"))
 EnhancedVolcano(Volcano.m, x = "logFC", y ="adj.P.Val", lab = Volcano.m$gene_symbols,
+=======
+Volcano = topTable(fit2.m, number = 92820, coef = 1)
+EnhancedVolcano(Volcano, x = "logFC", y ="adj.P.Val", lab = rownames(Volcano),
+>>>>>>> Stashed changes
                 subtitle = 'Significance = 5%',pCutoff = 0.05, pointSize = 1, ylim = c(0, 20))
 dev.off
 
@@ -191,7 +195,6 @@ dev.off
 #####gene symbols instead
 #####schritte y achse kleiner
 ```
-
 
 3.3 Visualizing results of DGE
 3.3.2 Barplots of (de)regulated genes vs cell stadium
@@ -213,28 +216,19 @@ barplot(tail(TRA_tissuenames),las =2,col = brewer.pal(5,"Pastel2"), xlab = "tiss
 tissue = TRA_total[is.element(TRA_total$ensembl.transcript,rownames(TRAs_mousedata)),]
 matched_tissue = tissue[!duplicated(tissue[,1]),]
 matched_tissuenames = sort(table(c(as.data.frame(matched_tissue[,11]))))
-matched_tissuenames_df = as.data.frame(matched_tissuenames)
-treemap.tissue = c(matched_tissuenames_df$max.tissue)
-treemap.freq = c(matched_tissuenames_df$Freq)
-treemap.m = data.frame(treemap.tissue, treemap.freq)
-treemap(treemap.m,
-        index= "treemap.tissue",
-        vSize= "treemap.freq",
-        type="index",
-        palette = "Pastel2",
-        title =" Tissues with highest TRA frequency in mouse data"
-)
-
+barplot(tail(matched_tissuenames), las =2,col =brewer.pal(5,"Pastel2"), xlab = "tissue" , ylab="Frequency", main = "Tissues with highest TRA frequency in mouse data")
 ```
 
 3.4 Visualization of DGE results between four and eight cell stadium
 3.4.1 Barplots of tissues with overexpressed TRAs
 ```{r}
+setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
 DGE_tissues = cbind(results.m, matched_tissue[,11])
 DGE_foureight = cbind(DGE_tissues[,3],DGE_tissues[,6])
 rownames(DGE_foureight) = rownames(DGE_tissues)
 colnames(DGE_foureight) = c("four to eight","max.tissue")
 DGE_foureight_oe = DGE_foureight[DGE_foureight[,1] == 1,]
+<<<<<<< Updated upstream
 DGE_foureight_oe_count = as.data.frame(sort(table(c(as.data.frame(DGE_foureight_oe[,2])))))
 treemap.tissue.oe = c(DGE_foureight_oe_count$DGE_foureight_oe...2.)
 treemap.freq.oe = c(DGE_foureight_oe_count$Freq)
@@ -247,6 +241,12 @@ treemap(treemap.m.oe,index= "treemap.tissue.oe",
         title ="Tissues with most overexpressed TRAs between fourth and eighth cell stages in mouse data"
 )
 dev.off
+=======
+DGE_foureight_oe_count = sort(table(c(as.data.frame(DGE_foureight_oe[,2]))))
+#DGE_foureight_oe_count = readRDS(file="DGE_foureight_oe_count.RDS")
+####should i name it sth else???
+barplot(tail(DGE_foureight_oe_count),las =2,col =brewer.pal(6,"Pastel2"), ylab="Frequency",main="Tissues with most overexpressed TRAs in mouse data")
+>>>>>>> Stashed changes
 # We conclude that blastocyst has the highest overexpression and the heart  has the second highest overexpression
 ```
 3.4.2 Barplots of tissues with underexpressed TRAs
@@ -348,17 +348,6 @@ gseas.m = readRDS(paste(projectPath,"Sessions","RDS_Files","gsea.m.rds",sep = "/
 #####HALLMARK HYPOXIA
 ```
 
-```{r}
-Hypoxia_plot <- enrichplot::gseaplot(
-  gsea.m,
-  geneSetID = "HALLMARK_HYPOXIA",
-  title = "HALLMARK_HYPOXIA",
-  color.line = "#0d76ff"
-)
-
-Hypoxia_plot
-```
-
 Bovine
 Quality Control
 Setting working directory and loading bovine data
@@ -444,6 +433,7 @@ dge_df.b= topTable(fit2.b, coef=1, number=nrow(fit2.b))
 ```
 
 ```{r}
+<<<<<<< Updated upstream
 png("volcano_bovine.png", height=800,width=800)
 Volcano.b = readRDS(paste(projectPath,"Sessions","RDS_Files",'filtered_dge_bovinemapped_df.rds',sep= "/"))
 EnhancedVolcano(Volcano.b, x = "logFC", y ="adj.P.Val", lab = Volcano.b$gene_symbols,
@@ -455,6 +445,8 @@ dev.off
 ```
 
 ```{r}
+=======
+>>>>>>> Stashed changes
 #Bt_hallmark_df <- msigdbr(
 #  species = "Bos taurus",
 #  category = "H")
@@ -501,25 +493,4 @@ dev.off
 #  )
 #)
 gsea.b = readRDS(paste(projectPath,"Sessions","RDS_Files","Gsea_bovine.rds",sep = "/"))
-```
-
-```{r}
-HEMT_plot <- enrichplot::gseaplot(
-  gsea.b,
-  geneSetID = "HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION",
-  title = "HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION",
-  color.line = "#0d76ff"
-)
-
-HEMT_plot
-```
-```{r}
-HOP_plot <- enrichplot::gseaplot(
-  gsea.b,
-  geneSetID = "HALLMARK_OXIDATIVE_PHOSPHORYLATION",
-  title = "HALLMARK_OXIDATIVE_PHOSPHORYLATION",
-  color.line = "#0d76ff"
-)
-
-HOP_plot
 ```
