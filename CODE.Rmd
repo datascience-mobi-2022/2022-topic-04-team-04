@@ -17,8 +17,8 @@ library(vsn)
 library(AnnotationDbi)
 library(moe430ammenstcdf)
 library(moe430ammenstprobe)
-#library(bovinebtenstcdf)
-#library(bovinebtenstprobe)
+library(bovinebtenstcdf)
+library(bovinebtenstprobe)
 library(cluster)
 library(dplyr)
 library(hexbin)
@@ -53,7 +53,7 @@ Setting working directory and loading mouse data
 #data.mouse=ReadAffy()
 #data.mouse@cdfName <- "MOE430A_Mm_ENST"
 setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
-data.mouse = readRDS("data.mouse.rds")
+data.mouse = readRDS(paste(projectPath,"Sessions","RDS_Files","data_mouse.rds",sep = "/"))
 ```
 
 1. Quality Control
