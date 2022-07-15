@@ -10,9 +10,12 @@ bibliography: citations.bib
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r, echo=FALSE}
+projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+```
 # Materials 
 
-## 1.R and RStudio
+## 1. R and RStudio
 This project was entirely done in R[@R] version 4.2.0 (2022-04-22) and RStudio [@RStudio:2021.9.0.351] version 2021.09.0. 
 
 ## 2. Affy Packages 
@@ -34,21 +37,33 @@ Tidyverse is a collection of packages used for "data import, tidying, manipulati
 ### Mouse chips
 After reading in the data, we examined the chips of the mouse data set to see if any of the chips have quality issues. This was done using different objectives. 
 Firstly, we read the chips as images in order to see if they differ from the overall expression trend. We noticed three chips that seemed to differ. The first chip,2 Cell 3rd replicate, is distinctly over-expressed and the other two, morula 2nd and 3rd replicate,were under-expressed.
+````{r, echo=FALSE }
+setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
+data.mouse = readRDS("data.mouse.rds")
+````
+
+```{r, echo=FALSE}
+for (i in 1:18){
+   image(data.mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
+# chips GSM456666,GSM456674,GSM456675 have a low quality
+
+########SAVE THEM and load them SQUARE
+```
 The second step in the quality control was done through an RNA degraadtion plot on the data set, that is shifted and scaled. The RNA degradation plot, follows the degradation of the RNA by targeting the probe set in different regions of the selected transcript, the central section, the 3 prime and the 5 prime. This allows assessing the degradation rate of individual transcripts by examining the 3'/5' probe-set signal ratios. A good RNA degradation plot would show a steady upward trend with minimal crossing. In our case we can see that the orange line follows a different trend than the others and that there is crossing.On the other hand, if we only shift the RNA degradation plot without scaling, we can't see an effect. This could be due to the three chips that have low quality.
 
 ### Bovine 
-The same procedure was done for the bovine data set. Through the quality control of the bovine chips, we saw that the last chip had quality issues, as the dye showed a difference from the rest. This can also be seen by plotting the RNA degradation plot of the 16 chips, as the 16th chip (blastocyst, second replicate) crosses the rest of the chips. 
+The same procedure was done for the bovine data set. Through the quality control of the bovine chips, we saw that the last chip had quality issues, as the dye showed a difference from the rest. This can also be seen by plotting the RNA degradation plot of the 16 chips, as the 16th chip (GSM456642) (blastocyst, second replicate) crosses the rest of the chips. 
 
 ## 2.Variance Stabilization Normalization
-Variance Stabilization Normalization (vsn) is a stastistical method,developed by Huber et al. [@vsn] that is used for micro-arrays to reduce background noise, optical illusions and dye irregularities. It is done through a log transformation in order to get a  better concept of perception. It includes three main steps, the normalization, which is done through data calibration, the mean- variance- dependance of the the model, and a variance stabilizing transformation. (Huber et. al)
+Variance Stabilization Normalization (VSN) is a stastistical method,developed by Huber et al. [@vsn] that is used for micro-arrays to reduce background noise, optical illusions and dye irregularities. It is done through a log transformation in order to get a  better concept of perception. It includes three main steps, the normalization, which is done through data calibration, the mean- variance- dependance of the the model, and a variance stabilizing transformation. (Huber et. al)
 For both data sets (mouse and bovine), the vsn was visualized using different plotting techniques.
 
 ### 1. Mean versus Standard deviation plot
-The quality of the vsn can be visualized using the mean versus standard deviation plot (meanSDplot). The standard deviation should not have a strong correlation to the mean/variance and thus the red line of the median estimator should be horizontal. (Dinkelacker 2019) This was done for both data sets.
+The quality of the VSN can be visualized using the mean versus standard deviation plot (meanSDplot). The standard deviation should not have a strong correlation to the mean/variance and thus the red line of the median estimator should be horizontal. (Dinkelacker 2019) This was done for both data sets.
 
 ### 2. Density Plot 
 The density plot is used, to plot the density function against the log intensity of each chip. This way we can confirm if the vsn was succesful or not. If the curves are well adjusted after the vsn, this would mean that the normalization was successful. 
-As the QC showed, chips 6,14,15 are of low quality.That's why we will be disregarding them for the rest of our analysis.
+As the QC showed, chips GSM456666,GSM456674,GSM456675 are of low quality.That's why we will be disregarding them for the rest of our analysis.
 
 ## 3. Hierarchical Clustering
 After performing the QC, we proceeded to cluster the 15 chips. We created a distance matrix using the euclidean distance. After that the hierarchical clustering was done using the average linkage method. This was plotted and a dendogram was formed. The bigger the hight difference the more different the groups are.
@@ -66,6 +81,9 @@ A gene set enrichment analysis (GSEA) is used to identify if a set of genes, is 
 The GSEA is based on the results from the DGE that includes the results of the t-test and the p-values. Additionally we use The Molecular Signatures Database (MSigDB), which is a resource that contains annotated gene sets for our species and pathway analysis. [@msigdbr] Using the annotation packages for Mus musculus and Bos taurus gives us information from different identifieres [@org.MM.eg.db]
 For us the GSEA will help us with enriching pathways that might play a role in tissue formation. 
 
+#Results 
+## VSN 
+After the QC, we proceeded to normalize our data using the variance stabilization method. To see if the VSN was successful we used to plotting techniques, the mean versus standard deviation plot and the density probability.
 
 ```{r pressure, echo=FALSE}
 ```
