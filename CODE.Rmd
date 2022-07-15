@@ -64,7 +64,7 @@ for (i in 1:18){
    image(data.mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
 # chips GSM456666,GSM456674,GSM456675 have a low quality
 
-########SAVE THEM and load them SQUARE
+########SAVE THEM and load them 
 ```
 
 1.2 RNA degradation
@@ -178,12 +178,15 @@ fit2.m = readRDS("fit_matched2.rds")
 results.m= decideTests(fit2.m)
 dge_df.m =topTable(fit2.m, coef=1, number=nrow(fit2.m))
 ```
-
 3.3 Visualizing results of DGE
 3.3.1 Volcano Plot
 ```{r}
-EnhancedVolcano(dge_df.m, x = "logFC", y ="adj.P.Val", lab = rownames(dge_df.m),
+png("volcano_mouse.png", height= 800, width= 800)
+Volcano.m = readRDS(paste(projectPath,"Sessions","RDS_Files",'filtered_dge_mapped_df.rds',sep= "/"))
+EnhancedVolcano(Volcano.m, x = "logFC", y ="adj.P.Val", lab = Volcano.m$gene_symbols,
                 subtitle = 'Significance = 5%',pCutoff = 0.05, pointSize = 1, ylim = c(0, 20))
+dev.off
+
 #####not squared, so looks kinda weird
 #####gene symbols instead
 #####schritte y achse kleiner
@@ -302,14 +305,14 @@ Mouse TRA gene set enrichment analysis (GSEA)
 #dge.df.m = cbind(Transcript.m, dge_df.m)
 #Mm_hallmark_df <- msigdbr(
 #  species = "Mus musculus",
-#  category = "H")
+# category = "H")
 #dge_mapped_df <- data.frame(
 #  gene_symbols = mapIds(
 #    org.Mm.eg.db,
 #    keys =rownames(dge.df.m),
 #    keytype = "ENSEMBLTRANS",
 #    column = "SYMBOL",
-#    multiVals = "first"
+#   multiVals = "first"
 #  )
 #)%>%
 #  dplyr::filter(!is.na(gene_symbols)) %>%
@@ -321,13 +324,13 @@ Mouse TRA gene set enrichment analysis (GSEA)
 #filtered_dge_mapped_df <- dge_mapped_df %>%
 #  dplyr::arrange(dplyr::desc(abs(dge_mapped_df[,4]))) %>%
 #  dplyr::distinct(gene_symbols, .keep_all = TRUE)
-#t_vector.m <- filtered_dge_mapped_df[,4]
-#names(t_vector.m) <- filtered_dge_mapped_df$gene_symbols
-#t_vector.m <- sort(t_vector.m, decreasing = TRUE)
+#Fc_vector.m <- filtered_dge_mapped_df[,4]
+#names(Fc_vector.m) <- filtered_dge_mapped_df$gene_symbols
+#Fc_vector.m <- sort(Fc_vector.m, decreasing = TRUE)
 
 #set.seed(2022)
 #gsea.m <- GSEA(
-#  geneList = t_vector.m,
+#  geneList = Fc_vector.m,
 #  minGSSize = 25, 
 #  maxGSSize = 500,
 # pvalueCutoff = 0.05,
@@ -441,8 +444,11 @@ dge_df.b= topTable(fit2.b, coef=1, number=nrow(fit2.b))
 ```
 
 ```{r}
-EnhancedVolcano(dge_df.b, x = "logFC", y ="adj.P.Val", lab = rownames(dge_df.b),
+png("volcano_bovine.png", height=800,width=800)
+Volcano.b = readRDS(paste(projectPath,"Sessions","RDS_Files",'filtered_dge_bovinemapped_df.rds',sep= "/"))
+EnhancedVolcano(Volcano.b, x = "logFC", y ="adj.P.Val", lab = Volcano.b$gene_symbols,
                 subtitle = 'Significance = 5%',pCutoff = 0.05, pointSize = 1, ylim = c(0, 2))
+dev.off
 #####not squared, so looks kinda weird
 #####gene symbols instead
 #####schritte y achse kleiner
