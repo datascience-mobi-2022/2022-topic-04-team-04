@@ -40,6 +40,7 @@ library(org.Mm.eg.db)
 library(org.Bt.eg.db)
 library(magrittr)
 library(RColorBrewer)
+library(treemap)
 ```
 
 Setting project path
@@ -192,9 +193,12 @@ EnhancedVolcano(dge_df.m, x = "logFC", y ="adj.P.Val", lab = rownames(dge_df.m),
 3.3 Visualizing results of DGE
 3.3.2 Barplots of (de)regulated genes vs cell stadium
 ```{r}
-barplot(summary(results.m)[1,],las =2,col =brewer.pal(5,"Pastel2"), ylab="sum of downregulated genes")
-barplot(summary(results.m)[2,],las =2,col =brewer.pal(5,"Pastel2"), ylab="sum of  genes with no significant change")
-barplot(summary(results.m)[3,],las =2,col =brewer.pal(5,"Pastel2"), ylab="sum of upregulated genes")
+png("threebarplotsdge.png", height = 600, width = 800)
+par(mfrow= c(1,3))
+barplot(summary(results.m)[1,],las =2,col =brewer.pal(5,"Pastel2"), ylab="sum of downregulated genes", fontsize = 25, main= "Underexpressed genes")
+barplot(summary(results.m)[2,],las =2,col =brewer.pal(5,"Pastel2"), ylab="sum of  genes with no significant change", fontsize = 25, main= "Genes with no significant change")
+barplot(summary(results.m)[3,],las =2,col =brewer.pal(5,"Pastel2"), ylab="sum of upregulated genes", fontsize = 25, main= "Overexpressed genes")
+dev.off
 ###############put them all in one plot, titel: deregulated
 ```
 
@@ -235,14 +239,12 @@ DGE_foureight_oe_count = as.data.frame(sort(table(c(as.data.frame(DGE_foureight_
 treemap.tissue.oe = c(DGE_foureight_oe_count$DGE_foureight_oe...2.)
 treemap.freq.oe = c(DGE_foureight_oe_count$Freq)
 treemap.m.oe = data.frame(treemap.tissue.oe, treemap.freq.oe)
-png(file = "treemap_foureight_oe.png", height = 800, width =800)
 treemap(treemap.m.oe,index= "treemap.tissue.oe",
         vSize= "treemap.freq.oe",
         type="index",
         palette = "Pastel2",
         title ="Tissues with most overexpressed TRAs between fourth and eighth cell stages in mouse data"
 )
-dev.off
 # We conclude that blastocyst has the highest overexpression and the heart  has the second highest overexpression
 ```
 3.4.2 Barplots of tissues with underexpressed TRAs
@@ -253,6 +255,7 @@ barplot(tail(DGE_foureight_ue_count),las =2,col =brewer.pal(6,"Pastel2"), xlab =
 #We conclude that the oocyte has the highest underexpression
 ```
 ```{r}
+heart= DGE_tissues[DGE_tissues$max.tissue=="heart",]
 heart_matrix= as.matrix(heart[,-6])
 heatmap(heart_matrix, col= heat.colors(3))
 legend(x="right", legend=c("1", "0", "-1"),fill=heat.colors(3))
@@ -287,7 +290,6 @@ Venn = vennCounts(results.m)
 vennDiagram(Venn)
 
 #####venn for heart only 3 stadien
-heart= DGE_tissues[DGE_tissues$max.tissue=="heart",]
 Venn_heart_three = vennCounts(heart[,2:4])
 vennDiagram(Venn_heart_three)
 #####look which genes are in all stadien
@@ -340,7 +342,7 @@ Mouse TRA gene set enrichment analysis (GSEA)
 #)
 #gsea.m@result
 
-gseas.m = readRDS(paste(projectPath,"Sessions","RDS_Files","gsea.m.rds",sep = "/"))
+gsea.m = readRDS(paste(projectPath,"Sessions","RDS_Files","gsea.m.rds",sep = "/"))
 #####HALLMARK HYPOXIA
 ```
 
@@ -361,18 +363,17 @@ Setting working directory and loading bovine data
 
  DID NOT CHECK THE QC OF BOVINE YET
 ```{r}
-setwd(paste(projectPath,"Raw_data","GSE18290_bovine",sep = "/"))
-data.bovine= ReadAffy()
-data.bovine@cdfName <- "Bovine_Bt_ENST"
-#data.bovine  = readRDS(paste(projectPath,"Sessions","RDS_Files","data.bovine16.rds",sep = "/"))
-
-########annotation is not working
+#setwd(paste(projectPath,"Raw_data","GSE18290_bovine",sep = "/"))
+#data.bovine= ReadAffy()
+#data.bovine@cdfName <- "Bovine_Bt_ENST"
+data.bovine  = readRDS(paste(projectPath,"Sessions","RDS_Files","data.bovine.rds",sep = "/"))
+##### SAVE RDS FILE
 ```
 
 ```{r}
 for (i in 1:16){
    image(data.bovine[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
-##### save images
+## rauskommentieren
 ```
 
 
