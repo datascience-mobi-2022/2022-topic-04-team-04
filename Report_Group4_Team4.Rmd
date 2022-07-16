@@ -7,8 +7,9 @@ bibliography: citations.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, tidy=TRUE, tidy.opts = list(width.cutoff=80))
+knitr::opts_chunk$set(echo = TRUE)
 ```
+
 
 ```{r, include=FALSE}
 library(affy)
@@ -104,14 +105,12 @@ image(data.mouse[,15], col = rainbow (100, start = 0, end = 0.75)[100:1], asp=1,
 ########SAVE THEM and load them SQUARE
 ```
 The second step in the quality control was done through an RNA degradationm plot on the data set, that is shifted and scaled. The RNA degradation plot follows the degradation of the RNA by targeting the probe set in different regions of the selected transcript, the central section, the 3 prime and the 5 prime. This allows assessing the degradation rate of individual transcripts by examining the 3'/5' probe-set signal ratios. A good RNA degradation plot would show a steady upward trend with minimal crossing. In our case we can see that the orange line follows a different trend than the others and that there is crossing.On the other hand, if we only shift the RNA degradation plot without scaling, we can't see an effect. This could be due to the three chips that have low quality.
-
-```{r, echo=FALSE}
+<div style= "float:right;position: relative; top:-80px;">
+```{r, echo=FALSE, out.height="25%"}
 mouse_RNAdeg <- AffyRNAdeg(data.mouse)
 plotAffyRNAdeg(mouse_RNAdeg, col = rainbow(18))
-
-#####SAVE
 ```
-
+</div>
 ### Bovine 
 The same procedure was done for the bovine data set. Through the quality control of the bovine chips, we saw that the last chip had quality issues, as the dye showed a difference from the rest. This can also be seen by plotting the RNA degradation plot of the 16 chips, as the 16th chip (GSM456642) (blastocyst, second replicate) crosses the rest of the chips.
 ```{r, include=FALSE}
@@ -121,18 +120,17 @@ setwd(paste(projectPath,"Raw_data","GSE18290_bovine",sep = "/"))
 data.bovine  = readRDS(paste(projectPath,"Sessions","RDS_Files","data.bovine.rds",sep = "/"))
 
 ```
-
-```{r, echo=FALSE}
+<div style= "float:right;position: relative; top:-80px;">
+```{r, echo=FALSE, out.height="20%"}
 image(data.bovine[,16], col = rainbow (100, start = 0, end = 0.75)[100:1], asp=1, axes=FALSE)
 ```
-
-
-```{r, echo=FALSE}
+</div>
+<div style= "float:right;position: relative; top:-80px;">
+```{r, echo=FALSE, out.height="25%"}
 bovine_RNAdeg <- AffyRNAdeg(data.bovine)
-
 plotAffyRNAdeg(bovine_RNAdeg, col = rainbow(16))
 ```
-
+</div>
 ## 2.Variance Stabilization Normalization
 Variance Stabilization Normalization (vsn) is a stastistical method,developed by Huber _et al._ [@vsn] that is used for micro-arrays to reduce background noise, optical illusions and dye irregularities. It is done through a log transformation in order to get a  better concept of perception. It includes three main steps, the normalization, which is done through data calibration, the mean- variance- dependance of the the model, and a variance stabilizing transformation. (Huber _et. al_)
 For both data sets (mouse and bovine), the vsn was made visualized using different ploting techniques.
@@ -185,10 +183,10 @@ for (i in 1:ncol(vsn.mouse)){lines(density(vsn.mouse[,i]), col = rainbow(10)[i])
 ```
 
 Additionally, we plotted the VSN results using boxplots. The boxplots show us that the median of all chips align on one line, but comparing this boxplot to the boxplot before normalization one can see that the boxplot after VSN has more outliers.
-```{r, echo=FALSE, out.height="50%"}
+```{r, echo=FALSE, out.width="100%"}
 ## Before normalization
 
-par( las =2)
+par( las =2, mfrow=c(1,2))
 boxplot(data.mouse ,col = brewer.pal(8, "Pastel2") ,cex.axis = 0.4, main ="Gene expression of mouse ED before normalization")
 
 ## After normalization
@@ -220,10 +218,10 @@ meanSdPlot(vsnbovine, plot = FALSE)$gg + theme(aspect.ratio = 1)
 vsn.bovine = exprs(vsnbovine)
 ```
 
-````{r, echo=FALSE, out.height= "40%"}
+````{r, echo=FALSE, out.width="100%"}
 
 ## Before normalization
-par (las =2)
+par (las =2, mfrow=c(1,2))
 
 boxplot (data.bovine ,col = brewer.pal(8,"Pastel2"),cex.axis = 0.4,main ="Gene expression bovine embryonic development before normalization")
 
@@ -234,7 +232,7 @@ par ( las =2)
 boxplot (vsn.bovine,col = brewer.pal(8, "Pastel2"),cex.axis =0.5,main ="Gene expression bovine embryonic development after normalization")
 ```
 
-```{r, echo=FALSE, out.height="25%", out.width="100%"}
+```{r, echo=FALSE, out.height="25%"}
 ## Before normalization
 par(mfrow=c(1,2))
 
@@ -344,7 +342,7 @@ names(Top10_oe) = rownames(Volcano.m)[Volcano.m$logFC > 0]
 Top10_oe = names(sort(Top10_oe)[1:10])
 ```
 Upon plotting the deregulated TRAs of the mouse using a bar plot, we saw that the most overexpressed TRAs are between the fourth and the eigth cell stage. The most amount of underexpressed TRAs are between the first and second cell stages. 
-```{r, echo=FALSE,out.height="30%"}
+```{r, echo=FALSE}
 par(mfrow= c(1,3))
 barplot(summary(results.m)[1,],las =2,col =brewer.pal(8,"Pastel2"), ylab="sum of downregulated genes", main= "Underexpressed genes")
 barplot(summary(results.m)[2,],las =2,col =brewer.pal(8,"Pastel2"), ylab="sum of  genes with no significant change", main= "Genes with no significant change")
@@ -375,16 +373,14 @@ DGE_foureight_oe_count = sort(table(c(as.data.frame(DGE_foureight_oe[,2]))))
 # We conclude that blastocyst has the highest overexpression and the heart  has the second highest overexpression
 ```
 As our main objective is to focus on the earliest biological function, we decided to go with the heart TRAs, as the heart is the earliest organ that is developed.
-In total we have 149 TRAs in the heart, 62 of those are overexpressed. We visualized the heart TRAs in the different cell stages using a box-plot 
+In total we have 149 TRAs in the heart, 62 of those are overexpressed. We visualized the heart TRAs in the different cell stages using a box-plot .
+Using a VENN diagram, we saw that there are three TRAs differentially expressed that can be found in cell stage two to four, four to eight, and eight to morula. 
 ```{r, echo=FALSE, out.height="25%"}
 heart= DGE_tissues[DGE_tissues$max.tissue=="heart",]
 TRA_heart = TRAs_mousedata[rownames(TRAs_mousedata) %in% rownames(heart),]
 TRA_heart = as.data.frame(TRA_heart)
-par ( las =2)
+par ( las =2, mfrow=c(1,2))
 boxplot (TRA_heart,col = brewer.pal(8, "Pastel2"),cex.axis =0.5, main ="Boxplot of heart TRAs")
-```
-Using a VENN diagram, we saw that there are three TRAs differentially expressed that can be found in cell stage two to four, four to eight, and eight to morula. 
-```{r, echo=FALSE, out.height="25%"}
 #####venn for heart only 3 stadien
 Venn_heart_three = vennCounts(heart[,2:4])
 vennDiagram(Venn_heart_three, main= "Venn diagram of heart TRAs", circle.col = rainbow(10) )
@@ -466,17 +462,6 @@ gsea.m = readRDS(paste(projectPath,"Sessions","RDS_Files","gsea.m.rds",sep = "/"
 #####HALLMARK HYPOXIA
 ```
 
-```{r, echo=FALSE, out.height="25%"}
-Hypoxia_plot <- enrichplot::gseaplot(
-  gsea.m,
-  geneSetID = "HALLMARK_HYPOXIA",
-  title = "HALLMARK_HYPOXIA",
-  color.line = "#0d76ff"
-)
-
-Hypoxia_plot
-```
-
 ## 2. Bovine
 The GSEA was also performed on our bovine data set without matched TRA data. The analysis revealed two pathways which were differentially expressed. “Epithelial Mesenchymal Transition” which was highly upregulated with an ES of 0.39 and an associated p-Value of 0.1% which strongly suggest a significant upregulation in this gene set. “Oxidative Phosphorylation” is the second found pathway which is downregulated in our data with an ES of 0.46 and a similarly associated p-Value of 0.1%.
 
@@ -537,10 +522,8 @@ HEMT_plot <- enrichplot::gseaplot(
   color.line = "#0d76ff"
 )
 
-HEMT_plot
-```
 
-```{r, echo=FALSE, out.height="25%"}
+
 HOP_plot <- enrichplot::gseaplot(
   gsea.b,
   geneSetID = "HALLMARK_OXIDATIVE_PHOSPHORYLATION",
@@ -548,7 +531,11 @@ HOP_plot <- enrichplot::gseaplot(
   color.line = "#0d76ff"
 )
 
+par(mfrow=c(1,2))
+
+HEMT_plot
 HOP_plot
+
 ```
 
 # Discussion
@@ -571,13 +558,13 @@ Through the VENN diagram we saw that there are three transcripts that are expres
 # Appendix
 
 ## Mouse Images
-````{r, echo=FALSE, out.height="50%"}
+````{r, echo=FALSE, out.height="100%"}
 for (i in 1:18){
   image(data.mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
 ````
 
 ## Bovine Images
-````{r, echo=FALSE, out.height="50%", out.width="100%"}
+````{r, echo=FALSE, out.height="100%"}
 for (i in 1:16){
    image(data.bovine[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
 ````
