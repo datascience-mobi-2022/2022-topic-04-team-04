@@ -124,7 +124,7 @@ Tidyverse is a collection of packages used for "data import, tidying, manipulati
 ## Quality Control (QC)
 ### Mouse chips
 After reading in the data, we examined the chips of the mouse data set to see if any of the chips have quality issues. This was done using different methods. 
-First, we read the chips as images in order to see if they differ from the overall expression trend. We noticed three chips that seemed to differ. Chip GSM456666 is distinctly over-expressed and the other two, GSM456674 and GSM45665, were under-expressed.
+First, we read the chips as images in order to see if they differ from the overall expression trend. We noticed three chips that seemed to differ. Chip GSM456666 is distinctly over-expressed and the other two, GSM456674 and GSM45665, were under-expressed. As an example, one chip is shown.
 \nopagebreak
 
 ```{r, include=FALSE}
@@ -135,18 +135,17 @@ setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
 data.mouse = readRDS("data_mouse.rds")
 ```
 
-```{r, echo=FALSE, out.width="60%", fig.cap="Quality control"}
-par(mfrow= c(1,3))
-image(data.mouse[,6], col = rainbow (100, start = 0, end = 0.75)[100:1], asp=1,axes=FALSE )
-image(data.mouse[,14], col = rainbow (100, start = 0, end = 0.75)[100:1],asp=1, axes=FALSE)
+```{r, echo=FALSE, fig.width=6, fig.height= 3, fig.cap= "Single chip control and RNA degradation plot mouse"}
+par(mfrow= c(1,2))
+#image(data.mouse[,6], col = rainbow (100, start = 0, end = 0.75)[100:1], asp=1,axes=FALSE )
+#image(data.mouse[,14], col = rainbow (100, start = 0, end = 0.75)[100:1],asp=1, axes=FALSE)
 image(data.mouse[,15], col = rainbow (100, start = 0, end = 0.75)[100:1], asp=1, axes=FALSE)
 # chips GSM456666,GSM456674,GSM456675 have a low quality
-```
-The second step in the quality control was done through an RNA degradation plot on the data set, that is shifted and scaled. The RNA degradation plot follows the degradation of the RNA by targeting the probe set in different regions of the selected transcript, the central section, the 3 prime and the 5 prime. This allows assessing the degradation rate of individual transcripts by examining the 3'/5' probe-set signal ratios. A good RNA degradation plot would show a steady upward trend with minimal crossing. In our case we can see that the orange line follows a different trend than the others and that there is crossing. On the other hand, if we only shift the RNA degradation plot without scaling, we can't see an effect. This could be due to the three chips that have low quality. The only downside with disregarding the chips is that we are only left with one replicate of the morula cell stage, which could lead to inaccuracy. We excluded the last bovine microarray chip as it also shows low quality. The quality issues can be caused by dye irregularities or binding of the targets to the probe. How well the bound probes to the targets are saturated and their distance to the 3’ End of the transcript can also have an effect on the quality [@qcissues]. 
-```{r, echo=FALSE}
 mouse_RNAdeg <- AffyRNAdeg(data.mouse)
 plotAffyRNAdeg(mouse_RNAdeg, col = rainbow(18))
 ```
+The second step in the quality control was done through an RNA degradation plot on the data set, that is shifted and scaled. The RNA degradation plot follows the degradation of the RNA by targeting the probe set in different regions of the selected transcript, the central section, the 3 prime and the 5 prime. This allows assessing the degradation rate of individual transcripts by examining the 3'/5' probe-set signal ratios. A good RNA degradation plot would show a steady upward trend with minimal crossing. In our case we can see that the orange line follows a different trend than the others and that there is crossing. On the other hand, if we only shift the RNA degradation plot without scaling, we can't see an effect. This could be due to the three chips that have low quality. The only downside with disregarding the chips is that we are only left with one replicate of the morula cell stage, which could lead to inaccuracy. We excluded the last bovine microarray chip as it also shows low quality. The quality issues can be caused by dye irregularities or binding of the targets to the probe. How well the bound probes to the targets are saturated and their distance to the 3’ End of the transcript can also have an effect on the quality [@qcissues]. 
+
 \nopagebreak
 
 ### Bovine 
@@ -160,11 +159,9 @@ data.bovine  = readRDS(paste(projectPath,"Sessions","RDS_Files","data.bovine.rds
 
 ```
 
-```{r, echo=FALSE, out.height="25%"}
+```{r, echo=FALSE, fig.width=6, fig.height= 3, fig.cap="Single chip control and RNA degradation plot bovine"}
+par(mfrow= c(1,2))
 image(data.bovine[,16], col = rainbow (100, start = 0, end = 0.75)[100:1], asp=1, axes=FALSE)
-```
-
-```{r, echo=FALSE, out.height="25%"}
 bovine_RNAdeg <- AffyRNAdeg(data.bovine)
 plotAffyRNAdeg(bovine_RNAdeg, col = rainbow(16))
 ```
@@ -203,8 +200,8 @@ For us, the GSEA will help with enriching pathways that might play a role in tis
 ## VSN
 ### Mouse
 After the QC, we proceeded to normalize our data using VSN. To see if the VSN was successful we used two plotting techniques, the meanSD plot and the density probability against the log intensity. The mean versus standard deviation, shows a slight upward trend of the red line which represents the median estimator. If all chips were of good quality, the median estimator would show a horizontal line. 
-
-```{r, echo=FALSE, out.height="25%"}
+\begin{center}
+```{r, echo=FALSE, out.height="25%", fig.cap= "meanSD Plot of mouse"}
 #set.seed(234)
 #vsnmouse <- vsnrma(data.mouse)
 setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
@@ -212,8 +209,11 @@ vsnmouse = readRDS("normalized_18mouse.rds")
 meanSdPlot(vsnmouse, plot = FALSE)$gg + theme(aspect.ratio = 1)
 vsn.mouse = exprs(vsnmouse)
 ```
+\end{center}
+
+
 The density plot shows that all chips align with slight differences. 
-```{r,echo=FALSE, out.height="25%"}
+```{r,echo=FALSE, out.height="25%", fig.cap="Density function of log intensity before and after normalization"}
 #par(mai = c(0.9,0.9,0.9,0.5))
 hist(data.mouse, col = brewer.pal(8, 'Pastel2'), main = "Density function of log intensity mouse ED before normalization")
 
@@ -224,7 +224,7 @@ for (i in 1:ncol(vsn.mouse)){lines(density(vsn.mouse[,i]), col = rainbow(10)[i])
 ```
 
 Additionally, we plotted the VSN results using boxplots. The boxplot after VSN shows that the median of all chips align but has more outliers than the one before VSN.
-```{r, echo=FALSE, out.height="25%"}
+```{r, echo=FALSE, out.height="25%", fig.cap= "Gene expression of mouse embryonic development before and after normalization"}
 ## Before normalization
 par(las=2)
 boxplot(data.mouse ,col = brewer.pal(8, "Pastel2") ,cex.axis = 0.4, main ="Gene expression of mouse ED before normalization")
@@ -247,16 +247,17 @@ data_ohneaffx = readRDS(paste(projectPath,"Sessions","RDS_Files","data_ohneaffx.
 ```
 
 ### Bovine
-VSN was also performed with the bovine data set, which proved to be successful as seen in the density and boxplots. Analogue to the mouse data set normalization, we can also see that due to the VSN the outliers are increased in the boxplot, but the median is equivalent in all cell stages. The density plot shows a successful VSN as the lines of the different cell stages align together. 
-```{r,echo=FALSE, out.height="25%"}
+VSN was also performed with the bovine data set, which proved to be successful as seen in the density and boxplots. Analogue to the mouse data set normalization, we can also see that due to the VSN the outliers are increased in the boxplot, but the median is equivalent in all cell stages. The density plot shows a successful VSN as the lines of the different cell stages align together. \begin{Center}
+```{r,echo=FALSE, out.height="25%", fig.cap= "meanSD plot of bovine"}
 #set.seed(234)
 #vsnbovine <- vsnrma(data.bovine)
 vsnbovine = readRDS(paste(projectPath,"Sessions","RDS_Files", "normalizedbovine.rds", sep = "/"))
 meanSdPlot(vsnbovine, plot = FALSE)$gg + theme(aspect.ratio = 1)
 vsn.bovine = exprs(vsnbovine)
 ```
+\end{center}
 
-```{r, echo=FALSE, out.height="25%"}
+```{r, echo=FALSE, out.height="25%", fig.cap= "Gene expression bovine embryonic development before and after nromalization"}
 ## Before normalization
 par (las =2)
 boxplot (data.bovine ,col = brewer.pal(8,"Pastel2"),cex.axis = 0.4,main ="Gene expression bovine embryonic development before normalization")
@@ -267,7 +268,7 @@ par ( las =2)
 boxplot (vsn.bovine,col = brewer.pal(8, "Pastel2"),cex.axis =0.5,main ="Gene expression bovine embryonic development after normalization")
 ```
 
-```{r, echo=FALSE, out.height="25%"}
+```{r, echo=FALSE, out.height="25%", fig.cap= "Density function of bovine before and after normalization>"}
 ## Before normalization
 hist(data.bovine, col = brewer.pal(8, "Pastel2"), main = "Density function of log intensity bovine ED before normalization")
 
@@ -292,7 +293,7 @@ The PCA was done using the PCA function in R.
 Through the ggplot2 we can see that the first two samples (one cell stage, first and second replicates) have excellent correlation. Sample 3 (GSM456663) is also close to them. This is also the case in sample 7 and 8 (GSM456667 and GSM456668) but here the third replicate is farther away.
 Blastocyst first and third replicate (GSM456676 and GSM456678) are closer to each other which hints at good correlation. What one can notice is that the second replicate of the blastocyst (GSM456677) is a lot further away but closer to (GSM456673).
 
-```{r, echo=FALSE, out.height="25%"}
+```{r, echo=FALSE, out.height="25%", fig.cap="Scree plot and PCA of mouse data"}
 
 pca = prcomp(t(data_ohneaffx), scale = TRUE)
 pca_var = pca$sdev^2    #calculating variation
@@ -319,7 +320,7 @@ ggplot(data=pca_data, aes(x=X, y=Y, label=Sample)) +
 Hierarchical clustering analysis is based on an algorithm that calculates distances between the objects and forms clusters. Before we clustered we created a distance matrix using the euclidean distance. Based on the distance matrix we plotted a dendrogram in order to see which clusters differ the most from each other. This is based on the height of the branches. 
 Based on the plot we can see that GSM456661 to GSM456663 differ signficantly from the rest of the chips. The clusters with the biggest height difference is between GSM456661- GSM456663 and GSM456676-GSM456678.
 
-```{r, echo=FALSE, out.height="25%"}
+```{r, echo=FALSE, out.height="25%", fig.cap=" Clustering of mouse"}
 distance_matrix= dist(t(data_ohneaffx), method = "euclidean")
 cluster= hclust(distance_matrix, method="average")
 plot(cluster,  xlab = "Microarray chips")
@@ -335,10 +336,12 @@ Through R, we were able to match our mouse data set to the TRA dataset provided 
 TRA_total = readRDS(paste(projectPath,"Sessions","RDS_Files","TRA_total.rds",sep = "/"))
 ```
 We plotted the frequency of the TRAs in the different tissues and found that the highest amount of TRAs occur in testis.
-```{r, echo=FALSE, out.height= "25%"}
+\begin{center}
+```{r, echo=FALSE, out.height= "25%", fig.cap="Tissues with highest frequency of TRAs"}
 TRA_tissuenames = sort(table(c(as.data.frame(TRA_total[,11]))))
 barplot(tail(TRA_tissuenames),las =2,col = brewer.pal(8,"Pastel2"), xlab = "tissue" , ylab="Frequency",main ="Tissues with highest frequency of TRAs")
 ```
+\end{center}
 Upon matching, we found that our data set contains 6188 TRA transcripts which translate to 3255 genes. After that the TRAs were matched with their respective tissue to create a dataframe that contains the ensemble transcripts of the TRAs, their expression value in each microarray chip and their tissue.
 
 ```{r, include=FALSE}
@@ -367,7 +370,7 @@ dge_df.m =topTable(fit2.m, coef=1, number=nrow(fit2.m))
 ```
 Using a volcano plot of the top ten most over- and underexpressed gene transcripts, we were able to show the statistical significance versus magnitude of fold change. The genes with a deviating fold change can be seen on either side of the expected fold change. The genes highlighted in red have a significant change of expression values. 
 Here we could show that H1foo, a histone linker gene, is overall the most down regulated throughout all stages.
-```{r, echo=FALSE, fig.height=6, fig.width=4}
+```{r, echo=FALSE, fig.height=4, fig.width=4, fig.cap= "Volcano plot of mouse data"}
 Volcano.m = readRDS(paste(projectPath,"Sessions","RDS_Files","filtered_dge_mapped_df.rds",sep= "/"))
 EnhancedVolcano(Volcano.m, x = "logFC", y ="adj.P.Val", lab = Volcano.m$gene_symbols, title = "Volcano plot of mouse data", ylim = c(0,10), xlim= c(-4.5, 4.5))
 Top10_oe = Volcano.m[Volcano.m$logFC > 0, 'adj.P.Val']
@@ -376,14 +379,14 @@ Top10_oe = names(sort(Top10_oe)[1:10])
 ```
 
 Upon plotting the deregulated TRAs of the mouse using a bar plot, we saw that the most overexpressed TRAs are between the fourth and the eighth cell stages. The most amount of underexpressed TRAs are between the first and second cell stages. 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.cap= "Gene expression in different cell stages mouse"}
 par(mfrow= c(1,3))
 barplot(summary(results.m)[1,],las =2,col =brewer.pal(8,"Pastel2"), ylab="sum of downregulated genes", main= "Underexpressed genes")
 barplot(summary(results.m)[2,],las =2,col =brewer.pal(8,"Pastel2"), ylab="sum of  genes with no significant change", main= "Genes with no significant change")
 barplot(summary(results.m)[3,],las =2,col =brewer.pal(8,"Pastel2"), ylab="sum of upregulated genes", main= "Overexpressed genes")
 ```
 In order to visualize the tissues with most expressed TRAs we used a treemap to visualize the total share of overexpressed TRAs in the tissues between the fourth and eight cells stages. We saw the the tissue with the most amount of overexpressed TRAs is the blastocyst followed by the heart.
-```{r, echo=FALSE, out.height="40%"}
+```{r, echo=FALSE, out.height="40%", fig.cap= "Tissues with most overexpressed TRAs in four to eight cell stage"}
 tissue = TRA_total[is.element(TRA_total$ensembl.transcript,rownames(TRAs_mousedata)),]
 matched_tissue = tissue[!duplicated(tissue[,1]),]
 matched_tissuenames = sort(table(c(as.data.frame(matched_tissue[,11]))))
@@ -409,8 +412,9 @@ DGE_foureight_oe_count = sort(table(c(as.data.frame(DGE_foureight_oe[,2]))))
 As our main objective is to focus on the earliest biological function, we decided to go with the heart, which is the earliest organ that to develop.
 In total we have 149 TRAs in the heart, 62 of those are overexpressed. We visualized the heart TRAs in the different cell stages using a box-plot .
 
-Using a VENN diagram, we saw that there are three TRAs differentially expressed that can be found in cell stage two to four, four to eight, and eight to morula. 
-```{r, echo=FALSE}
+Using a VENN diagram, we saw that there are three TRAs differentially expressed that can be found in cell stage two to four, four to eight, and eight to morula.\\
+
+```{r, echo=FALSE, fig.width= 6, fig.height= 3, fig.cap= "Boxplot and VENN diagram of heart TRAs in mouse"}
 heart= DGE_tissues[DGE_tissues$max.tissue=="heart",]
 TRA_heart = TRAs_mousedata[rownames(TRAs_mousedata) %in% rownames(heart),]
 TRA_heart = as.data.frame(TRA_heart)
@@ -419,7 +423,6 @@ boxplot (TRA_heart,col = brewer.pal(8, "Pastel2"),cex.axis =0.5, main ="Boxplot 
 #####venn for heart only 3 stadien
 Venn_heart_three = vennCounts(heart[,2:4])
 vennDiagram(Venn_heart_three, main= "Venn diagram of heart TRAs", circle.col = rainbow(10) )
-
 ```
 
 ### Bovine
@@ -435,12 +438,13 @@ dge_df.b= topTable(fit2.b, coef=1, number=nrow(fit2.b))
 ```
 
 After performing the DGE with our data set, we choose the Volcano Plot to present our results. The red dots are marking the significantly over or under expressed genes. We could only find 14 significantly differentially over or under expressed genes.
-
-```{r,echo=FALSE, fig.height=6, fig.width=4}
+\begin{center}
+```{r, echo=FALSE, fig.height= 4, fig.width= 4, fig.cap= "Volcano plot of bovine data"}
 Volcano.b = readRDS(paste(projectPath,"Sessions","RDS_Files",'filtered_dge_bovinemapped_df.rds',sep= "/"))
 EnhancedVolcano(Volcano.b, x = "logFC", y ="adj.P.Val", lab = Volcano.b$gene_symbols,
                 subtitle = 'Significance = 5%',pCutoff = 0.05, pointSize = 1, ylim = c(0, 2))
 ```
+\end{center}
 
 ## GSEA
 
@@ -547,7 +551,7 @@ The GSEA was also performed on our bovine data set without matched TRA data. The
 gsea.b = readRDS(paste(projectPath,"Sessions","RDS_Files","Gsea_bovine.rds",sep = "/"))
 ```
 
-```{r, echo=FALSE, out.height="25%"}
+```{r, echo=FALSE, out.height="25%", fig.cap= "GSEA of mouse and bovine"}
 HEMT_plot <- enrichplot::gseaplot(
   gsea.b,
   geneSetID = "HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION",
@@ -608,13 +612,13 @@ An interesting link between  hypoxia and oxidative phosphorylation is that both 
 # Appendix
 
 ## Mouse Images
-```{r, echo=FALSE, out.height="25%"}
+```{r, echo=FALSE, out.height="12.5%"}
 for (i in 1:18){
   image(data.mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
 ```
 
 ## Bovine Images
-```{r, echo=FALSE, out.height="25%"}
+```{r, echo=FALSE, out.height="12.5%"}
 for (i in 1:16){
    image(data.bovine[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
 
