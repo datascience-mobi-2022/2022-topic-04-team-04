@@ -1,5 +1,5 @@
 ---
-title: "Final Layout Report"
+title: "The role of tissue restricted antigens (TRA) in heart development during embryogenesis"
 author: "Team 4"
 date: "7/16/2022"
 output: 
@@ -17,6 +17,7 @@ header-includes:
   - \usepackage{soul} #better underlining
   - \usepackage{graphicx, subfig} #manage images
   - \usepackage[headsepline]{scrlayer-scrpage} #individuelle kopfzeile
+  - \setlength{\parskip}{0pt}
   
   #\usepackage{caption}
   #\captionsetup[figure]{font=footnotesize}
@@ -89,8 +90,10 @@ data.mouse = readRDS(paste(projectPath,"Sessions","RDS_Files","data_mouse.rds",s
 The embryogenesis is one of the most fascinating processes before life onsets. With our provided data set (_Mus musculus_) from the one cell stadium to a fully formed blastocyst before preimplantation we were able to evaluate in depth the changes in genetic expression patterns necessary for specific tissue and thus organ development. With the provided TRA database by Dr. Dinkelacker we were able to examine the connection of Tissue Restricted Antigens (TRAs), the establishment of self-tolerance due to the upregulation of TRAs in specific cell stages and tissues. Through the means of differential gene expression (DGE) and gene set enrichment analysis (GSEA) were able to achieve further results and thus contribute to the overall understanding of embryogenesis and tissue formation.  A particularly interesting outcome of upregulated gene transcripts in the fourth to eighth cell stages connected with the TRA data set implies an upregulated gene activation of hypoxia relevant genes. Furthermore, the most upregulated TRA transcripts could be found in the heart tissue, consequently we conclude that the upregulation of hypoxia genes and thus the sensitive regulation of oxygen levels in the early embryo are one of the most important events in the embryogenesis. Moreover, we could confirm the timing of zygote genome activation (ZGA) by clustering and the sum of the total gene expression changes, as well as the downregulation of histone activity right after the discard of maternal transcripts. Working with a bovine data set (_Bos taurus_)  for comparison, we concluded that the different development and regulation of metabolic pathways is due to a divergent time dependent cell differentiation and hence change of genetic expression. To conclude we could show that the expression of TRAs in the early stages of tissue development are essential and connected with the tissue formation and thus a vital cardiovascular system.
 
 # Introduction
-Mouse development and organogenesis occur as early as compaction and the formation of a blastocyst before preimplantation of the mouse embryo. After the fertilization the most important stages of development are the two cell; four cell; eight cell stages as well as morula and blastocyst.A blastocyst already contains three different cell types: trophectoderm; epiblast and the endoderm [@Kojima_2014]. The blastula is roughly reached after 72 hours [@Ciemerych2005]. The very first two cycles after fertilization have a lengthened duration compared to the fourth and eighth cell stages. This is due to the chromatin remodeling and the decondensation of maternal and paternal chromatin in order to gain a functional nucleus [@Ciemerych2005]. The dynamic cell changes are controlled by so called D-cyclins, many transcription factors, and mainly performed by DNA- and Histone methylases and demethylases [@Mihajlovi__2017], [@Sha_2019].From the one cell stage till the beginning of the fourth cell stage, the minor and the major zygote genome activation (ZGA) take place in _Mus musculus_ [@Mihajlovi__2017]. This implies that from now on the development will be directed by the zygote’s genome transcripts, while the maternal mRNA transcripts will be degraded, and thus the expression pattern will drastically change [@AOKI2022]. We will concentrate on the change of the gene expression between the fourth and eighth cell stages.\\
-Since mammalian embryos develop under low oxygen conditions, managing these conditions and providing enough oxygen for morphogenesis, cell proliferation and tissue formation is essential. In order to prevent cell stress during embryogenesis, there are hypoxia sensitive genes which will be activated [@Dunwoodie]. One of the most important factors for this matter is the Hypoxia Inducing Factor (HIF). HIF binds to the HIF-Responsive element, which is encoded by three genes. Whenever HIF is absent or epigenetically silenced, the morphogenesis of the heart is impaired. Especially affected is the formation of the endothelium in the cardiovascular muscles and the chamber formation of the heart. In order to develop a healthy cardiovascular system, HIF is essential [@Krishnan_2008].\\
+Mouse development and organogenesis occur as early as compaction and the formation of a blastocyst before preimplantation of the mouse embryo. After the fertilization the most important stages of development are the two cell; four cell; eight cell stages as well as morula and blastocyst.A blastocyst already contains three different cell types: trophectoderm; epiblast and the endoderm [@Kojima_2014]. The blastula is roughly reached after 72 hours [@Ciemerych2005]. The very first two cycles after fertilization have a lengthened duration compared to the fourth and eighth cell stages. This is due to the chromatin remodeling and the decondensation of maternal and paternal chromatin in order to gain a functional nucleus [@Ciemerych2005]. The dynamic cell changes are controlled by so called D-cyclins, many transcription factors, and mainly performed by DNA- and Histone methylases and demethylases [@Mihajlovi__2017], [@Sha_2019].From the one cell stage till the beginning of the fourth cell stage, the minor and the major zygote genome activation (ZGA) take place in _Mus musculus_ [@Mihajlovi__2017]. This implies that from now on the development will be directed by the zygote’s genome transcripts, while the maternal mRNA transcripts will be degraded, and thus the expression pattern will drastically change [@AOKI2022]. We will concentrate on the change of the gene expression between the fourth and eighth cell stages.
+\newline
+Since mammalian embryos develop under low oxygen conditions, managing these conditions and providing enough oxygen for morphogenesis, cell proliferation and tissue formation is essential. In order to prevent cell stress during embryogenesis, there are hypoxia sensitive genes which will be activated [@Dunwoodie]. One of the most important factors for this matter is the Hypoxia Inducing Factor (HIF). HIF binds to the HIF-Responsive element, which is encoded by three genes. Whenever HIF is absent or epigenetically silenced, the morphogenesis of the heart is impaired. Especially affected is the formation of the endothelium in the cardiovascular muscles and the chamber formation of the heart. In order to develop a healthy cardiovascular system, HIF is essential [@Krishnan_2008].
+\newline
 Tissue restricted antigens (TRAs) play a rather hidden and enigmatic role in embryonic development. With the aim of establishing functioning T cells, which recognize intruders such as pathogens via T cell receptors (TCRs), the T cells need to be trained [@Alberts]. The positive and negative selection in the thymus allows T cells to recognize self-antigens which are displayed by MHC molecules on the cell surface. The expression and regulation are controlled by AIRE autoimmune regulator and Fezf2 [@Monteleone_Cassiano_2022]. The role of TRAs in the crucial stages of embryonic development is yet unknown, just as the immune suppressive impact of Fezf2 regulator in those cells [@Takaba_2017].
 We worked with [@Xie_2010] bovine and mouse data sets.
 
@@ -202,7 +205,7 @@ For us, the GSEA will help with enriching pathways that might play a role in tis
 ### Mouse
 After the QC, we proceeded to normalize our data using VSN. To see if the VSN was successful we used two plotting techniques, the meanSD plot and the density probability against the log intensity. The mean versus standard deviation, shows a slight upward trend of the red line which represents the median estimator. If all chips were of good quality, the median estimator would show a horizontal line. 
 \begin{center}
-```{r, echo=FALSE, out.height="25%", fig.cap= "meanSD Plot of mouse"}
+```{r, echo=FALSE, out.height="20%", fig.cap= "meanSD Plot of mouse"}
 #set.seed(234)
 #vsnmouse <- vsnrma(data.mouse)
 setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
@@ -249,8 +252,9 @@ data_ohneaffx = readRDS(paste(projectPath,"Sessions","RDS_Files","data_ohneaffx.
 ```
 
 ### Bovine
-VSN was also performed with the bovine data set, which proved to be successful as seen in the density and boxplots. Analogue to the mouse data set normalization, we can also see that due to the VSN the outliers are increased in the boxplot, but the median is equivalent in all cell stages. The density plot shows a successful VSN as the lines of the different cell stages align together. \begin{Center}
-```{r,echo=FALSE, out.height="25%", fig.cap= "meanSD plot of bovine"}
+VSN was also performed with the bovine data set, which proved to be successful as seen in the density and boxplots. Analogue to the mouse data set normalization, we can also see that due to the VSN the outliers are increased in the boxplot, but the median is equivalent in all cell stages. The density plot shows a successful VSN as the lines of the different cell stages align together. 
+\begin{center}
+```{r,echo=FALSE, out.height="20%", fig.cap= "meanSD plot of bovine"}
 #set.seed(234)
 #vsnbovine <- vsnrma(data.bovine)
 vsnbovine = readRDS(paste(projectPath,"Sessions","RDS_Files", "normalizedbovine.rds", sep = "/"))
@@ -297,8 +301,7 @@ The PCA was done using the PCA function in R.
 Through the ggplot2 we can see that the first two samples (one cell stage, first and second replicates) have excellent correlation. Sample 3 (GSM456663) is also close to them. This is also the case in sample 7 and 8 (GSM456667 and GSM456668) but here the third replicate is farther away.
 Blastocyst first and third replicate (GSM456676 and GSM456678) are closer to each other which hints at good correlation. What one can notice is that the second replicate of the blastocyst (GSM456677) is a lot further away but closer to (GSM456673).
 
-```{r, echo=FALSE, out.height="25%", fig.cap="Scree plot and PCA of mouse data"}
-par(mfrow=c(1,2))
+```{r, echo=FALSE, out.height="20%",fig.show="hold", fig.cap="Scree plot and PCA of mouse data"}
 pca = prcomp(t(data_ohneaffx), scale = TRUE)
 pca_var = pca$sdev^2    #calculating variation
 pca_var_per = round(pca_var/sum(pca_var)*100,1)   # variation into percentage
@@ -375,21 +378,21 @@ Using a volcano plot of the top ten most over- and underexpressed gene transcrip
 Here we could show that H1foo, a histone linker gene, is overall the most down regulated throughout all stages.
 ```{r, echo=FALSE, fig.height=4, fig.width=4, fig.cap= "Volcano plot of mouse data"}
 Volcano.m = readRDS(paste(projectPath,"Sessions","RDS_Files","filtered_dge_mapped_df.rds",sep= "/"))
-EnhancedVolcano(Volcano.m, x = "logFC", y ="adj.P.Val", lab = Volcano.m$gene_symbols, title = "Volcano plot of mouse data", ylim = c(0,10), xlim= c(-4.5, 4.5))
+EnhancedVolcano(Volcano.m, x = "logFC", y ="adj.P.Val", lab = Volcano.m$gene_symbols, title = "Volcano plot of mouse", ylim = c(0,10), xlim= c(-4.5, 4.5))
 Top10_oe = Volcano.m[Volcano.m$logFC > 0, 'adj.P.Val']
 names(Top10_oe) = rownames(Volcano.m)[Volcano.m$logFC > 0]
 Top10_oe = names(sort(Top10_oe)[1:10])
 ```
 
 Upon plotting the deregulated TRAs of the mouse using a bar plot, we saw that the most overexpressed TRAs are between the fourth and the eighth cell stages. The most amount of underexpressed TRAs are between the first and second cell stages. 
-```{r, echo=FALSE, fig.cap= "Gene expression in different cell stages mouse"}
+```{r, echo=FALSE, out.height="25%",fig.cap= "Gene expression in different cell stages mouse"}
 par(mfrow= c(1,3))
 barplot(summary(results.m)[1,],las =2,col =brewer.pal(8,"Pastel2"), ylab="sum of downregulated genes", main= "Underexpressed genes")
 barplot(summary(results.m)[2,],las =2,col =brewer.pal(8,"Pastel2"), ylab="sum of  genes with no significant change", main= "Genes with no significant change")
 barplot(summary(results.m)[3,],las =2,col =brewer.pal(8,"Pastel2"), ylab="sum of upregulated genes", main= "Overexpressed genes")
 ```
 In order to visualize the tissues with most expressed TRAs we used a treemap to visualize the total share of overexpressed TRAs in the tissues between the fourth and eight cells stages. We saw the the tissue with the most amount of overexpressed TRAs is the blastocyst followed by the heart.
-```{r, echo=FALSE, out.height="30%", fig.cap= "Tissues with most overexpressed TRAs in four to eight cell stage"}
+```{r, echo=FALSE, out.height="25%", fig.cap= "Tissues with most overexpressed TRAs in four to eight cell stage"}
 tissue = TRA_total[is.element(TRA_total$ensembl.transcript,rownames(TRAs_mousedata)),]
 matched_tissue = tissue[!duplicated(tissue[,1]),]
 matched_tissuenames = sort(table(c(as.data.frame(matched_tissue[,11]))))
@@ -417,7 +420,7 @@ In total we have 149 TRAs in the heart, 62 of those are overexpressed. We visual
 
 Using a VENN diagram, we saw that there are three TRAs differentially expressed that can be found in cell stage two to four, four to eight, and eight to morula.\\
 
-```{r, echo=FALSE, fig.width= 6, fig.height= 3, fig.cap= "Boxplot and VENN diagram of heart TRAs in mouse"}
+```{r, echo=FALSE, fig.width= 6, fig.height= 3,fig.show="hold", fig.cap= "Boxplot and VENN diagram of heart TRAs in mouse"}
 heart= DGE_tissues[DGE_tissues$max.tissue=="heart",]
 TRA_heart = TRAs_mousedata[rownames(TRAs_mousedata) %in% rownames(heart),]
 TRA_heart = as.data.frame(TRA_heart)
@@ -439,13 +442,15 @@ fit2.b = readRDS(paste(projectPath,"Sessions","RDS_Files","fit2.b.rds",sep = "/"
 dge_df.b= topTable(fit2.b, coef=1, number=nrow(fit2.b))
 ```
 
-After performing the DGE with our data set, we choose the Volcano Plot to present our results. The red dots are marking the significantly over or under expressed genes. We could only find 14 significantly differentially over or under expressed genes.
-\begin{center}
-```{r, echo=FALSE, fig.height= 4, fig.width= 4, fig.cap= "Volcano plot of bovine data"}
+After performing the DGE with our data set, we choose the Volcano Plot to present our results. The red dots are marking the significantly over or under expressed genes. We could only find 14 significantly differentially over or under expressed genes.Here we could specify a significant upregulation of the SERPINA14 gene and a downregulation of two genes which are FUS and FXR1.
+
+
+```{r, echo=FALSE, fig.height=4 , fig.cap= "Volcano plot of bovine data"}
 Volcano.b = readRDS(paste(projectPath,"Sessions","RDS_Files","filtered_dge_bovinemapped_df.rds", sep= "/"))
-EnhancedVolcano(Volcano.b, x = "logFC", y ="adj.P.Val", lab = Volcano.b$gene_symbols,
-                subtitle = "Significance = 5%", pCutoff = 0.05, pointSize = 1, ylim=c(0, 2))
+EnhancedVolcano(Volcano.b, x ="logFC", y="adj.P.Val", lab = Volcano.b$gene_symbols, 
+        subtitle = "Significance = 5%", pCutoff = 0.05, pointSize = 1, ylim=c(0,2))
 ```
+
 ## GSEA
 
 ### Mouse
@@ -554,11 +559,12 @@ The GSEA was also performed on our bovine data set without matched TRA data. The
 gsea.b = readRDS(paste(projectPath,"Sessions","RDS_Files","Gsea_bovine.rds",sep = "/"))
 ```
 
-```{r, echo=FALSE, out.height="20%", fig.cap= "GSEA of mouse and bovine"}
+```{r, echo=FALSE, out.height="20%",fig.show="hold", fig.cap= "GSEA of mouse and bovine"}
+
 HEMT_plot <- enrichplot::gseaplot(
   gsea.b,
   geneSetID = "HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION",
-  title = "HALLMARK_EPITHELIAL_MESENCHYMAL_TRANSITION",
+  title = "Epithelial Mesenchymal Transition",
   color.line = "#0d76ff"
 )
 
@@ -567,11 +573,9 @@ HEMT_plot <- enrichplot::gseaplot(
 HOP_plot <- enrichplot::gseaplot(
   gsea.b,
   geneSetID = "HALLMARK_OXIDATIVE_PHOSPHORYLATION",
-  title = "HALLMARK_OXIDATIVE_PHOSPHORYLATION",
+  title = "Oxidative Phosphorylation",
   color.line = "#0d76ff"
 )
-
-par(mfrow=c(1,2))
 
 HEMT_plot
 HOP_plot
@@ -580,32 +584,21 @@ HOP_plot
 \nopagebreak
 # Discussion
 
-## PCA 
-
 The performed PCA showed a high correlation between the tested chips, hence we conclude that the replicates of the chips belong to the same cell stage. With an overall variance explanation of 50% the PCA results are overall satisfying. A varied gene expression of replicate sample 3 (GSM456663) would explain why this chip is not closely displayed in the ggplot with the other replicates of the same cell stage. This might also be a possible explanation for the second replicate of the blastocyst cell stage, which is also not close to the other replicates in the plot.
-
-## Hierarchial clustering
+\newline
 We performed a clustering analysis in order to group the chips that are most similar to each other, and to see how much the chips of different cell stages vary. Interestingly enough we saw that the chips of the first cell stage differ completely from the rest, as they are clustered solitary. Biologically this makes sense, as the major zygote genome activation did not happen yet. In the first cell stage the cell has two gametes. The gametes need to form a new organism with totipotent cells in order to initiate embryogenesis. This happens through a process called maternal to zygotic transition, this allows the production of zygotic gene products instead of the maternal products [@zygotic-transition].
 Another thing that can be deduced from the clustering analysis is that the GSM456677 chip (blastocyst, second replicate) is clustered with the GSM456673 chip (morula first replicate). A reason for this can be that through the quality control, we excluded the second and third replicate of the morula cells due to their low quality. This could lead to the clustering of the morula replicate with the blastocyst replicate as the genetic material of the morula is characteristically closer to the blastocyst genetic material than the eighth cell stage.  
+\newline
+With the performed DGE across all stages we could see that the biggest changes of genetic expression patterns are between the fourth and eighth cell stage. For this matter we plotted the sum of the upregulated gene transcripts throughout the cell stages in figure  . Specifically, the changes apply to overexpressed gene transcripts in this cell stage. This result aligned with the results by Xie et al. which describe that the biggest changes in genetic expression are to be found after ZGA in mouse after the second cell stage, since the maternal transcripts are removed, and the zygote’s own genetic expression is activated. We did not find any significant results in the downregulation of the genes in the fourth and eighth cell stage, the biggest downregulation of gene transcripts ensues in the one to two cell stage, that is why we decided to discard these results and to work henceforth with the upregulated gene transcripts in the cell stage we focused on. We plotted the sum of gene transcripts with no significant change but decided that this has no noteworthy meaning for our further analysis.
 
-## DGE
-### Mouse
-With the performed DGE across all stages we could see that the biggest changes of genetic expression patterns are between the fourth and eighth cell stage. For this matter we plotted the sum of the upregulated gene transcripts throughout the cell stages in figure  . Specifically, the changes apply to overexpressed gene transcripts in this cell stage. This result aligned with the results by Xie _et al._ which describes that the biggest changes in genetic expression are to be found after ZGA in mouse after the second cell stage, since the maternal transcripts are removed, and the zygotes own genetic expression is activated. We did not find any significant results in the downregulation of the genes in the fourth and eighth cell stage, the biggest downregulation of gene transcripts ensues in the one – two cell stage, that is why we decided to discard these results and to work henceforth with the upregulated gene transcripts in the cell stage we focused on. We plotted the sum of gene transcripts with no significant change but decided that this has no noteworthy meaning for our further analysis.
-
-We carried out a volcano plot and could show that of the top ten underexpressed gene transcripts which we found, four of them belong to the gene H1foo. H1foo belongs to H1 Histone family. H1foo is involved in global epigenetic regulation and when active, will impair cell ploripotency and oocyte-specific linker histones. It is involved in formation of condensed chromatin, which cannot be read by DNA Polymerases [@zygotic-transition]. Since a downregulated histone activity advances the ZGA, this result aligns with the very early ZGA of the mouse in the first and second cell stage [@Paul2014].
+We carried out a volcano plot and could show that four out of the top ten underexpressed gene transcripts which we found belong to the gene H1foo. H1foo belongs to H1 Histone family. H1foo is involved in global epigenetic regulation and when active, will impair cell ploripotency and oocyte-specific linker histones. It is involved in formation of condensed chromatin, which cannot be read by DNA Polymerases [@zygotic-transition]. Since a downregulated histone activity advances the ZGA, this result aligns with the very early ZGA of the mouse in the first and second cell stage [@Paul2014].
 
 Through the VENN diagram we saw that there are three transcripts that are expressed in the cell stages two to eight. The transcripts code for the gene Idh2, isocitrate dehydrogenase 2. Idh2 is found in the mitochondria, that catalyzes the oxidative decarboxylation of isocitrate to 2-oxoglutarate in the citrate cycle. In the mitochondria, it controls the mitochondrial redox balance, which is a first line of defense against the oxidative damage. If this balance is not held, oxidative stress can be enhanced which results in the increase of reactive oxygen species (ROS). This can lead to cardiac hypertrophy, which is a risk factor of heart failure [@Idh2]. The importance of the Idh2 gene explains why it is expressed in the cell stages two to eight.
-
-### Bovine
-
-\nopagebreak
-
-## GSEA
-
-### Mouse
+\newline
+The upregulated SERPINA14 in bovine encodes for uterine serpins, which are produced by the two pregnancy hormones progesterone and estrogen [@Moffatt]. The role of serpines in the embryogenesis is yet not fully understood, however it many results point toward a control of a fully functioned immune response in the early pregnancy [@Malathy]. FUS is an RNA and protein binding protein just as FXR1. These two genes were significantly downregulated. A downregulation of RNA binding proteins (RBPs) during the development of a embryo might seem contradictory because of the ongoing cell and tissue differentiation where huge amounts of gene transcripts are needed, however a downregulation of RBPs leads to a more strict control of inflammatory response during the pregnancy which prevents early abort of the embryo [@Eneroth; @Khalaj].
+\newline
 GSEA was carried out for our mouse data. The upregulated pathway which could be found is “Hallmark Hypoxia”. Hypoxia is the state of low oxygen in an organism. The embryo develops in a low oxygen environment. Those conditions are managed and regulated by the so called hypoxia inducible factors (HIF), which also act as a transcription factor together with HIF Response Element. The hypoxic state will upregulate these genes, which we can see in our data, since oxygen is a key provider to the placenta and cardiovascular development [@Dunwoodie2009]. Since heart development is the first one to take place in an embryo, the supervision of HIF genes or hypoxia sensitive genes is essential. Especially because the process of heart tissue formation is inevitably connected with HIF and vascular endothelial growth factor (VEGF) [@fetalheart]. Aligning this with our previous results, that the transcripts for the heart tissue are the second most expressed in our data, it is consequential and logical that the most upregulated pathway we found is of importance for cardiovascular development. The metabolic pathway of hypoxia is upregulated in our data so we conclude it is not only essential but necessary for a healthy morphogenesis of the heart.
-
-### Bovine
+\newline
 The GSEA which was performed for our bovine data, had two results. One of them being an upregulation of “Epithelial Mesenchymal Transition” and a downregulation of the “Oxidative Phosphorylation" pathway. During embryogenesis the cells need to be pluripotent in order to achieve an active proliferation state in which a normal morphogenesis can take place [@Kim2014]. EMT induces polarized mesenchymal cells which enables cell – cell adhesion, pluripotency, and many other functions. Embryonic development requires these functions especially for stem cell differentiation [@Kim2017]. The second result, which displayed a downregulation of oxidative phosphorylation occurs in mitochondrial development and in cancer cells, changing their metabolism. A downregulation of this pathway is especially useful for cancer cells [@Santacatterina2016].
 
 
