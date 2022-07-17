@@ -1,0 +1,323 @@
+---
+title: "Report_Group4_Team4"
+author: "Team 4"
+date: "7/16/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+library(affy)
+library(vsn)
+library(AnnotationDbi)
+library(moe430ammenstcdf)
+library(moe430ammenstprobe)
+library(bovinebtenstcdf)
+library(bovinebtenstprobe)
+library(cluster)
+library(dplyr)
+library(hexbin)
+library(pheatmap)
+library(rstudioapi)
+library(tidyverse)
+library(readr)
+library(ggplot2)
+library(knitr)
+library(limma)
+library(Rcpp)
+library(icd.data)
+library(tibble)
+library(EnhancedVolcano)
+library(ggrepel)
+library(clusterProfiler)
+library(msigdbr)
+library(org.Mm.eg.db)
+library(org.Bt.eg.db)
+library(magrittr)
+library(RColorBrewer)
+library(treemap)
+```
+
+Setting project path
+```{r, include=FALSE}
+projectPath <- dirname(rstudioapi::getSourceEditorContext()$path)
+```
+
+Setting working directory and loading mouse data
+```{r, include=FALSE}
+#setwd(paste(projectPath,"Raw_data","GSE18290_mouse",sep = "/"))
+#data.mouse=ReadAffy()
+#data.mouse@cdfName <- "MOE430A_Mm_ENST"
+data.mouse = readRDS(paste(projectPath,"Sessions","RDS_Files","data_mouse.rds",sep = "/"))
+```
+#Introduction
+Mouse development and organogenesis occurs as early as compaction and the formation of a blastocyst before preimplantation of the mouse embryo. After the fertilization the most important stages of development are the two cell; four cell; eight cell stadium just as the morula and the blastocyst which already contains three different cell types: trophectoderm; epiblast and the endoderm [@Kojima_2014]. The blastula is roughly reached after 72 hours [@Ciemerych2005]. The very first two cycles after fertilization have a lengthened duration compared to the fourth and eighth cell stage. This is due to the chromatin remodeling and the decondensation of maternal and parental chromatin in order to gain a functional nucleus [@Ciemerych2005]. The dynamic cell changes are controlled by so called D-cyclins, many transcription factors, and mainly performed by DNA- and Histone methylases and demethylases [@Mihajlovi__2017], [@Sha_2019]. In the one cell stage and right after the end of the two-cell stage entering the fourth cell stage, the minor and the major Zygote Genome Activation (ZGA) onsets  [@Mihajlovi__2017]. This implies that from now on the development will be directed by the zygote’s genome transcripts, while the maternal mRNA transcripts will be degraded, and thus the expression pattern will drastically change [@AOKI2022]. We will concentrate on the dynamic change of the gene expression especially in the fourth cell stage. In comparison ZGA takes place between the fourth and the eight-cell stage in humans [@Xie_2010].
+Since mammalian embryos develop under low oxygen conditions, managing these conditions and providing enough oxygen for morphogenesis and cell proliferation and tissue formation is essential. In order to prevent hypoxia, a low oxygen condition, while embryogenesis, there are hypoxia sensitive genes which will be activated [@Dunwoodie2009]. One of the most important factors for this matter is the Hypoxia Inducing Factor (HIF). HIF binds to the HIF-Responsive element, which is encoded by three genes. Whenever HIF is absent or epigenetically silenced, the morphogenesis of the heart is impaired. Especially affected is the formation of the endothelium in the cardiovascular muscles and the chamber formation of the heart. To conclude, in order to develop a healthy cardiovascular system HIF is essential [@Krishnan_2008].
+A rather hidden and enigmatic role plays tissue restricted antigens (TRAs) in embryonic development. With the aim of establishing functioning T cells, which recognize intruders as pathogens via T cell receptors (TCRs), the T cells need to be trained (Alberts et al., 2015). The positive and negative selection in the thymus allows T cells to recognize self-antigens which are displayed by MHC molecules on the cell surface. The expression and regulation are controlled by AIRE autoimmune regulator and Fezf2 [@Monteleone_Cassiano_2022]. The role of TRAs in the crucial stages of embryonic development is yet unknown, just as the immune suppressive impact of Fezf2 regulator in those cells [@Takaba_2017].
+
+# Materials 
+
+## 1. R and RStudio
+This project was entirely done in R[@R] version 4.2.0 (2022-04-22) and RStudio [@RStudio:2021.9.0.351] version 2021.09.0. 
+
+## 2. Affy Packages 
+The microarray chips used in the the research of Xie et al. are Affymatrix GeneChips.
+In order to process and analyse these chips we used the affy package [@affy] that was installed using Bioconductor. 
+Affy is an R package that is used to analyse gene chips of the affymatrix type. Some of its many functions are to read in data and do quality control checks. The data are read in as .CEL files.
+
+## 3. Brainarray and loading the Chip Describtion Files of mouse and bovine 
+The chip descritption files (CDF) of our 2 data sets (mouse and bovine) were downloaded using BrainArray [@bovine/mousecdf]. Brainarray is an online data bank that gathers re-analyzed existing Affymatrix Genechip data "with updated probe set definitions", (Dai et. al, 2005) to offer custom cdf files with better gene annotations and calculations.
+
+## 4. Bioconductor 
+Bioconductor [@BiocManager] gathers different packages that are used in R, in order to widen the analysis of gene expression data sets. Most of the packages that we used in our project are installed through Bioconductor, this includes: limma, affy,vsn, GSEA and AnnotationDbi.
+
+## 5. Tidyverse
+Tidyverse is a collection of packages used for "data import, tidying, manipulation, visualisation, and programming" [@tidyverse]. It is analog to Bioconductor.
+
+# Methods
+## 1.Quality Control 
+### Mouse chips
+After reading in the data, we examined the chips of the mouse data set to see if any of the chips have quality issues. This was done using different objectives. 
+Firstly, we read the chips as images in order to see if they differ from the overall expression trend. We noticed three chips that seemed to differ. The first chip,2 Cell 3rd replicate, is distinctly over-expressed and the other two, morula 2nd and 3rd replicate,were under-expressed.
+```{r, include=FALSE}
+#setwd(paste(projectPath,"Raw_data","GSE18290_mouse",sep = "/"))
+#data.mouse=ReadAffy()
+#data.mouse@cdfName <- "MOE430A_Mm_ENST"
+setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
+data.mouse = readRDS("data_mouse.rds")
+```
+
+```{r, echo=FALSE}
+par(mfrow= c(3,6))
+for (i in 1:18){
+  image(data.mouse[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
+# chips GSM456666,GSM456674,GSM456675 have a low quality
+#saveRDS(mouse_images, file= "mouse_images.rds")
+########SAVE THEM and load them SQUARE
+```
+The second step in the quality control was done through an RNA degradationm plot on the data set, that is shifted and scaled. The RNA degradation plot follows the degradation of the RNA by targeting the probe set in different regions of the selected transcript, the central section, the 3 prime and the 5 prime. This allows assessing the degradation rate of individual transcripts by examining the 3'/5' probe-set signal ratios. A good RNA degradation plot would show a steady upward trend with minimal crossing. In our case we can see that the orange line follows a different trend than the others and that there is crossing.On the other hand, if we only shift the RNA degradation plot without scaling, we can't see an effect. This could be due to the three chips that have low quality.
+
+```{r, echo=FALSE}
+mouse_RNAdeg <- AffyRNAdeg(data.mouse)
+plotAffyRNAdeg(mouse_RNAdeg, col = rainbow(18))
+
+#####SAVE
+```
+
+### Bovine 
+The same procedure was done for the bovine data set. Through the quality control of the bovine chips, we saw that the last chip had quality issues, as the dye showed a difference from the rest. This can also be seen by plotting the RNA degradation plot of the 16 chips, as the 16th chip (GSM456642) (blastocyst, second replicate) crosses the rest of the chips.
+```{r, include=FALSE}
+setwd(paste(projectPath,"Raw_data","GSE18290_bovine",sep = "/"))
+#data.bovine= ReadAffy()
+#data.bovine@cdfName <- "Bovine_Bt_ENST"
+data.bovine  = readRDS(paste(projectPath,"Sessions","RDS_Files","data.bovine.rds",sep = "/"))
+##### SAVE RDS FILE
+```
+
+```{r, echo=FALSE}
+par(mfrow= c(3,6))
+for (i in 1:16){
+   image(data.bovine[,i], col = rainbow (100, start = 0, end = 0.75)[100:1])}
+```
+
+
+```{r, echo=FALSE}
+bovine_RNAdeg <- AffyRNAdeg(data.bovine)
+
+plotAffyRNAdeg(bovine_RNAdeg, col = rainbow(16))
+```
+## 2.Variance Stabilization Normalization
+Variance Stabilization Normalization (vsn) is a stastistical method,developed by Huber et al. [@vsn] that is used for micro-arrays to reduce background noise, optical illusions and dye irregularities. It is done through a log transformation in order to get a  better concept of perception. It includes three main steps, the normalization, which is done through data calibration, the mean- variance- dependance of the the model, and a variance stabilizing transformation. (Huber et. al)
+For both data sets (mouse and bovine), the vsn was made visualized using different ploting techniques.
+### 1. Mean versus Standard deviation plot
+The quality of the vsn can be visualized using the mean versus standard deviation plot (meanSDplot). The standard deviation should not have a strong correlation to the mean/variance and thus the red line of the median estimator should be horizontal. (Dinkelacker 2019)
+### 2. Density Plot 
+The density plot is used, to plot the density function against the log intensity of each chip. This way we can confirm if the vsn was succesful or not. If the curves are well adjusted after the vsn, this would mean that the normalization was successful. 
+As the QC showed, chips 6,14,15 are of low quality.That's why we will be disregarding them for the rest of our analysis.
+## 3. Hierarchical Clustering
+After performing the QC, we proceeded to cluster the 15 chips. We created a distance matrix using the euclidean distance. After that the hierarchical clustering was done using the average linkage method. This was plotted and a dendogram was formed. The bigger the hight difference the more different the groups are. 
+## 3. Finding TRAs in our data set
+Through the available data set provided by Dinkelacker, we were able to match the TRAs with our mouse data set using R 
+## 4. Differential Gene Expression Analysis 
+The differential gene expression (dge) analysis "refers to the analysis and interpretation of differences in abundance of gene transcripts within a transcriptome".  [@dge] (Conesa et al., 2016) It is done in R using the limma package provided by Bioconductor. [@dgelimma] Limma uses the linear model as an approach for the dge, by simply forming a design matrix "which indicates in effect which RNA samples have been applied to each.  array" (Phipson et al., 2016) and a contrast matrix, where we define which objectives will be compared to each other. In our case the contrast matrix compares cell stages to each other and the design matrix, desgins a matrix that groups the chips by the cell stage they belong to. 
+After that a linear model will fitted to our design matrix, and in the end the contrast matrix will be fit with the linear model. Limma uses the Bayes method in order to use  probability to represent all uncertainty within the model. Here it moderates the standard errors of the estimated log-fold changes. It is calculated using the Bayesian Theorem, which is then used for hypothesis testing, in our case a t-test. 
+The differential gene expression was performed for the mouse and bovine data sets respectively. 
+
+## 6. Gene Set Enrichment Analysis 
+A gene set enrichment analysis (GSEA) is used to identify if a set of genes is enriched in expression. The analysis uses previous knowledge in order to see if a set of genes is related by shared criteria. This criteria can be a certain pathway or a functional classification. [@gsea]
+The GSEA is based on the results from the DGE that includes the results of the t-test and the p-values. Additionally we use The Molecular Signatures Database (MSigDB), which is a resource that contains annotated gene sets for our species and pathway analysis. [@msigdbr] Using the annotation packages for Mus musculus and Bos taurus gives us information from different identifiers [@org.MM.eg.db]
+For us the GSEA will help us with enriching pathways that might play a role in tissue formation. 
+
+#Results 
+## 1. VSN
+### Mouse
+After the QC, we proceeded to normalize our data using the variance stabilization method. To see if the VSN was successful we used two plotting techniques, the mean versus standard deviation plot and the density probability against the log intensity. The mean versus standard deviation, shows a slight upward trend of the red line which represents the median estimator. If all chips were of good quality, the median estimator would show a horizontal line. 
+```{r, echo=FALSE}
+#set.seed(234)
+#vsnmouse <- vsnrma(data.mouse)
+setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
+vsnmouse = readRDS("normalized_18mouse.rds")
+meanSdPlot(vsnmouse, plot = FALSE)$gg + theme(aspect.ratio = 1)
+vsn.mouse = exprs(vsnmouse)
+```
+The density plot shows that all chips align with slight differences. 
+```{r,echo=FALSE}
+## Before normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+hist(data.mouse, col = brewer.pal(18, 'Pastel2'), main = "Density function of log intensity mouse ED before normalization")
+
+## After normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+plot(density(vsn.mouse), type = "n",col = brewer.pal(18, 'Pastel2'), xlab = "log Intensity", ylim = c(0, 0.6),main = "Density function of log intensity mouse ED after normalization")
+for (i in 1:ncol(vsn.mouse)){lines(density(vsn.mouse[,i]), col = rainbow(10)[i])}
+```
+
+Additionally, we plotted the VSN reuslts using boxplots. The boxplots show us that the median of all chips align on one line, but comparing this boxplot to the boxplot before normalization one can see that the boxplot after VSN has more outliers.
+```{r, echo=FALSE}
+## Before normalization
+
+par( las =2)
+boxplot(data.mouse ,col = brewer.pal(18, "Pastel2") ,cex.axis = 0.4, main ="Gene expression of mouse embryonic development (ED) before normalization")
+
+## After normalization
+#png("qcvsn_boxplot_m.png", height = 600, width = 800)
+par ( las =2)
+boxplot (vsn.mouse,col = brewer.pal(18, "Pastel2"),cex.axis =0.5,main ="Gene expression of mouse embryonic development (ED) after normalization")
+#dev.off
+```
+
+After all those steps were done, we decided to disregard 3 chips in total (see Quality Control). We also took out the control transcripts. 
+```{r, include=FALSE}
+#setwd(paste(projectPath,"Raw_data","GSE18290_mouse",sep = "/"))
+#qdata.mouse = ReadAffy()
+#qdata.mouse@cdfName <- "MOE430A_Mm_ENST"
+#vsn.qmouse = exprs(vsnrma(qdata.mouse))
+#data_ohneaffx= vsn.qmouse[65:39345,]
+#namen=(substr(rownames(data_ohneaffx),0,18)[1:39281])
+#rownames(data_ohneaffx) <- c(namen)
+setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
+data_ohneaffx = readRDS("data_ohneaffx.RDS")
+```
+### Bovine
+```{r,echo=FALSE}
+#set.seed(234)
+#vsnbovine <- vsnrma(data.bovine)
+vsnbovine = readRDS(paste(projectPath,"Sessions","RDS_Files", "normalizedbovine.rds", sep = "/"))
+meanSdPlot(vsnbovine, plot = FALSE)$gg + theme(aspect.ratio = 1)
+vsn.bovine = exprs(vsnbovine)
+```
+
+```{r, echo=FALSE}
+## Before normalization
+par ( las =2)
+
+boxplot (data.bovine ,col = brewer.pal(18,"Pastel2"),cex.axis = 0.4,main ="Gene expression bovine embryonic development before normalization")
+
+
+## After normalization
+par ( las =2)
+
+boxplot (vsn.bovine,col = brewer.pal(18, "Pastel2"),cex.axis =0.5,main ="Gene expression bovine embryonic development after normalization")
+```
+
+```{r, echo=FALSE}
+## Before normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+
+hist(data.bovine, col = brewer.pal(10, "Pastel2"), main = "Density function of log intensity bovine ED before normalization")
+
+
+## After normalization
+par(mai = c(0.9,0.9,0.9,0.5))
+plot(density(vsn.bovine), type = "n", xlab = "log Intensity", ylim = c(0, 0.6),main = "Density function of log intensity bovine ED after normalization")
+for (i in 1:ncol(vsn.bovine)){lines(density(vsn.bovine[,i]), col = brewer.pal(10, "Pastel2")[i])}
+```
+
+```{r, include=FALSE}
+#bovine_ohneaffx= vsn.bovine[114:17520,]
+#namen.b=(substr(rownames(bovine_ohneaffx),0,18)[1:17407])
+#rownames(bovine_ohneaffx) <- c(namen.b)
+#bovine_ohneaffx= subset(bovine_ohneaffx, select= -c(16))
+setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
+bovine_ohneaffx = readRDS(file = "bovine_ohneaffx.rds")
+```
+
+## 2. Principal Component Analysis 
+We wanted to see if the different replicates of the chips would show high correlation if they belonged to the same stage and to see if we can reduce the dimension of our data set. This is why we performed a principal component analysis. 
+Here the variables are the different genes expressed (39281) and we have 15 samples. We transposed the matrix in order to have the columns as the genes and the samples as the rows. After that a scree plot was done in order to see how many principal components are needed, which are 2 as those explain around 50% of all the data variance. 
+A PCA was done using the PCA function in R. 
+Through the ggplot2 we can see that the first two samples (one cell stage, first and second replicate) have excellent correlation which means one sample and explain the entirety of the second sample. Sample 3 (GSM456663) is also close to them. This is also the case in sample 7 and 8 (GSM456667 and GSM456668) but here the third replicate is farther than the case of sample 3.
+The blastocyst first and third replicate (GSM456676 and GSM456678) are closer to each other which hints at good correlation. What one can notice is that the second replicate of the blastocyst (GSM456677) is a lot farther away.
+
+```{r, echo=FALSE}
+pca = prcomp(t(data_ohneaffx), scale = TRUE)
+pca_var = pca$sdev^2    #calculating variation
+pca_var_per = round(pca_var/sum(pca_var)*100,1)   # variation into percentage
+##### Scree plot
+qplot(c(1:length(pca_var_per)), pca_var_per) +
+  geom_col()+
+  xlab("Principal Component") +
+  ylab("Percent Variance Explained") +
+  ggtitle("Scree Plot") +
+  ylim(0, 40)
+
+pca_data = data.frame(Sample = rownames(pca$x), X= pca$x[,1], Y = pca$x[,2])
+ggplot(data=pca_data, aes(x=X, y=Y, label=Sample)) +
+  xlab(paste("PC1 - ", pca_var_per[1], "%", sep="")) +
+  ylab(paste("PC2 - ", pca_var_per[2], "%", sep="")) +
+  theme_bw() +
+  ggtitle("PCA mouse data") +
+  geom_text(col= c("red","red","red","blue","blue","black","black","black","gray","gray","gray","green","purple","purple","purple"))
+```
+
+## 3. Hierarchical Clustering 
+Hierarchical clustering analysis is based on an algorithm that calculates distances between the objects and forms clusters. Before we clustered we created a distance matrix using the euclidean distance. Based on the disance matrix we plotted a dendrogram in order to see which cluster differ the biggest from each other. This is based on the height of the branches. 
+Based on the plot we can see that GSM456661 to GSM456663 differ signficantlly from the rest of the chips. The clusters with the biggest height difference is between GSM456661- GSM456663 and GSM456676-GSM456678
+```{r}
+distance_matrix= dist(t(data_ohneaffx), method = "euclidean")
+cluster= hclust(distance_matrix, method="average")
+plot(cluster)
+```
+
+## 4. Tissue Restricted Antigens in the mouse data set
+Through R, we were able to match our mouse data set to the TRA dataset provided by Dinkelacker. 
+```{r}
+#setwd(paste(projectPath, "rawdata", "TRA_data", sep = "/"))
+#TRAs1 <-read_tsv("tra.2014.mouse.5x.table.tsv")
+#TRAs2 <-read_tsv("tra.2014.mouse.4301.5x.table.tsv")
+#TRA_total = rbind(TRAs1,TRAs2)
+TRA_total = readRDS(paste(projectPath,"Sessions","RDS_Files","TRA_total.rds",sep = "/"))
+```
+We plotted the frequency of the TRAs in the different tissues and found that the highest amount of TRAs occur in testis.
+```{r}
+TRA_tissuenames = sort(table(c(as.data.frame(TRA_total[,11]))))
+barplot(tail(TRA_tissuenames),las =2,col = brewer.pal(5,"Pastel2"), xlab = "tissue" , ylab="Frequency",main ="Tissues with highest frequency of TRAs")
+```
+Upon matching, we found that our data set contains 6188 TRAs, transcripts and 3255 genes. After that the TRAs were matched with their respective tissue to create a dataframe that contains the ensemble transcripts of the TRAs, their expression value in each microarray chip and their tissue.
+
+```{r}
+#unique_TRAs = unique(TRAs1$ensembl.transcript, TRAs2$ensembl.transcript)
+#TRAs_mousedataset = data_ohneaffx[which(rownames(data_ohneaffx) %in% unique_TRAs),] #removed duplicates
+TRAs_mousedata  = readRDS(paste(projectPath,"Sessions","RDS_Files","TRAs_mousedataset.RDS",sep = "/")) 
+# TRAs_mousedata contains TRAs present in our mouse data
+gene_names_mouse = read.csv(paste(projectPath,"Tables","gene_names_mouse.csv",sep = "/"))
+```
+## 5. Differential Gene Expression
+### Mouse
+Using limma, we performed a differential gene expression in order to see if the deregulation of the TRAs vary in the different cell stages. The analysis performs a t-test on the expression set and gives us the result of the test with the p-value. The DGE simplifies this and gives us a matrix with 3 different values that correspond to the state of the TRA. 1 is assigned if the TRA is upregulated in the contrast between the two stages. 0 is assigned if the TRA has not significantly changed and -1 if it is underexpressed. 
+```{r echo=FALSE}
+#design.m= model.matrix(~0+factor(c(1,1,1,2,2,3,3,3,4,4,4,5,6,6,6)))
+#colnames(design.m)= c("one", "two","four", "eight", "morula", "blastocyst")
+#fit.m= lmFit(TRAs_mousedataset, design.m)
+#contrast.matrix.m= makeContrasts(two-one,four-two, eight-four, morula-eight, blastocyst-morula,levels = design.m)
+#fit2.m= contrasts.fit(fit.m, contrast.matrix.m)
+#fit2.m= eBayes(fit2.m)
+#linear model is done
+setwd(paste(projectPath,"Sessions","RDS_Files",sep = "/"))
+fit2.m = readRDS("fit_matched2.rds")
+results.m= decideTests(fit2.m)
+dge_df.m =topTable(fit2.m, coef=1, number=nrow(fit2.m))
+```
