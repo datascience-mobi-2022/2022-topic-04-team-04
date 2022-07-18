@@ -1,8 +1,8 @@
-# Topic 04 - team 04: The role of tissue-restricted antigens (TRAs) in the embryonic development
+# Topic 04 - team 04: The role of tissue-restricted antigens (TRAs) in heart development during embryogenesis
 
 
 **Participants:**
-* Nina Droste, Aleksandra Dohren, Amena ElMaadawy, Mariam Hassan
+* Nina Droste, Amena ElMaadawy, Mariam Hassan, Aleksandra Dohren, 
 
 **Supervisors:**
 * Dr. Maria Dinkelacker, Ian Fichtner 
