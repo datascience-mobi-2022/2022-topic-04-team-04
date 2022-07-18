@@ -1,0 +1,5 @@
+"0","#loading mouse data "
+"0","#setwd(paste(projectPath,""Raw_data"",""GSE18290_mouse"",sep = ""/""))"
+"0","#data.mouse=ReadAffy()"
+"0","#data.mouse@cdfName <- ""MOE430A_Mm_ENST"""
+"0","data.mouse = readRDS(paste(projectPath,""Sessions"",""RDS_Files"",""data_mouse.rds"",sep = ""/""))"

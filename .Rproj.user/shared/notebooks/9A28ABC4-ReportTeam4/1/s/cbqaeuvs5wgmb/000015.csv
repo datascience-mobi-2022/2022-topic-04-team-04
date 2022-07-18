@@ -1,0 +1,2 @@
+"0","par(mfrow= c(1,3))"
+"0","barplot(summary(results.m)[1,],las =2,col =brewer.pal(8,""Pastel2""), ylab=""sum of downregulated genes"", main= ""Underexpressed genes"")"

@@ -1,0 +1,2 @@
+"0","bovine_RNAdeg <- AffyRNAdeg(data.bovine)"
+"0","plotAffyRNAdeg(bovine_RNAdeg, col = rainbow(16))"

@@ -1,0 +1,5 @@
+"0","#setwd(paste(projectPath,""Raw_data"",""GSE18290_bovine"",sep = ""/""))"
+"0","#data.bovine= ReadAffy()"
+"0","#data.bovine@cdfName <- ""Bovine_Bt_ENST"""
+"0","data.bovine  = readRDS(paste(projectPath,""Sessions"",""RDS_Files"",""data.bovine.rds"",sep = ""/""))"
+"0",""
